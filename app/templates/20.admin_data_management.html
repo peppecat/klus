@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Управление данными | Админ панель</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Favicon & Logo -->
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+    
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary: #FF9900;
+            --secondary: #232F3E;
+            --light-bg: #FFFFFF;
+            --border-color: #DDDDDD;
+            --text-dark: #131921;
+            --text-light: #565959;
+            --success: #067D62;
+            --danger: #FF0000;
+            --warning: #FFA500;
+        }
+        
+        body {
+            font-family: 'Amazon Ember', Arial, sans-serif;
+            background-color: #F3F3F3;
+            color: var(--text-dark);
+            line-height: 1.5;
+        }
+        
+        .navbar {
+            background-color: var(--secondary) !important;
+            padding: 0.5rem 0;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            color: white !important;
+            font-size: 1.5rem;
+        }
+        
+        .nav-link {
+            color: white !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            border-radius: 4px;
+            margin: 0 0.25rem;
+        }
+        
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .nav-link.active {
+            background-color: var(--primary);
+            color: #111 !important;
+        }
+        
+        .admin-sidebar {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+            height: fit-content;
+        }
+        
+        .admin-sidebar .nav-link {
+            color: var(--text-dark) !important;
+            padding: 0.75rem 1rem !important;
+            margin: 0.25rem 0;
+            border-radius: 6px;
+        }
+        
+        .admin-sidebar .nav-link:hover,
+        .admin-sidebar .nav-link.active {
+            background-color: var(--primary);
+            color: #111 !important;
+        }
+        
+        .admin-sidebar .nav-link i {
+            width: 20px;
+            text-align: center;
+            margin-right: 0.5rem;
+        }
+        
+        .file-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--primary);
+        }
+        
+        .file-icon {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .file-info {
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .info-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .info-label {
+            color: var(--text-light);
+            font-weight: 500;
+        }
+        
+        .info-value {
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+        
+        .btn-group-vertical {
+            width: 100%;
+        }
+        
+        .btn-group-vertical .btn {
+            margin-bottom: 0.5rem;
+            text-align: left;
+        }
+        
+        .btn-group-vertical .btn:last-child {
+            margin-bottom: 0;
+        }
+        
+        .import-form {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            border: 1px dashed var(--border-color);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/dashboard">
+                <i class="fas fa-shopping-bag me-2"></i>KEYZPANEL
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">
+                            <i class="fas fa-home me-1"></i> Магазин
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/admin">
+                            <i class="fas fa-cog me-1"></i> Админ панель
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">
+                            <i class="fas fa-sign-out-alt me-1"></i> Выйти
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container py-4">
+        <div class="row mb-4">
+            <div class="col">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-database me-2"></i>Управление данными
+                </h1>
+                <p class="text-muted">Импорт и экспорт JSON файлов системы</p>
+            </div>
+        </div>
+        
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 mb-4">
+                <div class="admin-sidebar">
+                    <nav class="nav flex-column">
+                        <a class="nav-link" href="/admin">
+                            <i class="fas fa-tachometer-alt"></i> Дашборд
+                        </a>
+                        <a class="nav-link" href="/admin/users">
+                            <i class="fas fa-users"></i> Пользователи
+                        </a>
+                        <a class="nav-link" href="/admin/finances">
+                            <i class="fas fa-money-bill-wave"></i> Средства
+                        </a>
+                        <a class="nav-link" href="/admin/orders">
+                            <i class="fas fa-clipboard-list"></i> Заказы
+                        </a>
+                        <a class="nav-link" href="/admin/payment_settings">
+                            <i class="fas fa-wallet"></i> Прием средств
+                        </a>
+                        <a class="nav-link" href="/admin/reseller_tariffs">
+                            <i class="fas fa-layer-group"></i> Тарифы реселлера
+                        </a>
+                        <a class="nav-link" href="/admin/maintenance">
+                            <i class="fas fa-tools"></i> Тех. работы
+                        </a>
+                        <a class="nav-link active" href="/admin/data_management">
+                            <i class="fas fa-database"></i> Управление данными
+                        </a>
+                    </nav>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-md-9">
+                <!-- Бэкап всех данных -->
+                <div class="card mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-shield-alt me-2"></i>Резервное копирование
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">
+                            Создайте полную резервную копию всех данных системы. Рекомендуется делать бэкапы перед важными изменениями.
+                        </p>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="/admin/data/backup/all" class="btn btn-success">
+                                <i class="fas fa-download me-2"></i>Создать полный бэкап
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Файлы данных -->
+                <div class="row">
+                    <!-- Users File -->
+                    <div class="col-md-6 mb-4">
+                        <div class="file-card">
+                            <div class="file-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <h5 class="mb-3">Пользователи</h5>
+                            <p class="text-muted mb-3">Данные всех пользователей системы</p>
+                            
+                            <div class="file-info">
+                                <div class="info-row">
+                                    <span class="info-label">Файл:</span>
+                                    <span class="info-value">{{ files_info.users.name }}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Размер:</span>
+                                    <span class="info-value">{{ files_info.users.size }}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Изменен:</span>
+                                    <span class="info-value">{{ files_info.users.last_modified }}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="btn-group-vertical">
+                                <a href="/admin/data/export/users" class="btn btn-outline-primary">
+                                    <i class="fas fa-upload me-2"></i>Экспорт
+                                </a>
+                                <button class="btn btn-outline-warning toggle-import" data-file-type="users">
+                                    <i class="fas fa-download me-2"></i>Импорт
+                                </button>
+                            </div>
+                            
+                            <div class="import-form" id="import-form-users">
+                                <form enctype="multipart/form-data" class="import-file-form" data-file-type="users">
+                                    <div class="mb-3">
+                                        <label class="form-label">Выберите JSON файл:</label>
+                                        <input type="file" class="form-control" name="file" accept=".json" required>
+                                    </div>
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-warning">
+                                            <i class="fas fa-check me-2"></i>Загрузить
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Steam Discounts File -->
+                    <div class="col-md-6 mb-4">
+                        <div class="file-card">
+                            <div class="file-icon">
+                                <i class="fas fa-percentage"></i>
+                            </div>
+                            <h5 class="mb-3">Скидки Steam</h5>
+                            <p class="text-muted mb-3">Настройки скидок и комиссий Steam</p>
+                            
+                            <div class="file-info">
+                                <div class="info-row">
+                                    <span class="info-label">Файл:</span>
+                                    <span class="info-value">{{ files_info.steam_discounts.name }}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Размер:</span>
+                                    <span class="info-value">{{ files_info.steam_discounts.size }}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Изменен:</span>
+                                    <span class="info-value">{{ files_info.steam_discounts.last_modified }}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="btn-group-vertical">
+                                <a href="/admin/data/export/steam_discounts" class="btn btn-outline-primary">
+                                    <i class="fas fa-upload me-2"></i>Экспорт
+                                </a>
+                                <button class="btn btn-outline-warning toggle-import" data-file-type="steam_discounts">
+                                    <i class="fas fa-download me-2"></i>Импорт
+                                </button>
+                            </div>
+                            
+                            <div class="import-form" id="import-form-steam_discounts">
+                                <form enctype="multipart/form-data" class="import-file-form" data-file-type="steam_discounts">
+                                    <div class="mb-3">
+                                        <label class="form-label">Выберите JSON файл:</label>
+                                        <input type="file" class="form-control" name="file" accept=".json" required>
+                                    </div>
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-warning">
+                                            <i class="fas fa-check me-2"></i>Загрузить
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Stores File -->
+                    <div class="col-md-6 mb-4">
+                        <div class="file-card">
+                            <div class="file-icon">
+                                <i class="fas fa-store"></i>
+                            </div>
+                            <h5 class="mb-3">Магазины</h5>
+                            <p class="text-muted mb-3">Данные магазинов и товаров</p>
+                            
+                            <div class="file-info">
+                                <div class="info-row">
+                                    <span class="info-label">Файл:</span>
+                                    <span class="info-value">{{ files_info.stores.name }}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Размер:</span>
+                                    <span class="info-value">{{ files_info.stores.size }}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Изменен:</span>
+                                    <span class="info-value">{{ files_info.stores.last_modified }}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="btn-group-vertical">
+                                <a href="/admin/data/export/stores" class="btn btn-outline-primary">
+                                    <i class="fas fa-upload me-2"></i>Экспорт
+                                </a>
+                                <button class="btn btn-outline-warning toggle-import" data-file-type="stores">
+                                    <i class="fas fa-download me-2"></i>Импорт
+                                </button>
+                            </div>
+                            
+                            <div class="import-form" id="import-form-stores">
+                                <form enctype="multipart/form-data" class="import-file-form" data-file-type="stores">
+                                    <div class="mb-3">
+                                        <label class="form-label">Выберите JSON файл:</label>
+                                        <input type="file" class="form-control" name="file" accept=".json" required>
+                                    </div>
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-warning">
+                                            <i class="fas fa-check me-2"></i>Загрузить
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Payment Wallets File -->
+                    <div class="col-md-6 mb-4">
+                        <div class="file-card">
+                            <div class="file-icon">
+                                <i class="fas fa-wallet"></i>
+                            </div>
+                            <h5 class="mb-3">Кошельки</h5>
+                            <p class="text-muted mb-3">Настройки крипто-кошельков для оплаты</p>
+                            
+                            <div class="file-info">
+                                <div class="info-row">
+                                    <span class="info-label">Файл:</span>
+                                    <span class="info-value">{{ files_info.payment_wallets.name }}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Размер:</span>
+                                    <span class="info-value">{{ files_info.payment_wallets.size }}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Изменен:</span>
+                                    <span class="info-value">{{ files_info.payment_wallets.last_modified }}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="btn-group-vertical">
+                                <a href="/admin/data/export/payment_wallets" class="btn btn-outline-primary">
+                                    <i class="fas fa-upload me-2"></i>Экспорт
+                                </a>
+                                <button class="btn btn-outline-warning toggle-import" data-file-type="payment_wallets">
+                                    <i class="fas fa-download me-2"></i>Импорт
+                                </button>
+                            </div>
+                            
+                            <div class="import-form" id="import-form-payment_wallets">
+                                <form enctype="multipart/form-data" class="import-file-form" data-file-type="payment_wallets">
+                                    <div class="mb-3">
+                                        <label class="form-label">Выберите JSON файл:</label>
+                                        <input type="file" class="form-control" name="file" accept=".json" required>
+                                    </div>
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-warning">
+                                            <i class="fas fa-check me-2"></i>Загрузить
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Предупреждение -->
+                <div class="alert alert-danger">
+                    <h6 class="alert-heading">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Внимание!
+                    </h6>
+                    <ul class="mb-0">
+                        <li>Перед импортом рекомендуется создавать резервные копии</li>
+                        <li>Некорректные данные могут нарушить работу системы</li>
+                        <li>Импорт пользователей перезапишет существующие данные</li>
+                        <li>Проверяйте JSON файлы на валидность перед загрузкой</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Переключение формы импорта
+        document.querySelectorAll('.toggle-import').forEach(button => {
+            button.addEventListener('click', function() {
+                const fileType = this.dataset.fileType;
+                const form = document.getElementById(`import-form-${fileType}`);
+                
+                if (form.style.display === 'block') {
+                    form.style.display = 'none';
+                    this.innerHTML = '<i class="fas fa-download me-2"></i>Импорт';
+                    this.classList.remove('btn-warning');
+                    this.classList.add('btn-outline-warning');
+                } else {
+                    // Скрываем все другие формы
+                    document.querySelectorAll('.import-form').forEach(f => {
+                        f.style.display = 'none';
+                    });
+                    document.querySelectorAll('.toggle-import').forEach(b => {
+                        b.innerHTML = '<i class="fas fa-download me-2"></i>Импорт';
+                        b.classList.remove('btn-warning');
+                        b.classList.add('btn-outline-warning');
+                    });
+                    
+                    // Показываем текущую форму
+                    form.style.display = 'block';
+                    this.innerHTML = '<i class="fas fa-times me-2"></i>Отмена';
+                    this.classList.remove('btn-outline-warning');
+                    this.classList.add('btn-warning');
+                }
+            });
+        });
+        
+        // Обработка форм импорта
+        document.querySelectorAll('.import-file-form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const fileType = this.dataset.fileType;
+                const formData = new FormData(this);
+                
+                if (!confirm(`Вы уверены, что хотите импортировать данные ${fileType}? Существующие данные будут перезаписаны.`)) {
+                    return;
+                }
+                
+                const submitButton = this.querySelector('button[type="submit"]');
+                const originalText = submitButton.innerHTML;
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Загрузка...';
+                submitButton.disabled = true;
+                
+                fetch(`/admin/data/import/${fileType}`, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        location.reload();
+                    } else {
+                        alert('Ошибка: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Произошла ошибка при импорте файла');
+                })
+                .finally(() => {
+                    submitButton.innerHTML = originalText;
+                    submitButton.disabled = false;
+                });
+            });
+        });
+    </script>
+</body>
+</html>

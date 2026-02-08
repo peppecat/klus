@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Информация о возврате средств | KEYZPANEL</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+    
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary: #FF6B35;
+            --primary-dark: #E55A2B;
+            --secondary: #0D1B2A;
+            --secondary-light: #1B263B;
+            --accent: #415A77;
+            --card-bg: #1E1E1E;
+            --card-hover: #252525;
+            --text-light: #E0E1DD;
+            --text-muted: #8A8D93;
+            --text-dark: #FFFFFF;
+            --success: #4CAF50;
+            --info: #2196F3;
+            --danger: #F44336;
+            --warning: #FF9800;
+            --frozen-blue: #0dcaf0;
+            --refund-cyan: #00BCD4;
+            --gradient-primary: linear-gradient(135deg, #FF6B35 0%, #FF8E53 100%);
+            --gradient-dark: linear-gradient(135deg, #0D1B2A 0%, #1B263B 100%);
+            --gradient-frozen: linear-gradient(135deg, #0dcaf0 0%, #2196F3 100%);
+            --gradient-refund: linear-gradient(135deg, #00BCD4 0%, #0097A7 100%);
+            --gradient-refund-btn: linear-gradient(135deg, #00BCD4 0%, #0097A7 100%);
+            --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--gradient-dark);
+            color: var(--text-light);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            background: rgba(13, 27, 42, 0.95) !important;
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(65, 90, 119, 0.3);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .navbar-brand {
+            font-weight: 800;
+            color: var(--text-dark) !important;
+            font-size: 1.8rem;
+            letter-spacing: -0.5px;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .nav-link {
+            color: var(--text-light) !important;
+            font-weight: 500;
+            padding: 0.75rem 1.25rem !important;
+            border-radius: 8px;
+            margin: 0 0.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-link:before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-primary);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover:before {
+            width: 100%;
+        }
+        
+        .nav-link:hover {
+            background: rgba(255, 107, 53, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .nav-link.active {
+            background: var(--gradient-primary);
+            color: white !important;
+            box-shadow: 0 4px 20px rgba(255, 107, 53, 0.3);
+        }
+        
+        .nav-link.active:before {
+            display: none;
+        }
+        
+        .page-header {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin: 1.5rem 0;
+            padding-bottom: 0.75rem;
+            position: relative;
+        }
+        
+        .page-header:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: var(--gradient-primary);
+            border-radius: 2px;
+        }
+        
+        .breadcrumb {
+            background-color: transparent;
+            padding: 0;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        
+        .breadcrumb-item a {
+            color: var(--text-light);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .breadcrumb-item a:hover {
+            color: var(--primary);
+        }
+        
+        .breadcrumb-item.active {
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+        
+        /* Refund info card */
+        .refund-card {
+            background: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .refund-card:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-refund);
+        }
+        
+        .refund-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            gap: 1rem;
+        }
+        
+        .refund-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--gradient-refund);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+        
+        .refund-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            margin: 0 0 0.5rem 0;
+            line-height: 1.3;
+        }
+        
+        .refund-status-badge {
+            background: var(--gradient-refund);
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        
+        .refund-section {
+            margin-bottom: 1.75rem;
+            padding-bottom: 1.25rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        .refund-section:last-child {
+            border-bottom: none;
+            margin-bottom: 1rem;
+        }
+        
+        .refund-section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        
+        .refund-section-title i {
+            color: #00BCD4;
+            font-size: 1rem;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 1.25rem;
+        }
+        
+        .info-item {
+            background: rgba(0, 188, 212, 0.05);
+            border: 1px solid rgba(0, 188, 212, 0.1);
+            border-radius: 10px;
+            padding: 1rem;
+            transition: transform 0.2s ease;
+        }
+        
+        .info-item:hover {
+            transform: translateY(-2px);
+            border-color: rgba(0, 188, 212, 0.2);
+        }
+        
+        .info-label {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 0.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        
+        .info-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+            line-height: 1.3;
+        }
+        
+        .info-value.amount {
+            color: #00BCD4;
+            font-size: 1.25rem;
+        }
+        
+        .refund-total-card {
+            background: rgba(0, 188, 212, 0.08);
+            border: 2px solid rgba(0, 188, 212, 0.2);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-top: 1rem;
+        }
+        
+        .refund-total-label {
+            font-size: 1rem;
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .refund-total-amount {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #00BCD4;
+            text-align: center;
+            margin: 0.75rem 0;
+            line-height: 1.2;
+        }
+        
+        .refund-calc-note {
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+        
+        .refund-note {
+            background: rgba(255, 107, 53, 0.05);
+            border: 1px solid rgba(255, 107, 53, 0.15);
+            border-radius: 10px;
+            padding: 1.25rem;
+            margin-top: 1.25rem;
+        }
+        
+        .refund-note-title {
+            color: #FF6B35;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+        }
+        
+        .refund-note-text {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 0.75rem;
+        }
+        
+        .refund-note-list {
+            padding-left: 1.25rem;
+            margin-top: 0.5rem;
+            margin-bottom: 0;
+        }
+        
+        .refund-note-list li {
+            margin-bottom: 0.4rem;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        .contact-info {
+            background: rgba(76, 175, 80, 0.05);
+            border: 1px solid rgba(76, 175, 80, 0.15);
+            border-radius: 10px;
+            padding: 1.25rem;
+            margin-top: 1.25rem;
+        }
+        
+        .contact-info-title {
+            color: #4CAF50;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+        }
+        
+        .contact-details {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .contact-details p {
+            margin-bottom: 0.75rem;
+        }
+        
+        .back-btn {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.75rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+            color: white;
+        }
+        
+        .divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.08);
+            margin: 1.5rem 0;
+        }
+        
+        @media (max-width: 992px) {
+            .navbar-brand {
+                font-size: 1.6rem;
+            }
+            
+            .page-header {
+                font-size: 1.6rem;
+                margin: 1.25rem 0;
+            }
+            
+            .refund-card {
+                padding: 1.5rem;
+            }
+            
+            .refund-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 0.75rem;
+                margin-bottom: 1.25rem;
+            }
+            
+            .refund-title {
+                font-size: 1.3rem;
+            }
+            
+            .refund-icon {
+                width: 45px;
+                height: 45px;
+                font-size: 1.1rem;
+            }
+            
+            .refund-total-amount {
+                font-size: 1.6rem;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .refund-section-title {
+                font-size: 1.05rem;
+                margin-bottom: 1rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .navbar-toggler {
+                border-color: rgba(255, 107, 53, 0.5);
+                color: var(--primary);
+            }
+            
+            .navbar-toggler:focus {
+                box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.25);
+            }
+            
+            .nav-link {
+                padding: 0.6rem 1rem !important;
+                margin: 0 0.3rem;
+                font-size: 0.95rem;
+            }
+            
+            .refund-card {
+                padding: 1.25rem;
+            }
+            
+            .refund-total-amount {
+                font-size: 1.4rem;
+            }
+            
+            .page-header {
+                font-size: 1.4rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .navbar-brand {
+                font-size: 1.4rem;
+            }
+            
+            .nav-link {
+                padding: 0.5rem 0.75rem !important;
+                font-size: 0.9rem;
+                margin: 0 0.2rem;
+            }
+            
+            .refund-card {
+                padding: 1rem;
+            }
+            
+            .refund-title {
+                font-size: 1.2rem;
+            }
+            
+            .info-item {
+                padding: 0.875rem;
+            }
+            
+            .info-value {
+                font-size: 1rem;
+            }
+            
+            .info-value.amount {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-shopping-bag me-2"></i>KEYZPANEL
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">
+                            <i class="fas fa-home me-1"></i> Магазин
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/orders">
+                            <i class="fas fa-clipboard-list me-1"></i> Заказы
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/account">
+                            <i class="fas fa-user me-1"></i> Аккаунт
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/reseller">
+                            <i class="fas fa-layer-group me-1"></i> Реселлер
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">
+                            <i class="fas fa-sign-out-alt me-1"></i> Выйти
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container py-4">
+        <div class="row mb-3">
+            <div class="col">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/">Главная</a></li>
+                        <li class="breadcrumb-item"><a href="/dashboard">Магазин</a></li>
+                        <li class="breadcrumb-item active">Информация о возврате</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+        
+        <div class="row mb-4">
+            <div class="col">
+                <h1 class="page-header">Информация о возврате средств</h1>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <div class="refund-card">
+                    <!-- Header -->
+                    <div class="refund-header">
+                        <div class="refund-icon">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                        </div>
+                        <div>
+                            <h1 class="refund-title">Возврат средств</h1>
+                            <span class="refund-status-badge">
+                                <i class="fas fa-money-bill-wave me-1"></i>
+                                Ожидает обработки
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- User Info Section -->
+                    <div class="refund-section">
+                        <h2 class="refund-section-title">
+                            <i class="fas fa-user-circle me-1"></i>
+                            Информация о пользователе
+                        </h2>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">
+                                    <i class="fas fa-user"></i>
+                                    Пользователь
+                                </div>
+                                <div class="info-value">{{ username }}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">
+                                    <i class="fas fa-calendar"></i>
+                                    Дата заморозки
+                                </div>
+                                <div class="info-value">{{ frozen_date or 'Не указана' }}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">
+                                    <i class="fas fa-comment"></i>
+                                    Причина
+                                </div>
+                                <div class="info-value">{{ freeze_reason }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Refund Calculation Section -->
+                    <div class="refund-section">
+                        <h2 class="refund-section-title">
+                            <i class="fas fa-calculator me-1"></i>
+                            Расчет суммы возврата
+                        </h2>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">
+                                    <i class="fas fa-tag"></i>
+                                    Стоимость тарифа
+                                </div>
+                                <div class="info-value amount">${{ "{:,.2f}".format(tariff_cost) }}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">
+                                    <i class="fas fa-wallet"></i>
+                                    Текущий баланс
+                                </div>
+                                <div class="info-value amount">${{ "{:,.2f}".format(total_balance) }}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="refund-total-card">
+                            <div class="refund-total-label">
+                                <i class="fas fa-hand-holding-usd me-1"></i>
+                                Общая сумма к возврату
+                            </div>
+                            <div class="refund-total-amount">${{ "{:,.2f}".format(refund_amount) }}</div>
+                            <div class="refund-calc-note">
+                                (Стоимость тарифа + Текущий баланс)
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="divider"></div>
+                    
+                    <!-- Important Notes Section -->
+                    <div class="refund-section">
+                        <h2 class="refund-section-title">
+                            <i class="fas fa-exclamation-circle me-1"></i>
+                            Важная информация
+                        </h2>
+                        <div class="refund-note">
+                            <div class="refund-note-title">
+                                <i class="fas fa-info-circle"></i>
+                                Процедура возврата средств
+                            </div>
+                            <p class="refund-note-text">
+                                Ваш аккаунт был заморожен с причиной "{{ freeze_reason }}".
+                               
+                            </p>
+                            <ol class="refund-note-list">
+                                <li>Возврат средств осуществляется в соответствии с пользовательским соглашением «Оплата и возвраты»</li>
+                                <li>Возврат будет произведён на те же реквизиты, которые использовались при оплате на сайте (для их изменения необходимо обратиться в поддержку)</li>
+                                <li>Фактический возврат денежных средств осуществляется не ранее чем через 180 календарных дней с момента заморозки аккаунта</li>
+                                <li>После возврата ваш аккаунт будет полностью перманентно удален из системы</li>
+                            </ol>
+                        </div>
+                    </div>
+                    
+                    <!-- Contact Information -->
+                    <div class="refund-section">
+                        <h2 class="refund-section-title">
+                            <i class="fas fa-headset me-1"></i>
+                            Контактная информация
+                        </h2>
+                        <div class="contact-info">
+                            <div class="contact-info-title">
+                                <i class="fas fa-envelope"></i>
+                                Связь с администрацией
+                            </div>
+                            <div class="contact-details">
+                                <p>По вопросам обработки возврата средств свяжитесь с администратором:</p>
+                                <ul class="refund-note-list">
+                                    <li><strong>Email:</strong> keyzpanel.ru@gmail.com</li>
+                                    <li><strong>Время работы:</strong> 10:00 - 22:00 (МСК)</li>
+                                </ul>
+                                <p class="mt-3 mb-0">
+                                    <strong>В теме письма/сообщения укажите:</strong> "Возврат средств - {{ username }}"
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Back Button -->
+                    <div class="text-center mt-3">
+                        <a href="/dashboard" class="back-btn">
+                            <i class="fas fa-arrow-left me-2"></i>
+                            Вернуться в магазин
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

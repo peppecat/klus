@@ -1,0 +1,1627 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Управление пользователями | Админ панель</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Favicon & Logo -->
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+    
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary: #FF9900;
+            --secondary: #232F3E;
+            --light-bg: #FFFFFF;
+            --border-color: #DDDDDD;
+            --text-dark: #131921;
+            --text-light: #565959;
+            --success: #067D62;
+            --danger: #FF0000;
+            --warning: #FFA500;
+            --frozen: #0dcaf0;
+            --demo-blue: #3498db;
+            --api-green: #2ecc71;
+        }
+        
+        body {
+            font-family: 'Amazon Ember', Arial, sans-serif;
+            background-color: #F3F3F3;
+            color: var(--text-dark);
+            line-height: 1.5;
+        }
+        
+        .navbar {
+            background-color: var(--secondary) !important;
+            padding: 0.5rem 0;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            color: white !important;
+            font-size: 1.5rem;
+        }
+        
+        .nav-link {
+            color: white !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            border-radius: 4px;
+            margin: 0 0.25rem;
+        }
+        
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .nav-link.active {
+            background-color: var(--primary);
+            color: #111 !important;
+        }
+        
+        .admin-sidebar {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+            height: fit-content;
+        }
+        
+        .admin-sidebar .nav-link {
+            color: var(--text-dark) !important;
+            padding: 0.75rem 1rem !important;
+            margin: 0.25rem 0;
+            border-radius: 6px;
+        }
+        
+        .admin-sidebar .nav-link:hover,
+        .admin-sidebar .nav-link.active {
+            background-color: var(--primary);
+            color: #111 !important;
+        }
+        
+        .admin-sidebar .nav-link i {
+            width: 20px;
+            text-align: center;
+            margin-right: 0.5rem;
+        }
+        
+        .user-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--success);
+            display: none; /* Скрываем карточки по умолчанию */
+        }
+        
+        .user-card.show {
+            display: block;
+        }
+        
+        .user-card.banned {
+            border-left-color: var(--danger);
+            background-color: #fff5f5;
+        }
+        
+        .user-card.frozen {
+            border-left-color: var(--frozen);
+            background-color: #f0f9ff;
+        }
+        
+        .user-card.frozen-refund {
+            border-left-color: #17a2b8;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e8f7ff 100%);
+        }
+        
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 0.35em 0.65em;
+        }
+        
+        .balance-badge {
+            font-size: 0.7rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .contact-badge {
+            font-size: 0.7rem;
+            padding: 0.35em 0.65em;
+            margin-right: 0.25rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .contact-info {
+            font-size: 0.85rem;
+            padding: 0.25rem 0.5rem;
+            background: #f8f9fa;
+            border-radius: 4px;
+            display: inline-block;
+            margin-top: 0.25rem;
+        }
+        
+        .refund-info {
+            background-color: #f8f9fa;
+            border-left: 4px solid #17a2b8;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-top: 0.75rem;
+        }
+        
+        .refund-amount {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #17a2b8;
+        }
+        
+        .refund-label {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-bottom: 0.25rem;
+        }
+        
+        .refund-details {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .user-list-container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1rem;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .user-list-item {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .user-list-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .user-list-item.active {
+            background-color: #f0f7ff;
+            border-left: 3px solid var(--primary);
+        }
+        
+        .user-list-item:last-child {
+            border-bottom: none;
+        }
+        
+        .user-list-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), #ffad33);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-right: 1rem;
+        }
+        
+        .user-list-info {
+            flex: 1;
+        }
+        
+        .user-list-name {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        
+        .user-list-date {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+        
+        .user-list-status {
+            margin-left: 1rem;
+        }
+        
+        .filters-row {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .search-container {
+            position: relative;
+        }
+        
+        .search-input {
+            padding-left: 2.5rem;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+            width: 100%;
+            transition: all 0.2s;
+        }
+        
+        .search-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.2rem rgba(255, 153, 0, 0.25);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+        
+        .clear-search-btn {
+            position: absolute;
+            right: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #6c757d;
+            cursor: pointer;
+            padding: 0;
+            display: none;
+        }
+        
+        .clear-search-btn:hover {
+            color: var(--danger);
+        }
+        
+        .sort-controls {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        
+        .sort-btn {
+            padding: 0.25rem 0.75rem;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            background: white;
+            color: var(--text-dark);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .sort-btn:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .sort-btn.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .sort-icon {
+            margin-left: 0.25rem;
+            opacity: 0.7;
+        }
+        
+        .no-users {
+            text-align: center;
+            padding: 3rem;
+            color: #6c757d;
+        }
+        
+        .no-users-search {
+            text-align: center;
+            padding: 2rem;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        .user-details-container {
+            display: none;
+        }
+        
+        .user-details-container.show {
+            display: block;
+        }
+        
+        .close-card-btn {
+            margin-top: 1rem;
+        }
+        
+        .search-results-info {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-bottom: 0.5rem;
+            padding: 0 0.25rem;
+        }
+        
+        .search-highlight {
+            background-color: #fff3cd;
+            padding: 0.1rem 0.2rem;
+            border-radius: 2px;
+        }
+        
+        /* Стили для toggle switch режима заказов */
+        .order-mode-toggle {
+            display: flex;
+            align-items: center;
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid #f0f0f0;
+        }
+        
+        .order-mode-label {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-right: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .order-mode-badge {
+            font-size: 0.7rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+        
+        .order-mode-badge.demo {
+            background-color: rgba(52, 152, 219, 0.1);
+            color: #2980b9;
+            border: 1px solid rgba(52, 152, 219, 0.3);
+        }
+        
+        .order-mode-badge.api {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: #27ae60;
+            border: 1px solid rgba(46, 204, 113, 0.3);
+        }
+        
+        /* Toggle Switch стили */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #2ecc71;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: #3498db;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        .toggle-label {
+            margin-left: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .toggle-label.demo {
+            color: #3498db;
+        }
+        
+        .toggle-label.api {
+            color: #2ecc71;
+        }
+        
+        /* Информация о режиме */
+        .mode-info {
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: #6c757d;
+            background-color: #f8f9fa;
+            padding: 0.5rem;
+            border-radius: 4px;
+            border-left: 3px solid #3498db;
+        }
+        
+        .mode-info.api {
+            border-left-color: #2ecc71;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/dashboard">
+                <i class="fas fa-shopping-bag me-2"></i>KEYZPANEL
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">
+                            <i class="fas fa-home me-1"></i> Магазин
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/admin">
+                            <i class="fas fa-cog me-1"></i> Админ панель
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">
+                            <i class="fas fa-sign-out-alt me-1"></i> Выйти
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container py-4">
+        <div class="row mb-4">
+            <div class="col">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-users me-2"></i>Управление пользователями
+                </h1>
+                <p class="text-muted">Всего пользователей: {{ users|length }}</p>
+            </div>
+        </div>
+        
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 mb-4">
+                <div class="admin-sidebar">
+                    <nav class="nav flex-column">
+                        <a class="nav-link " href="/admin">
+                            <i class="fas fa-tachometer-alt"></i> Дашборд
+                        </a>
+                        <a class="nav-link active" href="/admin/users">
+                            <i class="fas fa-users"></i> Пользователи
+                        </a>
+                        <a class="nav-link" href="/admin/finances">
+                            <i class="fas fa-money-bill-wave"></i> Средства
+                        </a>
+                        <a class="nav-link" href="/admin/orders">
+                            <i class="fas fa-clipboard-list"></i> Заказы
+                        </a>
+                        <a class="nav-link" href="/admin/payment_settings">
+                            <i class="fas fa-wallet"></i> Прием средств
+                        </a>
+                        <a class="nav-link " href="/admin/reseller_tariffs">
+                            <i class="fas fa-layer-group"></i> Тарифы реселлера
+                        </a>
+                        <a class="nav-link" href="/admin/maintenance">
+                            <i class="fas fa-tools"></i> Тех. работы
+                        </a>
+                        <a class="nav-link" href="/admin/data_management">
+                            <i class="fas fa-database"></i> Управление данными
+                        </a>
+                    </nav>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-md-9">
+                <!-- Фильтры и поиск -->
+                <div class="filters-row mb-3">
+                    <div class="row">
+                        <div class="col-md-6 mb-3 mb-md-0">
+                            <div class="search-container">
+                                <i class="fas fa-search search-icon"></i>
+                                <input type="text" 
+                                       class="form-control search-input" 
+                                       id="userSearch" 
+                                       placeholder="Поиск пользователя по логину...">
+                                <button class="clear-search-btn" id="clearSearch">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="sort-controls justify-content-md-end">
+                                <span class="me-2">Сортировка:</span>
+                                <button class="sort-btn active" id="sortDesc">
+                                    <i class="fas fa-arrow-down sort-icon"></i> Новые сверху
+                                </button>
+                                <button class="sort-btn" id="sortAsc">
+                                    <i class="fas fa-arrow-up sort-icon"></i> Старые сверху
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if users %}
+                <div class="row">
+                    <!-- Список пользователей -->
+                    <div class="col-md-4 mb-4">
+                        <div class="user-list-container" id="userListContainer">
+                            <div class="search-results-info" id="searchResultsInfo">
+                                Все пользователи: {{ users|length }}
+                            </div>
+                            {% for user in users %}
+                            <div class="user-list-item" data-username="{{ user.username }}">
+                                <div class="d-flex align-items-center">
+                                    <div class="user-list-avatar">
+                                        {{ user.username[:1].upper() }}
+                                    </div>
+                                    <div class="user-list-info">
+                                        <div class="user-list-name" data-search-text="{{ user.username|lower }}">
+                                            {{ user.username }}
+                                        </div>
+                                        <div class="user-list-date">{{ user.registration_date }}</div>
+                                    </div>
+                                </div>
+                                <div class="user-list-status">
+                                    {% if user.status == 'active' %}
+                                        <i class="fas fa-circle text-success" title="Активен"></i>
+                                    {% elif user.status == 'frozen' %}
+                                        {% if user.freeze_reason == 'Прекращение обслуживания - возврат средств' %}
+                                            <i class="fas fa-money-bill-wave text-info" title="Возврат средств"></i>
+                                        {% else %}
+                                            <i class="fas fa-snowflake text-info" title="Заморожен"></i>
+                                        {% endif %}
+                                    {% elif user.status == 'banned' %}
+                                        <i class="fas fa-ban text-danger" title="Заблокирован"></i>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Детали пользователя -->
+                    <div class="col-md-8">
+                        <div class="user-details-container" id="userDetails">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Выберите пользователя из списка слева для просмотра детальной информации
+                            </div>
+                        </div>
+                        
+                        {% for user in users %}
+                        <div class="user-card 
+                            {% if user.status == 'banned' %}banned
+                            {% elif user.status == 'frozen' and user.freeze_reason == 'Прекращение обслуживания - возврат средств' %}frozen-refund
+                            {% elif user.status == 'frozen' %}frozen
+                            {% endif %}" 
+                            id="user-card-{{ user.username }}">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <h5 class="mb-1">{{ user.username }}</h5>
+                                    <span class="status-badge badge 
+                                        {% if user.status == 'active' %}bg-success
+                                        {% elif user.status == 'frozen' and user.freeze_reason == 'Прекращение обслуживания - возврат средств' %}bg-info
+                                        {% elif user.status == 'frozen' %}bg-info
+                                        {% elif user.status == 'banned' %}bg-danger
+                                        {% else %}bg-secondary{% endif %}">
+                                        {% if user.status == 'active' %}
+                                            <i class="fas fa-check-circle me-1"></i>Активен
+                                        {% elif user.status == 'frozen' %}
+                                            {% if user.freeze_reason == 'Прекращение обслуживания - возврат средств' %}
+                                                <i class="fas fa-money-bill-wave me-1"></i>Возврат средств
+                                            {% else %}
+                                                <i class="fas fa-snowflake me-1"></i>Заморожен
+                                            {% endif %}
+                                        {% elif user.status == 'banned' %}
+                                            <i class="fas fa-ban me-1"></i>Заблокирован
+                                        {% else %}
+                                            <i class="fas fa-question-circle me-1"></i>{{ user.status }}
+                                        {% endif %}
+                                    </span>
+                                    
+                                    <!-- Badge режима заказов -->
+                                    <span class="order-mode-badge {{ user.order_mode }}">
+                                        {% if user.order_mode == 'demo' %}
+                                            <i class="fas fa-flask me-1"></i>Демо
+                                        {% else %}
+                                            <i class="fas fa-plug me-1"></i>API
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a class="dropdown-item edit-user-btn" href="#" 
+                                               data-username="{{ user.username }}"
+                                               data-status="{{ user.status }}"
+                                               data-ban-reason="{{ user.ban_reason or '' }}"
+                                               data-freeze-reason="{{ user.freeze_reason or '' }}"
+                                               data-tariff-cost="{{ user.tariff_cost or '0' }}"
+                                               data-total-balance="{{ user.total_balance or '0' }}">
+                                                <i class="fas fa-edit me-2"></i>Редактировать статус
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item balance-user-btn" href="#"
+                                               data-username="{{ user.username }}"
+                                               data-balance-card="{{ user.balance.card }}"
+                                               data-balance-ton="{{ user.balance.ton }}"
+                                               data-balance-bep20="{{ user.balance.bep20 }}">
+                                                <i class="fas fa-money-bill-wave me-2"></i>Управление балансом
+                                            </a>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <a class="dropdown-item text-danger delete-user-btn" href="#"
+                                               data-username="{{ user.username }}">
+                                                <i class="fas fa-trash me-2"></i>Удалить
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            {% if user.status == 'banned' %}
+                            <div class="mb-2">
+                                <small class="text-muted">Причина блокировки:</small>
+                                <div><strong>{{ user.ban_reason or 'Не указана' }}</strong></div>
+                            </div>
+                            {% elif user.status == 'frozen' %}
+                            <div class="mb-2">
+                                <small class="text-muted">Причина заморозки:</small>
+                                <div><strong>{{ user.freeze_reason or 'Не указана' }}</strong></div>
+                                
+                                {% if user.freeze_reason == 'Прекращение обслуживания - возврат средств' %}
+                                <div class="refund-info mt-2">
+                                    <div class="refund-label">Информация о возврате:</div>
+                                    <div class="refund-details">
+                                        <div><small>Стоимость тарифа:</small> ${{ "%.2f"|format(user.tariff_cost or 0) }}</div>
+                                        <div><small>Текущий баланс:</small> ${{ "%.2f"|format(user.total_balance or 0) }}</div>
+                                    </div>
+                                    <div class="refund-label">Сумма к возврату:</div>
+                                    <div class="refund-amount">${{ "%.2f"|format((user.tariff_cost or 0) + (user.total_balance or 0)) }}</div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Контактная информация -->
+                            <div class="mb-2">
+                                <small class="text-muted">Контактная информация:</small>
+                                <div class="mt-1">
+                                    {% if user.contact_type %}
+                                    <span class="contact-badge badge 
+                                        {% if user.contact_type == 'telegram' %}bg-primary
+                                        {% elif user.contact_type == 'email' %}bg-info
+                                        {% elif user.contact_type == 'phone' %}bg-success
+                                        {% else %}bg-secondary{% endif %}">
+                                        {% if user.contact_type == 'telegram' %}
+                                        <i class="fab fa-telegram me-1"></i>Telegram
+                                        {% elif user.contact_type == 'email' %}
+                                        <i class="fas fa-envelope me-1"></i>Email
+                                        {% elif user.contact_type == 'phone' %}
+                                        <i class="fas fa-phone me-1"></i>Телефон
+                                        {% else %}
+                                        <i class="fas fa-user me-1"></i>{{ user.contact_type }}
+                                        {% endif %}
+                                    </span>
+                                    {% endif %}
+                                    
+                                    {% if user.contact_info %}
+                                    <div class="contact-info">
+                                        <i class="fas fa-id-card me-1"></i>{{ user.contact_info }}
+                                    </div>
+                                    {% else %}
+                                    <div class="contact-info text-muted">
+                                        <i class="fas fa-times me-1"></i>Не указан
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="mb-2">
+                                <small class="text-muted">Балансы:</small>
+                                <div>
+                                    <span class="badge bg-secondary balance-badge">Card: ${{ "%.2f"|format(user.balance.card) }}</span>
+                                    <span class="badge bg-warning balance-badge">TON: ${{ "%.2f"|format(user.balance.ton) }}</span>
+                                    <span class="badge bg-info balance-badge">BEP20: ${{ "%.2f"|format(user.balance.bep20) }}</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Режим работы заказов -->
+                            <div class="order-mode-toggle">
+                                <span class="order-mode-label">Режим заказов:</span>
+                                <label class="switch">
+                                    <input type="checkbox" class="order-mode-toggle-checkbox" 
+                                           data-username="{{ user.username }}"
+                                           {% if user.order_mode == 'demo' %}checked{% endif %}>
+                                    <span class="slider"></span>
+                                </label>
+                                <span class="toggle-label {% if user.order_mode == 'demo' %}demo{% else %}api{% endif %}">
+                                    {% if user.order_mode == 'demo' %}
+                                        Демо-режим
+                                    {% else %}
+                                        API-режим
+                                    {% endif %}
+                                </span>
+                            </div>
+                            
+                            <div class="mode-info {% if user.order_mode == 'demo' %}demo{% else %}api{% endif %}">
+                                {% if user.order_mode == 'demo' %}
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    В демо-режиме заказы создаются локально без отправки API запросов. 
+                                    Средства списываются с баланса, но реального пополнения не происходит.
+                                {% else %}
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    В API-режиме заказы отправляются на внешний сервис для реального пополнения.
+                                    Стандартная рабочая логика.
+                                {% endif %}
+                            </div>
+                            
+                            <div class="d-flex justify-content-between text-muted small mt-3">
+                                <span>Заказы: {{ user.orders_count }}</span>
+                                <span>Расходы: ${{ "%.2f"|format(user.expenses) }}</span>
+                            </div>
+                            
+                            <div class="text-muted small mt-2">
+                                <div>Регистрация: {{ user.registration_date }}</div>
+                                {% if user.last_login != 'N/A' %}
+                                <div>Последний вход: {{ user.last_login }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="text-center mt-3">
+                                <button class="btn btn-sm btn-outline-secondary close-card-btn" data-username="{{ user.username }}">
+                                    <i class="fas fa-times me-1"></i> Скрыть детали
+                                </button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% else %}
+                <div class="no-users">
+                    <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                    <h4>Пользователи не найдены</h4>
+                    <p class="text-muted">В системе пока нет зарегистрированных пользователей</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+
+    <!-- Модальное окно редактирования пользователя -->
+    <div class="modal fade" id="editUserModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Редактирование пользователя</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editUserForm">
+                        <input type="hidden" id="editUsername" name="username">
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Статус пользователя</label>
+                            <select class="form-select" id="editStatus" name="status">
+                                <option value="active">Активен</option>
+                                <option value="frozen">Заморожен</option>
+                                <option value="banned">Заблокирован</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3" id="banReasonContainer" style="display: none;">
+                            <label class="form-label">Причина блокировки</label>
+                            <select class="form-select" id="editBanReason" name="ban_reason">
+                                <option value="">Выберите причину</option>
+                                <option value="Нарушение правил сервиса">Нарушение правил сервиса</option>
+                                <option value="Подозрительная активность">Подозрительная активность</option>
+                                <option value="Мошенничество">Мошенничество</option>
+                                <option value="Неуплата">Неуплата</option>
+                                <option value="По запросу пользователя">По запросу пользователя</option>
+                                <option value="Другая причина">Другая причина</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3" id="freezeReasonContainer" style="display: none;">
+                            <label class="form-label">Причина заморозки</label>
+                            <select class="form-select" id="editFreezeReason" name="freeze_reason">
+                                <option value="">Выберите причину</option>
+                                <option value="Прекращение обслуживания - возврат средств">Прекращение обслуживания - возврат средств</option>
+                                <option value="Нарушение правил">Нарушение правил</option>
+                                <option value="По запросу пользователя">По запросу пользователя</option>
+                                <option value="Другая причина">Другая причина</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3" id="refundDetailsContainer" style="display: none;">
+                            <div class="card">
+                                <div class="card-header bg-info bg-opacity-10">
+                                    <small><i class="fas fa-money-bill-wave me-1"></i>Детали возврата средств</small>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label class="form-label">Стоимость тарифа ($)</label>
+                                        <input type="number" class="form-control" id="editTariffCost" name="tariff_cost" step="0.01" min="0" value="0">
+                                        <div class="form-text">Стоимость тарифа, который оплатил пользователь</div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Текущий баланс пользователя ($)</label>
+                                        <input type="number" class="form-control" id="editTotalBalance" name="total_balance" step="0.01" min="0" value="0" readonly>
+                                        <div class="form-text">Сумма всех балансов пользователя (рассчитывается автоматически)</div>
+                                    </div>
+                                    
+                                    <div class="alert alert-info">
+                                        <small>
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            <strong>Сумма к возврату:</strong> 
+                                            <span id="refundTotalAmount">$0.00</span>
+                                            <br>
+                                            <span class="text-muted">(Стоимость тарифа + Текущий баланс)</span>
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-primary" id="saveUserChanges">Сохранить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно управления балансом -->
+    <div class="modal fade" id="balanceUserModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Управление балансом</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="balanceUserForm">
+                        <input type="hidden" id="balanceUsername" name="username">
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Текущие балансы</label>
+                            <div class="border rounded p-3 bg-light">
+                                <div class="row">
+                                    <div class="col-4">
+                                        <small class="text-muted">Card</small>
+                                        <div id="currentBalanceCard">$0.00</div>
+                                    </div>
+                                    <div class="col-4">
+                                        <small class="text-muted">TON</small>
+                                        <div id="currentBalanceTon">$0.00</div>
+                                    </div>
+                                    <div class="col-4">
+                                        <small class="text-muted">BEP20</small>
+                                        <div id="currentBalanceBep20">$0.00</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Метод оплаты</label>
+                            <select class="form-select" id="balanceMethod" name="method">
+                                <option value="card">Card</option>
+                                <option value="ton">TON</option>
+                                <option value="bep20">BEP20</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Действие</label>
+                            <select class="form-select" id="balanceAction" name="action">
+                                <option value="add">Добавить</option>
+                                <option value="subtract">Списать</option>
+                                <option value="set">Установить</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Сумма ($)</label>
+                            <input type="number" class="form-control" id="balanceAmount" name="amount" step="0.01" min="0" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-primary" id="saveBalanceChanges">Сохранить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно подтверждения удаления -->
+    <div class="modal fade" id="deleteUserModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Подтверждение удаления</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Вы уверены, что хотите полностью удалить пользователя <strong id="deleteUsernameText"></strong>?</p>
+                    <p class="text-danger"><strong>Внимание:</strong> Это действие невозможно отменить! Будут удалены все данные пользователя: балансы, заказы, история пополнений.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteUser">Удалить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Состояние сортировки
+        let sortOrder = 'desc'; // по умолчанию: новые сверху
+        let searchTerm = ''; // текущий поисковый запрос
+        
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            setupSortButtons();
+            setupSearch();
+            setupOrderModeToggles();
+        });
+        
+        // Настройка обработчиков событий
+        function setupEventListeners() {
+            // Клик по элементу списка пользователей
+            document.querySelectorAll('.user-list-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const username = this.dataset.username;
+                    showUserCard(username);
+                });
+            });
+            
+            // Закрытие карточки пользователя
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('close-card-btn')) {
+                    const username = e.target.dataset.username;
+                    hideUserCard(username);
+                    e.stopPropagation();
+                }
+            });
+            
+            // Обработка редактирования пользователя
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('edit-user-btn') || e.target.parentElement.classList.contains('edit-user-btn')) {
+                    e.preventDefault();
+                    const btn = e.target.classList.contains('edit-user-btn') ? e.target : e.target.parentElement;
+                    const username = btn.dataset.username;
+                    const status = btn.dataset.status;
+                    const banReason = btn.dataset.banReason;
+                    const freezeReason = btn.dataset.freezeReason;
+                    const tariffCost = btn.dataset.tariffCost || '0';
+                    const totalBalance = btn.dataset.totalBalance || '0';
+                    
+                    openEditModal(username, status, banReason, freezeReason, tariffCost, totalBalance);
+                    e.stopPropagation();
+                }
+                
+                if (e.target.classList.contains('balance-user-btn') || e.target.parentElement.classList.contains('balance-user-btn')) {
+                    e.preventDefault();
+                    const btn = e.target.classList.contains('balance-user-btn') ? e.target : e.target.parentElement;
+                    const username = btn.dataset.username;
+                    const balanceCard = btn.dataset.balanceCard;
+                    const balanceTon = btn.dataset.balanceTon;
+                    const balanceBep20 = btn.dataset.balanceBep20;
+                    
+                    openBalanceModal(username, balanceCard, balanceTon, balanceBep20);
+                    e.stopPropagation();
+                }
+                
+                if (e.target.classList.contains('delete-user-btn') || e.target.parentElement.classList.contains('delete-user-btn')) {
+                    e.preventDefault();
+                    const btn = e.target.classList.contains('delete-user-btn') ? e.target : e.target.parentElement;
+                    const username = btn.dataset.username;
+                    openDeleteModal(username);
+                    e.stopPropagation();
+                }
+            });
+            
+            // Слушаем изменения в полях возврата
+            document.getElementById('editTariffCost')?.addEventListener('input', updateRefundTotal);
+            document.getElementById('editTotalBalance')?.addEventListener('input', updateRefundTotal);
+            
+            // Изменение статуса пользователя
+            document.getElementById('editStatus')?.addEventListener('change', function() {
+                updateReasonFields();
+            });
+            
+            // Изменение причины заморозки
+            document.getElementById('editFreezeReason')?.addEventListener('change', function() {
+                updateRefundDetails();
+            });
+            
+            // Сохранение изменений пользователя
+            document.getElementById('saveUserChanges')?.addEventListener('click', saveUserChanges);
+            
+            // Сохранение изменений баланса
+            document.getElementById('saveBalanceChanges')?.addEventListener('click', saveBalanceChanges);
+            
+            // Подтверждение удаления пользователя
+            document.getElementById('confirmDeleteUser')?.addEventListener('click', confirmDeleteUser);
+        }
+        
+        // Настройка переключателей режима заказов
+        function setupOrderModeToggles() {
+            // Обработка изменения переключателя
+            document.addEventListener('change', function(e) {
+                if (e.target.classList.contains('order-mode-toggle-checkbox')) {
+                    const username = e.target.dataset.username;
+                    const isDemoMode = e.target.checked;
+                    const orderMode = isDemoMode ? 'demo' : 'api';
+                    
+                    updateOrderMode(username, orderMode);
+                }
+            });
+        }
+        
+        // Обновление режима заказов пользователя
+        function updateOrderMode(username, orderMode) {
+            fetch(`/admin/user/${username}/order_mode`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ order_mode: orderMode })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Обновляем отображение на странице
+                    updateOrderModeDisplay(username, orderMode);
+                    
+                    // Показываем уведомление
+                    showNotification(`Режим заказов для ${username} изменен на ${orderMode === 'demo' ? 'демо' : 'API'}`, 'success');
+                } else {
+                    showNotification(`Ошибка: ${data.error}`, 'error');
+                    
+                    // Возвращаем переключатель в исходное состояние
+                    const checkbox = document.querySelector(`.order-mode-toggle-checkbox[data-username="${username}"]`);
+                    if (checkbox) {
+                        checkbox.checked = !checkbox.checked;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Произошла ошибка при обновлении режима', 'error');
+                
+                // Возвращаем переключатель в исходное состояние
+                const checkbox = document.querySelector(`.order-mode-toggle-checkbox[data-username="${username}"]`);
+                if (checkbox) {
+                    checkbox.checked = !checkbox.checked;
+                }
+            });
+        }
+        
+        // Обновление отображения режима заказов
+        function updateOrderModeDisplay(username, orderMode) {
+            // Обновляем бейдж
+            const card = document.getElementById(`user-card-${username}`);
+            if (card) {
+                const badge = card.querySelector('.order-mode-badge');
+                const toggleLabel = card.querySelector('.toggle-label');
+                const modeInfo = card.querySelector('.mode-info');
+                
+                if (badge) {
+                    badge.className = 'order-mode-badge ' + orderMode;
+                    badge.innerHTML = orderMode === 'demo' 
+                        ? '<i class="fas fa-flask me-1"></i>Демо' 
+                        : '<i class="fas fa-plug me-1"></i>API';
+                }
+                
+                if (toggleLabel) {
+                    toggleLabel.textContent = orderMode === 'demo' ? 'Демо-режим' : 'API-режим';
+                    toggleLabel.className = 'toggle-label ' + orderMode;
+                }
+                
+                if (modeInfo) {
+                    modeInfo.className = 'mode-info ' + orderMode;
+                    modeInfo.innerHTML = orderMode === 'demo' 
+                        ? '<i class="fas fa-info-circle me-1"></i>В демо-режиме заказы создаются локально без отправки API запросов. Средства списываются с баланса, но реального пополнения не происходит.'
+                        : '<i class="fas fa-info-circle me-1"></i>В API-режиме заказы отправляются на внешний сервис для реального пополнения. Стандартная рабочая логика.';
+                }
+            }
+        }
+        
+        // Показать уведомление
+        function showNotification(message, type) {
+            // Создаем элемент уведомления
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show`;
+            notification.style.position = 'fixed';
+            notification.style.top = '20px';
+            notification.style.right = '20px';
+            notification.style.zIndex = '9999';
+            notification.style.minWidth = '300px';
+            notification.style.maxWidth = '400px';
+            notification.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Автоматически скрываем через 5 секунд
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+        
+        // Настройка поиска
+        function setupSearch() {
+            const searchInput = document.getElementById('userSearch');
+            const clearSearchBtn = document.getElementById('clearSearch');
+            
+            if (searchInput) {
+                // Поиск при вводе текста
+                searchInput.addEventListener('input', function() {
+                    searchTerm = this.value.trim().toLowerCase();
+                    performSearch();
+                    
+                    // Показываем/скрываем кнопку очистки
+                    if (searchTerm.length > 0) {
+                        clearSearchBtn.style.display = 'block';
+                    } else {
+                        clearSearchBtn.style.display = 'none';
+                    }
+                });
+                
+                // Очистка поиска
+                clearSearchBtn.addEventListener('click', function() {
+                    searchInput.value = '';
+                    searchTerm = '';
+                    performSearch();
+                    clearSearchBtn.style.display = 'none';
+                    searchInput.focus();
+                });
+                
+                // Поиск при нажатии Enter
+                searchInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        searchTerm = this.value.trim().toLowerCase();
+                        performSearch();
+                    }
+                });
+            }
+        }
+        
+        // Выполнение поиска
+        function performSearch() {
+            const userItems = document.querySelectorAll('.user-list-item');
+            const searchResultsInfo = document.getElementById('searchResultsInfo');
+            let visibleCount = 0;
+            
+            userItems.forEach(item => {
+                const usernameElement = item.querySelector('.user-list-name');
+                const username = usernameElement.dataset.searchText || usernameElement.textContent.toLowerCase();
+                
+                if (searchTerm === '' || username.includes(searchTerm)) {
+                    item.style.display = 'flex';
+                    visibleCount++;
+                    
+                    // Подсветка совпадений
+                    if (searchTerm !== '') {
+                        const originalText = usernameElement.textContent;
+                        const regex = new RegExp(`(${searchTerm})`, 'gi');
+                        const highlightedText = originalText.replace(regex, '<span class="search-highlight">$1</span>');
+                        usernameElement.innerHTML = highlightedText;
+                    } else {
+                        // Восстанавливаем оригинальный текст
+                        usernameElement.textContent = usernameElement.textContent;
+                    }
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            // Обновляем информацию о результатах поиска
+            if (searchResultsInfo) {
+                if (searchTerm === '') {
+                    searchResultsInfo.textContent = `Все пользователи: ${userItems.length}`;
+                } else {
+                    searchResultsInfo.textContent = `Найдено пользователей: ${visibleCount} из ${userItems.length}`;
+                    
+                    // Если нашли только одного пользователя, автоматически показываем его карточку
+                    if (visibleCount === 1) {
+                        const visibleItem = document.querySelector('.user-list-item[style="display: flex;"]');
+                        if (visibleItem) {
+                            const username = visibleItem.dataset.username;
+                            showUserCard(username);
+                        }
+                    } else if (visibleCount === 0) {
+                        // Скрываем все карточки если ничего не найдено
+                        hideAllUserCards();
+                        searchResultsInfo.innerHTML += '<br><small class="text-danger">Пользователи не найдены</small>';
+                    }
+                }
+            }
+            
+            // Сортируем видимые элементы
+            sortUserList();
+        }
+        
+        // Настройка кнопок сортировки
+        function setupSortButtons() {
+            document.getElementById('sortDesc')?.addEventListener('click', function() {
+                sortOrder = 'desc';
+                updateSortButtons();
+                sortUserList();
+            });
+            
+            document.getElementById('sortAsc')?.addEventListener('click', function() {
+                sortOrder = 'asc';
+                updateSortButtons();
+                sortUserList();
+            });
+            
+            // Изначальная сортировка (новые сверху)
+            sortUserList();
+        }
+        
+        // Обновление состояния кнопок сортировки
+        function updateSortButtons() {
+            const sortDescBtn = document.getElementById('sortDesc');
+            const sortAscBtn = document.getElementById('sortAsc');
+            
+            if (sortOrder === 'desc') {
+                sortDescBtn.classList.add('active');
+                sortAscBtn.classList.remove('active');
+            } else {
+                sortDescBtn.classList.remove('active');
+                sortAscBtn.classList.add('active');
+            }
+        }
+        
+        // Сортировка списка пользователей
+        function sortUserList() {
+            const container = document.getElementById('userListContainer');
+            if (!container) return;
+            
+            // Получаем только видимые элементы
+            const items = Array.from(container.querySelectorAll('.user-list-item'))
+                .filter(item => item.style.display !== 'none');
+            
+            items.sort((a, b) => {
+                const dateA = new Date(a.querySelector('.user-list-date').textContent);
+                const dateB = new Date(b.querySelector('.user-list-date').textContent);
+                
+                return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
+            });
+            
+            // Переставляем элементы
+            items.forEach(item => {
+                container.appendChild(item);
+            });
+        }
+        
+        // Показать карточку пользователя
+        function showUserCard(username) {
+            // Скрываем все карточки
+            hideAllUserCards();
+            
+            // Показываем выбранную карточку
+            const card = document.getElementById(`user-card-${username}`);
+            if (card) {
+                card.classList.add('show');
+                
+                // Добавляем прокрутку к карточке
+                card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+            
+            // Обновляем активный элемент в списке
+            document.querySelectorAll('.user-list-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelector(`.user-list-item[data-username="${username}"]`)?.classList.add('active');
+            
+            // Скрываем сообщение о выборе пользователя
+            const userDetails = document.getElementById('userDetails');
+            if (userDetails) {
+                userDetails.classList.remove('show');
+            }
+        }
+        
+        // Скрыть все карточки пользователей
+        function hideAllUserCards() {
+            document.querySelectorAll('.user-card').forEach(card => {
+                card.classList.remove('show');
+            });
+            
+            // Показываем сообщение о выборе пользователя
+            const userDetails = document.getElementById('userDetails');
+            if (userDetails) {
+                userDetails.classList.add('show');
+            }
+            
+            // Убираем активный элемент в списке
+            document.querySelectorAll('.user-list-item').forEach(item => {
+                item.classList.remove('active');
+            });
+        }
+        
+        // Скрыть карточку пользователя
+        function hideUserCard(username) {
+            const card = document.getElementById(`user-card-${username}`);
+            if (card) {
+                card.classList.remove('show');
+            }
+            
+            // Показываем сообщение о выборе пользователя
+            const userDetails = document.getElementById('userDetails');
+            if (userDetails) {
+                userDetails.classList.add('show');
+            }
+            
+            // Убираем активный элемент в списке
+            document.querySelector(`.user-list-item[data-username="${username}"]`)?.classList.remove('active');
+        }
+        
+        // Открытие модального окна редактирования
+        function openEditModal(username, status, banReason, freezeReason, tariffCost, totalBalance) {
+            document.getElementById('editUsername').value = username;
+            document.getElementById('editStatus').value = status;
+            document.getElementById('editBanReason').value = banReason;
+            document.getElementById('editFreezeReason').value = freezeReason;
+            document.getElementById('editTariffCost').value = tariffCost;
+            document.getElementById('editTotalBalance').value = totalBalance;
+            
+            updateReasonFields();
+            updateRefundDetails();
+            updateRefundTotal();
+            
+            new bootstrap.Modal(document.getElementById('editUserModal')).show();
+        }
+        
+        // Открытие модального окна управления балансом
+        function openBalanceModal(username, balanceCard, balanceTon, balanceBep20) {
+            document.getElementById('balanceUsername').value = username;
+            document.getElementById('currentBalanceCard').textContent = '$' + parseFloat(balanceCard).toFixed(2);
+            document.getElementById('currentBalanceTon').textContent = '$' + parseFloat(balanceTon).toFixed(2);
+            document.getElementById('currentBalanceBep20').textContent = '$' + parseFloat(balanceBep20).toFixed(2);
+            
+            new bootstrap.Modal(document.getElementById('balanceUserModal')).show();
+        }
+        
+        // Открытие модального окна удаления
+        function openDeleteModal(username) {
+            document.getElementById('deleteUsernameText').textContent = username;
+            new bootstrap.Modal(document.getElementById('deleteUserModal')).show();
+        }
+        
+        // Обновление полей причин в зависимости от статуса
+        function updateReasonFields() {
+            const status = document.getElementById('editStatus').value;
+            const banReasonContainer = document.getElementById('banReasonContainer');
+            const freezeReasonContainer = document.getElementById('freezeReasonContainer');
+            const refundDetailsContainer = document.getElementById('refundDetailsContainer');
+            
+            if (status === 'banned') {
+                banReasonContainer.style.display = 'block';
+                freezeReasonContainer.style.display = 'none';
+                refundDetailsContainer.style.display = 'none';
+            } else if (status === 'frozen') {
+                banReasonContainer.style.display = 'none';
+                freezeReasonContainer.style.display = 'block';
+                updateRefundDetails();
+            } else {
+                banReasonContainer.style.display = 'none';
+                freezeReasonContainer.style.display = 'none';
+                refundDetailsContainer.style.display = 'none';
+            }
+        }
+        
+        // Обновление деталей возврата
+        function updateRefundDetails() {
+            const refundDetailsContainer = document.getElementById('refundDetailsContainer');
+            const freezeReason = document.getElementById('editFreezeReason').value;
+            
+            if (freezeReason === 'Прекращение обслуживания - возврат средств') {
+                refundDetailsContainer.style.display = 'block';
+                updateRefundTotal();
+            } else {
+                refundDetailsContainer.style.display = 'none';
+            }
+        }
+        
+        // Функция обновления суммы возврата
+        function updateRefundTotal() {
+            const tariffCost = parseFloat(document.getElementById('editTariffCost')?.value) || 0;
+            const totalBalance = parseFloat(document.getElementById('editTotalBalance')?.value) || 0;
+            const refundTotal = tariffCost + totalBalance;
+            const refundTotalElement = document.getElementById('refundTotalAmount');
+            if (refundTotalElement) {
+                refundTotalElement.textContent = '$' + refundTotal.toFixed(2);
+            }
+        }
+        
+        // Сохранение изменений пользователя
+        function saveUserChanges() {
+            const status = document.getElementById('editStatus').value;
+            let formData = {
+                status: status
+            };
+            
+            if (status === 'banned') {
+                formData.ban_reason = document.getElementById('editBanReason').value;
+                formData.freeze_reason = '';
+                formData.tariff_cost = '';
+                formData.total_balance = '';
+            } else if (status === 'frozen') {
+                formData.freeze_reason = document.getElementById('editFreezeReason').value;
+                formData.ban_reason = '';
+                
+                if (formData.freeze_reason === 'Прекращение обслуживания - возврат средств') {
+                    formData.tariff_cost = document.getElementById('editTariffCost').value || '0';
+                    formData.total_balance = document.getElementById('editTotalBalance').value || '0';
+                } else {
+                    formData.tariff_cost = '';
+                    formData.total_balance = '';
+                }
+            } else {
+                formData.ban_reason = '';
+                formData.freeze_reason = '';
+                formData.tariff_cost = '';
+                formData.total_balance = '';
+            }
+            
+            const username = document.getElementById('editUsername').value;
+            
+            fetch(`/admin/user/${username}/update`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Ошибка: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Произошла ошибка при обновлении пользователя');
+            });
+        }
+        
+        // Сохранение изменений баланса
+        function saveBalanceChanges() {
+            const formData = {
+                method: document.getElementById('balanceMethod').value,
+                action: document.getElementById('balanceAction').value,
+                amount: document.getElementById('balanceAmount').value
+            };
+            
+            const username = document.getElementById('balanceUsername').value;
+            
+            fetch(`/admin/user/${username}/balance/update`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Ошибка: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Произошла ошибка при обновлении баланса');
+            });
+        }
+        
+        // Подтверждение удаления пользователя
+        function confirmDeleteUser() {
+            const username = document.getElementById('deleteUsernameText').textContent;
+            
+            fetch(`/admin/user/${username}/delete`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Удаляем карточку пользователя из DOM
+                    document.getElementById(`user-card-${username}`)?.remove();
+                    // Удаляем элемент из списка
+                    document.querySelector(`.user-list-item[data-username="${username}"]`)?.remove();
+                    
+                    bootstrap.Modal.getInstance(document.getElementById('deleteUserModal')).hide();
+                    
+                    // Показываем сообщение об успехе
+                    showNotification('Пользователь успешно удален', 'success');
+                    
+                    // Обновляем информацию о количестве пользователей
+                    const remainingItems = document.querySelectorAll('.user-list-item').length;
+                    const searchResultsInfo = document.getElementById('searchResultsInfo');
+                    if (searchResultsInfo) {
+                        if (searchTerm === '') {
+                            searchResultsInfo.textContent = `Все пользователи: ${remainingItems}`;
+                        } else {
+                            searchResultsInfo.textContent = `Найдено пользователей: ${remainingItems}`;
+                        }
+                    }
+                    
+                    // Если больше нет пользователей, показываем сообщение
+                    if (remainingItems === 0) {
+                        location.reload();
+                    }
+                } else {
+                    showNotification('Ошибка: ' + data.error, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Произошла ошибка при удалении пользователя', 'error');
+            });
+        }
+    </script>
+</body>
+</html>

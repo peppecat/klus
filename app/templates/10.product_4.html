@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Steam игры в подарок | KEYZPANEL</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+    
+    <!-- Custom CSS -->
+    <style>
+        /* Копируем все стили из 8.product_1.html */
+        :root {
+            --primary: #FF6B35;
+            --primary-dark: #E55A2B;
+            --secondary: #0D1B2A;
+            --secondary-light: #1B263B;
+            --accent: #415A77;
+            --card-bg: #1E1E1E;
+            --card-hover: #252525;
+            --text-light: #E0E1DD;
+            --text-muted: #8A8D93;
+            --text-dark: #FFFFFF;
+            --success: #4CAF50;
+            --info: #2196F3;
+            --danger: #F44336;
+            --gradient-primary: linear-gradient(135deg, #FF6B35 0%, #FF8E53 100%);
+            --gradient-dark: linear-gradient(135deg, #0D1B2A 0%, #1B263B 100%);
+            --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            --card-shadow-hover: 0 12px 48px rgba(255, 107, 53, 0.2);
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--gradient-dark);
+            color: var(--text-light);
+            line-height: 1.6;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* Snowflake Container */
+        .snowflakes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .snowflake {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: fall linear infinite;
+        }
+        
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+        
+        /* Content wrapper */
+        .content-wrapper {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .navbar {
+            background: rgba(13, 27, 42, 0.95) !important;
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(65, 90, 119, 0.3);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .navbar-brand {
+            font-weight: 800;
+            color: var(--text-dark) !important;
+            font-size: 1.8rem;
+            letter-spacing: -0.5px;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .nav-link {
+            color: var(--text-light) !important;
+            font-weight: 500;
+            padding: 0.75rem 1.25rem !important;
+            border-radius: 8px;
+            margin: 0 0.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-link:before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-primary);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover:before {
+            width: 100%;
+        }
+        
+        .nav-link:hover {
+            background: rgba(255, 107, 53, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .nav-link.active {
+            background: var(--gradient-primary);
+            color: white !important;
+            box-shadow: 0 4px 20px rgba(255, 107, 53, 0.3);
+        }
+        
+        .nav-link.active:before {
+            display: none;
+        }
+        
+        /* User info styles */
+        .user-info-card {
+            background: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .user-info-card:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+        }
+        
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.2rem;
+            margin-right: 1.25rem;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+        }
+        
+        .user-details {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            font-size: 1.2rem;
+            color: var(--text-dark);
+        }
+        
+        .user-balance {
+            font-size: 1rem;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-balance:before {
+            content: '$';
+            margin-right: 0.25rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+        
+        .promo-banner {
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.9), rgba(255, 142, 83, 0.9));
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            color: white;
+            box-shadow: 0 8px 32px rgba(255, 107, 53, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .promo-banner:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1), transparent);
+            pointer-events: none;
+        }
+        
+        .promo-content {
+            flex: 1;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .promo-title {
+            font-weight: 800;
+            font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .promo-text {
+            font-size: 1.05rem;
+            opacity: 0.9;
+            margin-bottom: 0;
+        }
+        
+        .promo-btn {
+            background: rgba(255, 255, 255, 0.95);
+            color: var(--primary-dark);
+            border: none;
+            border-radius: 12px;
+            padding: 0.875rem 2rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s;
+            white-space: nowrap;
+            margin-left: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .promo-btn:hover {
+            background: white;
+            color: var(--primary-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .page-header {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin: 2rem 0;
+            padding-bottom: 1rem;
+            position: relative;
+        }
+        
+        .page-header:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 80px;
+            height: 4px;
+            background: var(--gradient-primary);
+            border-radius: 2px;
+        }
+        
+        .form-card {
+            background: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .form-card:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+        }
+        
+        .form-card .card-header {
+            background: transparent;
+            border: none;
+            padding: 0 0 1.5rem 0;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .form-card .card-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin: 0;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: var(--text-light);
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+        }
+        
+        .form-control, .input-group-text {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+            border-radius: 12px;
+            padding: 0.875rem 1.25rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.2);
+            color: var(--text-dark);
+        }
+        
+        .input-group-text {
+            background: rgba(255, 107, 53, 0.1);
+            border-color: rgba(255, 107, 53, 0.3);
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .btn-primary {
+            background: var(--gradient-primary);
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.3);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+        
+        .processing-time {
+            background: rgba(255, 107, 53, 0.1);
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .calculation-info {
+            background: rgba(65, 90, 119, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border: 1px solid rgba(65, 90, 119, 0.3);
+        }
+        
+        .calculation-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.95rem;
+        }
+        
+        .calculation-row:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-top: 0.5rem;
+            padding-top: 0.75rem;
+            border-top: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .discount-positive {
+            color: #4CAF50;
+        }
+        
+        .fee-negative {
+            color: #FF6B6B;
+        }
+        
+        .table-responsive {
+            background: rgba(30, 30, 30, 0.8);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+        }
+        
+        .table {
+            margin-bottom: 0;
+            color: var(--text-light);
+        }
+        
+        .table th {
+            background: rgba(13, 27, 42, 0.5);
+            border: none;
+            padding: 1.25rem 1.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .table td {
+            padding: 1.25rem 1.5rem;
+            border: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            vertical-align: middle;
+        }
+        
+        .table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .balance-info {
+            background: rgba(65, 90, 119, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            border: 1px solid rgba(65, 90, 119, 0.3);
+        }
+        
+        .modal-content {
+            background: rgba(30, 30, 30, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            color: var(--text-light);
+        }
+        
+        .modal-header {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+        }
+        
+        .modal-title {
+            color: var(--text-dark);
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+        }
+        
+        .modal-footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+        }
+        
+        .text-muted22 {
+            --bs-text-opacity: 1;
+            color: rgb(255 255 255 / 75%) !important;
+        }
+        
+        /* Специфичные стили для выбора игры */
+        .game-card {
+            background: rgba(40, 40, 40, 0.8);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .game-card:hover {
+            background: rgba(50, 50, 50, 0.9);
+            transform: translateY(-2px);
+        }
+        
+        .game-card.selected {
+            border-color: var(--primary);
+            background: rgba(255, 107, 53, 0.1);
+        }
+        
+        .game-name {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.25rem;
+        }
+        
+        .game-price {
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .game-appid {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        
+        .package-option {
+            background: rgba(50, 50, 50, 0.8);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .package-option:hover {
+            background: rgba(60, 60, 60, 0.9);
+        }
+        
+        .package-option.selected {
+            background: rgba(255, 107, 53, 0.15);
+            border-left: 3px solid var(--primary);
+        }
+        
+        .package-name {
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+        
+        .package-price {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .search-box {
+            max-width: 100%;
+            margin-bottom: 1.5rem;
+        }
+        
+        .search-box .form-control {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+            border-radius: 12px;
+            padding: 0.875rem 1.25rem;
+            font-size: 1rem;
+            border-right: none;
+        }
+        
+        .search-box .form-control:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.2);
+            color: var(--text-dark);
+        }
+        
+        .search-box .btn {
+            border-radius: 0 12px 12px 0;
+            background: var(--gradient-primary);
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 0.875rem 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .search-box .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(255, 107, 53, 0.3);
+        }
+        
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Loader */
+        .loader {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Snowflake Container -->
+    <div class="snowflakes" id="snowflakes"></div>
+    
+    <!-- Content Wrapper -->
+    <div class="content-wrapper">
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container">
+                <a class="navbar-brand" href="/dashboard">
+                    <i class="fas fa-shopping-bag me-2"></i>KEYZPANEL
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/dashboard">
+                                <i class="fas fa-home me-1"></i> Магазин
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/orders">
+                                <i class="fas fa-clipboard-list me-1"></i> Заказы
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/account">
+                                <i class="fas fa-user me-1"></i> Аккаунт
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/reseller">
+                                <i class="fas fa-layer-group me-1"></i> Реселлер
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/logout">
+                                <i class="fas fa-sign-out-alt me-1"></i> Выйти
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <main class="container py-4">
+            <div class="row mb-3">
+                <div class="col">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/dashboard">Главная</a></li>
+                            <li class="breadcrumb-item"><a href="/dashboard">Магазин</a></li>
+                            <li class="breadcrumb-item active">Steam игры в подарок</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+            
+            <!-- User Info Card -->
+            <div class="user-info-card fade-in">
+                <div class="user-avatar">
+                    {{ username[0].upper() }}
+                </div>
+                <div class="user-details">
+                    <div class="user-name">{{ username }}</div>
+                    <div class="user-balance">
+                        Баланс: ${{ "{:,.2f}".format(total_balance) }}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mb-4">
+                <div class="col">
+                    <h1 class="page-header">Steam игры в подарок</h1>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-8">
+                    <!-- Форма выбора игры -->
+                    <div class="form-card fade-in">
+                        <div class="card-header">
+                            <h2>Выберите игру</h2>
+                            <small class="text-muted22">Выберите игру из списка или найдите по названию</small>
+                        </div>
+                        <div class="card-body">
+                            <div class="search-box">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="gameSearch" placeholder="Поиск игры...">
+                                    <button class="btn" type="button" id="searchBtn">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div id="gamesList">
+                                {% if error_message %}
+                                <div class="alert alert-danger">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>{{ error_message }}
+                                </div>
+                                {% endif %}
+                                
+                                {% if games_list %}
+                                <div class="row" id="gamesGrid">
+                                    {% for game in games_list %}
+                                    <div class="col-md-6 mb-3">
+                                        <div class="game-card" data-game-id="{{ game.app_id }}" data-game-name="{{ game.name }}" data-game-price="{{ game.price }}">
+                                            <div class="game-name">{{ game.name }}</div>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="game-appid">AppID: {{ game.app_id }}</span>
+                                                <span class="game-price">${{ game.price }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                <div class="text-center py-4">
+                                    <div class="loader"></div>
+                                    <p class="mt-3">Загрузка списка игр...</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Форма выбора издания и отправки -->
+                    <div class="form-card fade-in" id="packageSelection" style="display: none;">
+                        <div class="card-header">
+                            <h2 id="selectedGameName">Выбор издания</h2>
+                            <small class="text-muted22" id="selectedGameId"></small>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST" id="giftForm">
+                                <input type="hidden" name="game_id" id="selectedGameIdInput">
+                                <input type="hidden" name="package_id" id="selectedPackageIdInput">
+                                <input type="hidden" id="currentDiscount" value="{{ current_discount }}">
+                                <input type="hidden" id="baseFee" value="{{ steam_base_fee }}">
+                                <input type="hidden" id="totalBalance" value="{{ total_balance }}">
+                                
+                                <div id="packagesList">
+                                    <!-- Пакеты будут загружены динамически -->
+                                </div>
+                                
+                                <div class="row mt-3">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="invite_url" class="form-label">Ссылка-приглашение Steam *</label>
+                                        <input type="text" name="invite_url" id="invite_url" class="form-control" 
+                                               placeholder="https://steamcommunity.com/id/username" required>
+                                        <small class="text-muted22 mt-2 d-block">
+                                            Ссылка на профиль Steam получателя или invite-ссылка
+                                        </small>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="region" class="form-label">Регион получателя *</label>
+                                        <select name="region" id="region" class="form-control" required>
+                                            <option value="">Выберите регион</option>
+                                            <option value="RU">Россия (RU)</option>
+                                            <option value="UA">Украина (UA)</option>
+                                            <option value="KZ">Казахстан (KZ)</option>
+                                            <option value="EU">Европа (EU)</option>
+                                            <option value="US">США (US)</option>
+                                            <option value="TR">Турция (TR)</option>
+                                            <option value="AR">Аргентина (AR)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="reference" class="form-label">Ваш ID (опционально)</label>
+                                    <input type="text" name="reference" id="reference" class="form-control" 
+                                           placeholder="Ваш идентификатор для отслеживания">
+                                </div>
+                                
+                                <!-- Блок расчета суммы -->
+                                <div class="calculation-info" id="calculationInfo" style="display: none;">
+                                    <div class="calculation-row">
+                                        <span>Цена игры:</span>
+                                        <span id="calcGamePrice">$0.00</span>
+                                    </div>
+                                    <div class="calculation-row">
+                                        <span>Скидка (<span id="calcDiscountPercent">0</span>%):</span>
+                                        <span class="discount-positive" id="calcDiscountAmount">-$0.00</span>
+                                    </div>
+                                    <div class="calculation-row">
+                                        <span>Комиссия (+<span id="calcFeePercent">0</span>%):</span>
+                                        <span class="fee-negative" id="calcFeeAmount">+$0.00</span>
+                                    </div>
+                                    <div class="calculation-row">
+                                        <span>Итого к списанию:</span>
+                                        <span id="calcFinalAmount">$0.00</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="processing-time">
+                                    <p class="mb-0"><i class="fas fa-clock me-2"></i><strong>Доставка: 5-15 минут</strong></p>
+                                    <small class="d-block mt-1">Игра будет отправлена в подарок на указанный Steam аккаунт</small>
+                                </div>
+                                
+                                <div class="d-grid mt-4">
+                                    <button type="submit" id="submitButton" class="btn btn-primary" disabled>
+                                        <i class="fas fa-gift me-2"></i>Отправить в подарок
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4">
+                    <!-- Информация о скидках -->
+                    <div class="form-card fade-in">
+                        <div class="card-header">
+                            <h3>Ваши скидки</h3>
+                        </div>
+                        <div class="card-body">
+                            {% if individual_discount is not none %}
+                            <div class="alert alert-info mb-3" style="background: rgba(33, 150, 243, 0.1); border-color: rgba(33, 150, 243, 0.3); color: var(--text-light);">
+                                <h5 class="d-flex align-items-center"><i class="fas fa-star me-2"></i>Индивидуальная скидка</h5>
+                                <p class="mb-0">
+                                    Вам предоставлена индивидуальная скидка <strong>{{ individual_discount }}%</strong>
+                                </p>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="balance-info">
+                                <div class="row">
+                                    <div class="col-12 mb-2">
+                                        <p class="mb-1"><strong>Ваш баланс:</strong> <span class="text-primary">${{ "{:,.2f}".format(total_balance) }}</span></p>
+                                    </div>
+                                    <div class="col-12 mb-2">
+                                        <p class="mb-1"><strong>Ваша скидка:</strong> <span class="text-success">{{ current_discount }}%</span></p>
+                                    </div>
+                                    <div class="col-12 mb-2">
+                                        <p class="mb-1"><strong>Базовая комиссия:</strong> <span class="text-danger">+{{ steam_base_fee }}%</span></p>
+                                    </div>
+                                    <div class="col-12 mb-2">
+                                        <p class="mb-1"><strong>Итоговая комиссия:</strong> 
+                                            <span class="{% if (steam_base_fee - current_discount) > 0 %}text-danger{% else %}text-success{% endif %}">
+                                                {{ "%+.1f"|format(steam_base_fee - current_discount) }}%
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <h5 class="mb-3">Как это работает:</h5>
+                                <ol class="ps-3" style="font-size: 0.9rem;">
+                                    <li class="mb-2">Выберите игру из списка</li>
+                                    <li class="mb-2">Выберите издание игры</li>
+                                    <li class="mb-2">Укажите ссылку-приглашение получателя</li>
+                                    <li class="mb-2">Выберите регион получателя</li>
+                                    <li class="mb-2">Игра будет отправлена в подарок</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <script>
+        // Функции для снежинок и анимаций
+        function createSnowflakes() {
+            const container = document.getElementById('snowflakes');
+            const snowflakeCount = 60;
+            
+            for (let i = 0; i < snowflakeCount; i++) {
+                const snowflake = document.createElement('div');
+                snowflake.classList.add('snowflake');
+                
+                const size = Math.random() * 6 + 2;
+                snowflake.style.width = `${size}px`;
+                snowflake.style.height = `${size}px`;
+                snowflake.style.left = `${Math.random() * 100}vw`;
+                snowflake.style.opacity = Math.random() * 0.8 + 0.2;
+                const duration = Math.random() * 10 + 5;
+                snowflake.style.animationDuration = `${duration}s`;
+                snowflake.style.animationDelay = `${Math.random() * 5}s`;
+                
+                container.appendChild(snowflake);
+            }
+        }
+        
+        function handleScrollAnimations() {
+            const elements = document.querySelectorAll('.fade-in');
+            
+            elements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < window.innerHeight - elementVisible) {
+                    element.classList.add('visible');
+                }
+            });
+        }
+        
+        // Основная логика для работы с играми
+        let selectedGame = null;
+        let selectedPackage = null;
+        
+        // Поиск игр
+        document.getElementById('gameSearch').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const gameCards = document.querySelectorAll('.game-card');
+            
+            gameCards.forEach(card => {
+                const gameName = card.querySelector('.game-name').textContent.toLowerCase();
+                if (gameName.includes(searchTerm) || searchTerm === '') {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+        
+        // Выбор игры
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.game-card')) {
+                const gameCard = e.target.closest('.game-card');
+                const gameId = gameCard.dataset.gameId;
+                const gameName = gameCard.dataset.gameName;
+                
+                // Убираем выделение со всех карточек
+                document.querySelectorAll('.game-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                
+                // Выделяем выбранную карточку
+                gameCard.classList.add('selected');
+                
+                // Сохраняем выбранную игру
+                selectedGame = {
+                    id: gameId,
+                    name: gameName
+                };
+                
+                // Показываем блок выбора издания
+                document.getElementById('packageSelection').style.display = 'block';
+                document.getElementById('selectedGameName').textContent = gameName;
+                document.getElementById('selectedGameId').textContent = `AppID: ${gameId}`;
+                document.getElementById('selectedGameIdInput').value = gameId;
+                
+                // Загружаем издания игры
+                loadGamePackages(gameId);
+                
+                // Прокручиваем к форме
+                document.getElementById('packageSelection').scrollIntoView({ behavior: 'smooth' });
+            }
+            
+            // Выбор издания
+            if (e.target.closest('.package-option')) {
+                const packageOption = e.target.closest('.package-option');
+                const packageId = packageOption.dataset.packageId;
+                const packageName = packageOption.dataset.packageName;
+                const packagePrice = parseFloat(packageOption.dataset.packagePrice);
+                
+                // Убираем выделение со всех опций
+                document.querySelectorAll('.package-option').forEach(option => {
+                    option.classList.remove('selected');
+                });
+                
+                // Выделяем выбранную опцию
+                packageOption.classList.add('selected');
+                
+                // Сохраняем выбранное издание
+                selectedPackage = {
+                    id: packageId,
+                    name: packageName,
+                    price: packagePrice
+                };
+                
+                // Обновляем скрытые поля формы
+                document.getElementById('selectedPackageIdInput').value = packageId;
+                
+                // Показываем расчет стоимости
+                updatePriceCalculation(packagePrice);
+                
+                // Активируем кнопку отправки
+                const submitButton = document.getElementById('submitButton');
+                submitButton.disabled = false;
+                submitButton.innerHTML = `<i class="fas fa-gift me-2"></i>Отправить в подарок - $${calculateFinalAmount(packagePrice).toFixed(2)}`;
+            }
+        });
+        
+        // Функция загрузки изданий игры
+        async function loadGamePackages(gameId) {
+            console.log(`[DEBUG] Загрузка изданий для игры ID: ${gameId}`);
+            const packagesList = document.getElementById('packagesList');
+            packagesList.innerHTML = `
+                <div class="text-center py-3">
+                    <div class="loader"></div>
+                    <p class="mt-2">Загрузка изданий...</p>
+                </div>
+            `;
+            
+            try {
+                console.log(`[DEBUG] Отправка запроса к /api/steam_gift_game_info/${gameId}`);
+                const response = await fetch(`/api/steam_gift_game_info/${gameId}`);
+                console.log(`[DEBUG] Статус ответа: ${response.status}`);
+                
+                const data = await response.json();
+                console.log(`[DEBUG] Данные ответа:`, data);
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                packagesList.innerHTML = '';
+                
+                if (data.packages && data.packages.length > 0) {
+                    const fragment = document.createDocumentFragment();
+                    
+                    data.packages.forEach(pkg => {
+                        const packageDiv = document.createElement('div');
+                        packageDiv.className = 'package-option';
+                        packageDiv.dataset.packageId = pkg.id;
+                        packageDiv.dataset.packageName = pkg.name || 'Издание игры';
+                        packageDiv.dataset.packagePrice = pkg.price || 0;
+                        
+                        packageDiv.innerHTML = `
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="package-name">${pkg.name || 'Издание игры'}</div>
+                                    <small class="text-muted22">ID: ${pkg.id}</small>
+                                </div>
+                                <div class="package-price">$${pkg.price || '0.00'}</div>
+                            </div>
+                        `;
+                        
+                        fragment.appendChild(packageDiv);
+                    });
+                    
+                    packagesList.appendChild(fragment);
+                    
+                    // Добавляем инструкцию
+                    const instruction = document.createElement('div');
+                    instruction.className = 'mt-3';
+                    instruction.innerHTML = '<small class="text-muted22">Выберите издание игры для отправки в подарок</small>';
+                    packagesList.appendChild(instruction);
+                    
+                } else {
+                    packagesList.innerHTML = '<div class="alert alert-warning">Издания для этой игры не найдены</div>';
+                }
+                
+            } catch (error) {
+                console.error('Ошибка загрузки изданий:', error);
+                packagesList.innerHTML = `<div class="alert alert-danger">Ошибка загрузки изданий: ${error.message}</div>`;
+            }
+        }
+        
+        // Функция расчета окончательной суммы
+        function calculateFinalAmount(gamePrice) {
+            const currentDiscount = parseFloat(document.getElementById('currentDiscount').value) || 0;
+            const baseFee = parseFloat(document.getElementById('baseFee').value) || 0;
+            
+            // Применяем скидку
+            const amountAfterDiscount = gamePrice * (1 - currentDiscount / 100);
+            
+            // Применяем комиссию
+            const finalAmount = amountAfterDiscount * (1 + baseFee / 100);
+            
+            return finalAmount;
+        }
+        
+        // Обновление расчета цены
+        function updatePriceCalculation(gamePrice) {
+            const currentDiscount = parseFloat(document.getElementById('currentDiscount').value) || 0;
+            const baseFee = parseFloat(document.getElementById('baseFee').value) || 0;
+            const totalBalance = parseFloat(document.getElementById('totalBalance').value) || 0;
+            
+            // Рассчитываем промежуточные значения
+            const discountAmount = gamePrice * (currentDiscount / 100);
+            const amountAfterDiscount = gamePrice - discountAmount;
+            const feeAmount = amountAfterDiscount * (baseFee / 100);
+            const finalAmount = amountAfterDiscount + feeAmount;
+            
+            // Обновляем отображение
+            document.getElementById('calcGamePrice').textContent = `$${gamePrice.toFixed(2)}`;
+            document.getElementById('calcDiscountPercent').textContent = currentDiscount.toFixed(1);
+            document.getElementById('calcDiscountAmount').textContent = `-$${discountAmount.toFixed(2)}`;
+            document.getElementById('calcFeePercent').textContent = baseFee.toFixed(1);
+            document.getElementById('calcFeeAmount').textContent = `+$${feeAmount.toFixed(2)}`;
+            document.getElementById('calcFinalAmount').textContent = `$${finalAmount.toFixed(2)}`;
+            
+            // Показываем блок расчета
+            document.getElementById('calculationInfo').style.display = 'block';
+            
+            // Проверяем баланс
+            const submitButton = document.getElementById('submitButton');
+            if (totalBalance < finalAmount) {
+                submitButton.disabled = true;
+                submitButton.innerHTML = `<i class="fas fa-exclamation-triangle me-2"></i>Недостаточно средств`;
+                submitButton.classList.remove('btn-primary');
+                submitButton.classList.add('btn-danger');
+            } else {
+                submitButton.disabled = false;
+                submitButton.innerHTML = `<i class="fas fa-gift me-2"></i>Отправить в подарок - $${finalAmount.toFixed(2)}`;
+                submitButton.classList.remove('btn-danger');
+                submitButton.classList.add('btn-primary');
+            }
+        }
+        
+        // Валидация формы
+        document.getElementById('invite_url').addEventListener('input', validateForm);
+        document.getElementById('region').addEventListener('change', validateForm);
+        
+        function validateForm() {
+            const inviteUrl = document.getElementById('invite_url').value.trim();
+            const region = document.getElementById('region').value;
+            const submitButton = document.getElementById('submitButton');
+            
+            if (inviteUrl && region && selectedPackage) {
+                submitButton.disabled = false;
+            } else {
+                submitButton.disabled = true;
+            }
+        }
+        
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            createSnowflakes();
+            handleScrollAnimations();
+            
+            window.addEventListener('scroll', handleScrollAnimations);
+            
+            window.addEventListener('blur', function() {
+                const snowflakes = document.querySelectorAll('.snowflake');
+                snowflakes.forEach(snowflake => {
+                    snowflake.style.animationPlayState = 'paused';
+                });
+            });
+            
+            window.addEventListener('focus', function() {
+                const snowflakes = document.querySelectorAll('.snowflake');
+                snowflakes.forEach(snowflake => {
+                    snowflake.style.animationPlayState = 'running';
+                });
+            });
+            
+            // Инициализируем форму
+            validateForm();
+            
+            // Обработка сообщений от сервера
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        setTimeout(function() {
+                            alert("{{ message }}");
+                        }, 500);
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        });
+    </script>
+</body>
+</html>

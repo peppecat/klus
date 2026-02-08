@@ -1,0 +1,14 @@
+{
+    "base_fee": 0,
+    "discount_levels": [
+        [
+            0.0,
+            2.0
+        ],
+        [
+            250.0,
+            3.0
+        ]
+    ],
+    "individual_discounts": {}
+}

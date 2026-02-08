@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Управление заказами | Админ панель</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Favicon & Logo -->
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+    
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary: #FF9900;
+            --secondary: #232F3E;
+            --light-bg: #FFFFFF;
+            --border-color: #DDDDDD;
+            --text-dark: #131921;
+            --text-light: #565959;
+            --success: #067D62;
+            --danger: #FF0000;
+            --warning: #FFA500;
+        }
+        
+        body {
+            font-family: 'Amazon Ember', Arial, sans-serif;
+            background-color: #F3F3F3;
+            color: var(--text-dark);
+            line-height: 1.5;
+        }
+        
+        .navbar {
+            background-color: var(--secondary) !important;
+            padding: 0.5rem 0;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            color: white !important;
+            font-size: 1.5rem;
+        }
+        
+        .nav-link {
+            color: white !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            border-radius: 4px;
+            margin: 0 0.25rem;
+        }
+        
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .nav-link.active {
+            background-color: var(--primary);
+            color: #111 !important;
+        }
+        
+        .admin-sidebar {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+            height: fit-content;
+        }
+        
+        .admin-sidebar .nav-link {
+            color: var(--text-dark) !important;
+            padding: 0.75rem 1rem !important;
+            margin: 0.25rem 0;
+            border-radius: 6px;
+        }
+        
+        .admin-sidebar .nav-link:hover,
+        .admin-sidebar .nav-link.active {
+            background-color: var(--primary);
+            color: #111 !important;
+        }
+        
+        .admin-sidebar .nav-link i {
+            width: 20px;
+            text-align: center;
+            margin-right: 0.5rem;
+        }
+        
+        .table {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 0;
+        }
+        
+        .table th {
+            background-color: #F7F7F7;
+            color: var(--text-dark);
+            font-weight: 600;
+            padding: 1rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .table td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-color: var(--border-color);
+        }
+        
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.35em 0.65em;
+        }
+        
+        .status-completed {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .status-pending {
+            background-color: var(--warning);
+            color: white;
+        }
+        
+        .status-failed {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .filters-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/dashboard">
+                <i class="fas fa-shopping-bag me-2"></i>KEYZPANEL
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">
+                            <i class="fas fa-home me-1"></i> Магазин
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/admin">
+                            <i class="fas fa-cog me-1"></i> Админ панель
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">
+                            <i class="fas fa-sign-out-alt me-1"></i> Выйти
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container py-4">
+        <div class="row mb-4">
+            <div class="col">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-clipboard-list me-2"></i>Управление заказами
+                </h1>
+                <p class="text-muted">Всего заказов: {{ orders|length }}</p>
+            </div>
+        </div>
+        
+        <div class="row">
+             <!-- Sidebar -->
+            <div class="col-md-3 mb-4">
+                <div class="admin-sidebar">
+                    <nav class="nav flex-column">
+                        <a class="nav-link" href="/admin">
+                            <i class="fas fa-tachometer-alt"></i> Дашборд
+                        </a>
+                        <a class="nav-link" href="/admin/users">
+                            <i class="fas fa-users"></i> Пользователи
+                        </a>
+                        <a class="nav-link" href="/admin/finances">
+                            <i class="fas fa-money-bill-wave"></i> Средства
+                        </a>
+                        <a class="nav-link active" href="/admin/orders">
+                            <i class="fas fa-clipboard-list"></i> Заказы
+                        </a>
+                        <a class="nav-link" href="/admin/payment_settings">
+                            <i class="fas fa-wallet"></i> Прием средств
+                        </a>
+                        <a class="nav-link " href="/admin/reseller_tariffs">
+                            <i class="fas fa-layer-group"></i> Тарифы реселлера
+                        </a>
+                        <a class="nav-link" href="/admin/maintenance">
+                            <i class="fas fa-tools"></i> Тех. работы
+                        </a>
+                        <a class="nav-link" href="/admin/data_management">
+                            <i class="fas fa-database"></i> Управление данными
+                        </a>
+                    </nav>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-md-9">
+                <!-- Фильтры -->
+                <div class="filters-card">
+                    <form method="GET" class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Тип фильтра</label>
+                            <select class="form-select" name="filter">
+                                <option value="recent" {% if filter_type == 'recent' %}selected{% endif %}>Последние 15 заказов</option>
+                                <option value="all" {% if filter_type == 'all' %}selected{% endif %}>Все заказы</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Пользователь</label>
+                            <select class="form-select" name="username">
+                                <option value="">Все пользователи</option>
+                                {% for username in all_usernames %}
+                                <option value="{{ username }}" {% if username_filter == username %}selected{% endif %}>{{ username }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-filter me-2"></i>Применить
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="card-body p-0">
+                        {% if orders %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Пользователь</th>
+                                        <th>Категория</th>
+                                        <th>Товар</th>
+                                        <th>Цена</th>
+                                        <th>Кол-во</th>
+                                        <th>Дата и время</th>
+                                        <th>Статус</th>
+                                        <th>Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order in orders %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ order.username }}</strong>
+                                        </td>
+                                        <td>{{ order.category }}</td>
+                                        <td>{{ order.product }}</td>
+                                        <td>
+                                            <span class="fw-semibold">${{ "%.2f"|format(order.price) }}</span>
+                                        </td>
+                                        <td>{{ order.amount }}</td>
+                                        <td>
+                                            <small class="text-muted">{{ order.date }}</small>
+                                        </td>
+                                        <td>
+                                            {% if order.category == 'Steam' %}
+                                                {% if order.transaction_status == 'failed' or order.status == 'failed' %}
+                                                <span class="badge status-failed">
+                                                    <i class="fas fa-times-circle me-1"></i>Ошибка
+                                                </span>
+                                                {% else %}
+                                                <span class="badge status-completed">
+                                                    <i class="fas fa-check-circle me-1"></i>Завершен
+                                                </span>
+                                                {% endif %}
+                                            {% else %}
+                                                {% set status = order.transaction_status or order.status or 'pending' %}
+                                                {% if status == 'completed' or status == 'success' %}
+                                                <span class="badge status-completed">
+                                                    <i class="fas fa-check-circle me-1"></i>Завершен
+                                                </span>
+                                                {% elif status == 'pending' %}
+                                                <span class="badge status-pending">
+                                                    <i class="fas fa-clock me-1"></i>В обработке
+                                                </span>
+                                                {% else %}
+                                                <span class="badge status-failed">
+                                                    <i class="fas fa-times-circle me-1"></i>Ошибка
+                                                </span>
+                                                {% endif %}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <button class="btn btn-outline-primary edit-order-btn"
+                                                        data-username="{{ order.username }}"
+                                                        data-order-id="{{ order.id }}"
+                                                        data-order-date="{{ order.date }}"
+                                                        data-order-category="{{ order.category }}"
+                                                        data-order-status="{% if order.category == 'Steam' %}{% if order.transaction_status == 'failed' %}failed{% else %}completed{% endif %}{% else %}{% if order.transaction_status == 'success' %}completed{% else %}{{ order.transaction_status or order.status or 'pending' }}{% endif %}{% endif %}">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-outline-info order-details-btn"
+                                                        data-order='{{ order|tojson }}'>
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn btn-outline-danger delete-order-btn"
+                                                        data-username="{{ order.username }}"
+                                                        data-order-id="{{ order.id }}">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Заказы не найдены</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Модальное окно редактирования заказа -->
+    <div class="modal fade" id="editOrderModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Редактирование заказа</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editOrderForm">
+                        <input type="hidden" id="editOrderUsername" name="username">
+                        <input type="hidden" id="editOrderId" name="order_id">
+                        <input type="hidden" id="editOrderCategory" name="category">
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Дата и время</label>
+                            <input type="datetime-local" class="form-control" id="editOrderDate" name="date" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Статус заказа</label>
+                            <select class="form-select" id="editOrderStatus" name="status" required>
+                                <!-- Варианты будут добавлены через JavaScript -->
+                            </select>
+                            <small class="text-muted" id="steamStatusNote" style="display: none;">
+                                <i class="fas fa-info-circle me-1"></i>Для Steam заказов рекомендуется устанавливать статус "Завершен"
+                            </small>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-primary" id="saveOrderChanges">Сохранить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно деталей заказа -->
+    <div class="modal fade" id="orderDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Детали заказа</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="orderDetailsContent">
+                    <!-- Детали заказа будут загружены через JavaScript -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Редактирование заказа
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('edit-order-btn') || 
+                e.target.parentElement.classList.contains('edit-order-btn')) {
+                
+                const button = e.target.classList.contains('edit-order-btn') ? e.target : e.target.parentElement;
+                const username = button.dataset.username;
+                const orderId = button.dataset.orderId;
+                const orderDate = button.dataset.orderDate;
+                const orderCategory = button.dataset.orderCategory;
+                let orderStatus = button.dataset.orderStatus;
+                
+                // Нормализуем статус для формы редактирования
+                if (orderStatus === 'success') {
+                    orderStatus = 'completed';
+                }
+                
+                document.getElementById('editOrderUsername').value = username;
+                document.getElementById('editOrderId').value = orderId;
+                document.getElementById('editOrderCategory').value = orderCategory;
+                
+                // Конвертируем дату в формат для datetime-local
+                const dateObj = new Date(orderDate.replace(' ', 'T'));
+                document.getElementById('editOrderDate').value = dateObj.toISOString().slice(0, 16);
+                
+                const statusSelect = document.getElementById('editOrderStatus');
+                const statusNote = document.getElementById('steamStatusNote');
+                
+                // Обновляем опции в зависимости от категории заказа
+                statusSelect.innerHTML = '';
+                
+                if (orderCategory === 'Steam') {
+                    // Для Steam заказов "Завершен" идет первым
+                    const options = [
+                        {value: 'completed', text: 'Завершен'},
+                        {value: 'pending', text: 'В обработке'},
+                        {value: 'failed', text: 'Ошибка'}
+                    ];
+                    
+                    options.forEach(option => {
+                        const opt = document.createElement('option');
+                        opt.value = option.value;
+                        opt.textContent = option.text;
+                        if (option.value === orderStatus) {
+                            opt.selected = true;
+                        }
+                        statusSelect.appendChild(opt);
+                    });
+                    
+                    statusNote.style.display = 'block';
+                } else {
+                    // Для не-Steam заказов обычный порядок
+                    const options = [
+                        {value: 'pending', text: 'В обработке'},
+                        {value: 'completed', text: 'Завершен'},
+                        {value: 'failed', text: 'Ошибка'}
+                    ];
+                    
+                    options.forEach(option => {
+                        const opt = document.createElement('option');
+                        opt.value = option.value;
+                        opt.textContent = option.text;
+                        if (option.value === orderStatus) {
+                            opt.selected = true;
+                        }
+                        statusSelect.appendChild(opt);
+                    });
+                    
+                    statusNote.style.display = 'none';
+                }
+                
+                new bootstrap.Modal(document.getElementById('editOrderModal')).show();
+            }
+            
+            // Просмотр деталей заказа
+            if (e.target.classList.contains('order-details-btn') || 
+                e.target.parentElement.classList.contains('order-details-btn')) {
+                
+                const button = e.target.classList.contains('order-details-btn') ? e.target : e.target.parentElement;
+                const order = JSON.parse(button.dataset.order);
+                
+                // Определяем отображаемый статус
+                let displayStatus = order.transaction_status || order.status || 'pending';
+                let displayStatusClass = 'badge ';
+                
+                if (order.category === 'Steam') {
+                    if (displayStatus === 'failed') {
+                        displayStatusClass += 'status-failed';
+                        displayStatus = 'Ошибка';
+                    } else {
+                        displayStatusClass += 'status-completed';
+                        displayStatus = 'Завершен';
+                    }
+                } else {
+                    if (displayStatus === 'completed' || displayStatus === 'success') {
+                        displayStatusClass += 'status-completed';
+                        displayStatus = 'Завершен';
+                    } else if (displayStatus === 'pending') {
+                        displayStatusClass += 'status-pending';
+                        displayStatus = 'В обработке';
+                    } else {
+                        displayStatusClass += 'status-failed';
+                        displayStatus = 'Ошибка';
+                    }
+                }
+                
+                let detailsHtml = `
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-2"><strong>ID заказа:</strong> ${order.id}</div>
+                            <div class="mb-2"><strong>Пользователь:</strong> ${order.username}</div>
+                            <div class="mb-2"><strong>Категория:</strong> ${order.category}</div>
+                            <div class="mb-2"><strong>Товар:</strong> ${order.product}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-2"><strong>Цена:</strong> $${parseFloat(order.price).toFixed(2)}</div>
+                            <div class="mb-2"><strong>Количество:</strong> ${order.amount}</div>
+                            <div class="mb-2"><strong>Дата:</strong> ${order.date}</div>
+                            <div class="mb-2"><strong>Статус:</strong> <span class="${displayStatusClass}">${displayStatus}</span></div>
+                            <div class="mb-2"><strong>Реальный статус:</strong> ${order.transaction_status || order.status || 'pending'}</div>
+                        </div>
+                    </div>
+                `;
+                
+                // Дополнительная информация для Steam заказов
+                if (order.steamLogin) {
+                    detailsHtml += `
+                        <hr>
+                        <h6><i class="fas fa-steam me-2"></i>Информация Steam</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-2"><strong>Логин Steam:</strong> ${order.steamLogin}</div>
+                                ${order.transaction_id ? `<div class="mb-2"><strong>ID транзакции:</strong> ${order.transaction_id}</div>` : ''}
+                                ${order.requested_amount ? `<div class="mb-2"><strong>Запрошенная сумма:</strong> $${parseFloat(order.requested_amount).toFixed(2)}</div>` : ''}
+                            </div>
+                            <div class="col-md-6">
+                                ${order.paid_amount ? `<div class="mb-2"><strong>Оплачено:</strong> $${parseFloat(order.paid_amount).toFixed(2)}</div>` : ''}
+                                <div class="mb-2"><strong>Статус транзакции:</strong> ${order.transaction_status || 'N/A'}</div>
+                                ${order.discount ? `<div class="mb-2"><strong>Скидка:</strong> ${order.discount}%</div>` : ''}
+                            </div>
+                        </div>
+                        <div class="alert alert-info mt-3">
+                            <small><i class="fas fa-info-circle me-1"></i> Steam заказы отображаются как "Завершенные" для пользователей</small>
+                        </div>
+                    `;
+                }
+                
+                // Информация о скидке для всех заказов
+                if (order.discount && order.discount > 0) {
+                    detailsHtml += `
+                        <hr>
+                        <h6><i class="fas fa-percentage me-2"></i>Информация о скидке</h6>
+                        <div class="mb-2"><strong>Скидка:</strong> ${order.discount}%</div>
+                        ${order.discount_source ? `<div class="mb-2"><strong>Источник скидки:</strong> ${order.discount_source}</div>` : ''}
+                    `;
+                }
+                
+                document.getElementById('orderDetailsContent').innerHTML = detailsHtml;
+                new bootstrap.Modal(document.getElementById('orderDetailsModal')).show();
+            }
+            
+            // Удаление заказа
+            if (e.target.classList.contains('delete-order-btn') || 
+                e.target.parentElement.classList.contains('delete-order-btn')) {
+                
+                const button = e.target.classList.contains('delete-order-btn') ? e.target : e.target.parentElement;
+                const username = button.dataset.username;
+                const orderId = button.dataset.orderId;
+                
+                if (confirm('Удалить этот заказ?')) {
+                    fetch(`/admin/order/${username}/${orderId}/delete`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload();
+                        } else {
+                            alert('Ошибка: ' + data.error);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Произошла ошибка при удалении заказа');
+                    });
+                }
+            }
+        });
+        
+        // Сохранение изменений заказа
+        document.getElementById('saveOrderChanges').addEventListener('click', function() {
+            const username = document.getElementById('editOrderUsername').value;
+            const orderId = document.getElementById('editOrderId').value;
+            const formData = {
+                date: document.getElementById('editOrderDate').value.replace('T', ' ') + ':00',
+                status: document.getElementById('editOrderStatus').value
+            };
+            
+            fetch(`/admin/order/${username}/${orderId}/update`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Ошибка: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Произошла ошибка при обновлении заказа');
+            });
+        });
+    </script>
+</body>
+</html>

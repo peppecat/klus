@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Тех. работы | Админка</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+
+    <style>
+        :root {
+            --primary: #FF9900;
+            --secondary: #232F3E;
+            --light-bg: #FFFFFF;
+            --border-color: #DDDDDD;
+            --text-dark: #131921;
+            --text-light: #565959;
+            --success: #067D62;
+            --danger: #FF0000;
+            --warning: #FFA500;
+        }
+
+        body {
+            font-family: 'Amazon Ember', Arial, sans-serif;
+            background-color: #F3F3F3;
+            color: var(--text-dark);
+            line-height: 1.5;
+        }
+
+        .navbar {
+            background-color: var(--secondary) !important;
+            padding: 0.5rem 0;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            color: white !important;
+            font-size: 1.5rem;
+        }
+
+        .nav-link {
+            color: white !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            border-radius: 4px;
+            margin: 0 0.25rem;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-link.active {
+            background-color: var(--primary);
+            color: #111 !important;
+        }
+
+        .admin-sidebar {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+            height: fit-content;
+        }
+
+        .admin-sidebar .nav-link {
+            color: var(--text-dark) !important;
+            padding: 0.75rem 1rem !important;
+            margin: 0.25rem 0;
+            border-radius: 6px;
+        }
+
+        .admin-sidebar .nav-link:hover,
+        .admin-sidebar .nav-link.active {
+            background-color: var(--primary);
+            color: #111 !important;
+        }
+
+        .admin-sidebar .nav-link i {
+            width: 20px;
+            text-align: center;
+            margin-right: 0.5rem;
+        }
+
+        .card-admin {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .form-check-label {
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            border: none;
+            color: #111;
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background-color: #e68a00;
+        }
+
+        .btn-secondary {
+            margin-left: 0.5rem;
+        }
+
+        .alert-warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand" href="/dashboard">
+            <i class="fas fa-shopping-bag me-2"></i>KEYZPANEL
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarContent">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" href="/dashboard">
+                        <i class="fas fa-home me-1"></i> Магазин
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/admin">
+                        <i class="fas fa-cog me-1"></i> Админ панель
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">
+                        <i class="fas fa-sign-out-alt me-1"></i> Выйти
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<main class="container py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h3 mb-0">
+                <i class="fas fa-tools me-2"></i>Режим технических работ
+            </h1>
+            <p class="text-muted">Включение или отключение режима технических работ для пользователей</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 mb-4">
+            <div class="admin-sidebar">
+                    <nav class="nav flex-column">
+                        <a class="nav-link" href="/admin">
+                            <i class="fas fa-tachometer-alt"></i> Дашборд
+                        </a>
+                        <a class="nav-link" href="/admin/users">
+                            <i class="fas fa-users"></i> Пользователи
+                        </a>
+                        <a class="nav-link" href="/admin/finances">
+                            <i class="fas fa-money-bill-wave"></i> Средства
+                        </a>
+                        <a class="nav-link" href="/admin/orders">
+                            <i class="fas fa-clipboard-list"></i> Заказы
+                        </a>
+                        <a class="nav-link" href="/admin/payment_settings">
+                            <i class="fas fa-wallet"></i> Прием средств
+                        </a>
+                        <a class="nav-link " href="/admin/reseller_tariffs">
+                            <i class="fas fa-layer-group"></i> Тарифы реселлера
+                        </a>
+                        <a class="nav-link active" href="/admin/maintenance">
+                            <i class="fas fa-tools"></i> Тех. работы
+                        </a>
+                        <a class="nav-link" href="/admin/data_management">
+                            <i class="fas fa-database"></i> Управление данными
+                        </a>
+                    </nav>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <div class="card-admin">
+                <form method="post">
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" name="enabled" id="maintenanceSwitch" {% if enabled %}checked{% endif %}>
+                        <label class="form-check-label" for="maintenanceSwitch">
+                            Включить режим технических работ
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                    <a href="/admin" class="btn btn-secondary">Назад</a>
+                </form>
+
+                {% if enabled %}
+                <div class="alert alert-warning mt-4">
+                    ⚠ Сейчас сайт <strong>недоступен для пользователей</strong>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Bootstrap JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

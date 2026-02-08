@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Пользовательское соглашение | KEYZPANEL</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+    
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary: #FF6B35;
+            --primary-dark: #E55A2B;
+            --secondary: #0D1B2A;
+            --secondary-light: #1B263B;
+            --accent: #415A77;
+            --card-bg: #1E1E1E;
+            --card-hover: #252525;
+            --text-light: #E0E1DD;
+            --text-muted: #8A8D93;
+            --text-dark: #FFFFFF;
+            --success: #4CAF50;
+            --info: #2196F3;
+            --danger: #F44336;
+            --gradient-primary: linear-gradient(135deg, #FF6B35 0%, #FF8E53 100%);
+            --gradient-dark: linear-gradient(135deg, #0D1B2A 0%, #1B263B 100%);
+            --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            --card-shadow-hover: 0 12px 48px rgba(255, 107, 53, 0.2);
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--gradient-dark);
+            color: var(--text-light);
+            line-height: 1.6;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* Snowflake Container */
+        .snowflakes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .snowflake {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: fall linear infinite;
+        }
+        
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+        
+        /* Content wrapper */
+        .content-wrapper {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .navbar {
+            background: rgba(13, 27, 42, 0.95) !important;
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(65, 90, 119, 0.3);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .navbar-brand {
+            font-weight: 800;
+            color: var(--text-dark) !important;
+            font-size: 1.8rem;
+            letter-spacing: -0.5px;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .nav-link {
+            color: var(--text-light) !important;
+            font-weight: 500;
+            padding: 0.75rem 1.25rem !important;
+            border-radius: 8px;
+            margin: 0 0.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-link:before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-primary);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover:before {
+            width: 100%;
+        }
+        
+        .nav-link:hover {
+            background: rgba(255, 107, 53, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .nav-link.active {
+            background: var(--gradient-primary);
+            color: white !important;
+            box-shadow: 0 4px 20px rgba(255, 107, 53, 0.3);
+        }
+        
+        .nav-link.active:before {
+            display: none;
+        }
+        
+        /* Page header */
+        .page-header {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin: 2rem 0;
+            padding-bottom: 1rem;
+            position: relative;
+        }
+        
+        .page-header:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 80px;
+            height: 4px;
+            background: var(--gradient-primary);
+            border-radius: 2px;
+        }
+        
+        /* Terms content card */
+        .terms-card {
+            background: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .terms-card:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+        }
+        
+        /* Terms sections */
+        .terms-section {
+            margin-bottom: 2.5rem;
+        }
+        
+        .terms-section h3 {
+            color: var(--text-dark);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            font-size: 1.4rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid rgba(65, 90, 119, 0.3);
+            position: relative;
+        }
+        
+        .terms-section h3:after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 50px;
+            height: 2px;
+            background: var(--gradient-primary);
+        }
+        
+        /* Terms list */
+        .terms-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .terms-list li {
+            padding: 0.75rem 0;
+            position: relative;
+            padding-left: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-light);
+            border-bottom: 1px solid rgba(65, 90, 119, 0.1);
+        }
+        
+        .terms-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .terms-list li:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 1.25rem;
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+        }
+        
+        /* Important note */
+        .important-note {
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.1), rgba(255, 142, 83, 0.1));
+            border: 1px solid rgba(255, 107, 53, 0.3);
+            border-radius: 12px;
+            padding: 1.75rem;
+            margin: 2.5rem 0;
+            color: var(--text-light);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .important-note:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--gradient-primary);
+        }
+        
+        .important-note h4 {
+            color: var(--text-dark);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        /* Button styles */
+        .btn-primary {
+            background: var(--gradient-primary);
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 0.875rem 2rem;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(255, 107, 53, 0.3);
+        }
+        
+        .btn-outline-primary {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            font-weight: 600;
+            padding: 0.875rem 2rem;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline-primary:hover {
+            background: var(--gradient-primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        /* Footer - СКОПИРОВАНО С ГЛАВНОЙ СТРАНИЦЫ */
+        footer {
+            background: linear-gradient(135deg, #0D1B2A, #1B263B);
+            padding: 4rem 0 2rem;
+            color: var(--text-light);
+            margin-top: 5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        footer:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+        }
+        
+        footer a {
+            color: var(--text-light);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            opacity: 0.8;
+        }
+        
+        footer a:hover {
+            color: var(--primary);
+            opacity: 1;
+            transform: translateX(5px);
+        }
+        
+        .copyright {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        
+        /* Breadcrumb */
+        .breadcrumb {
+            background-color: transparent;
+            padding: 0;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+        
+        .breadcrumb-item a {
+            color: var(--text-light);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .breadcrumb-item a:hover {
+            color: var(--primary);
+        }
+        
+        .breadcrumb-item.active {
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+        
+        /* Animation for cards */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--secondary);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--gradient-primary);
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+        
+        /* Selection color */
+        ::selection {
+            background: rgba(255, 107, 53, 0.3);
+            color: white;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 992px) {
+            .page-header {
+                font-size: 2rem;
+            }
+            
+            .terms-card {
+                padding: 2rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .navbar-toggler {
+                border-color: rgba(255, 107, 53, 0.5);
+                color: var(--primary);
+            }
+            
+            .navbar-toggler:focus {
+                box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.25);
+            }
+            
+            .terms-card {
+                padding: 1.5rem;
+            }
+            
+            .terms-section h3 {
+                font-size: 1.2rem;
+            }
+            
+            .terms-list li {
+                padding-left: 2rem;
+            }
+            
+            footer {
+                padding: 3rem 0 1.5rem;
+            }
+            
+            .list-inline-item {
+                display: block;
+                text-align: center;
+                margin-bottom: 0.75rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .page-header {
+                font-size: 1.75rem;
+                margin: 1.5rem 0;
+            }
+            
+            .nav-link {
+                padding: 0.5rem 1rem !important;
+                margin: 0.25rem 0;
+            }
+            
+            .important-note {
+                padding: 1.25rem;
+            }
+            
+            footer {
+                padding: 2.5rem 0 1.25rem;
+            }
+        }
+        
+        @media (max-width: 400px) {
+            .page-header {
+                font-size: 1.5rem;
+            }
+            
+            .terms-card {
+                padding: 1.25rem;
+            }
+            
+            .terms-list li {
+                padding-left: 1.75rem;
+                font-size: 0.95rem;
+            }
+            
+            .btn-primary {
+                padding: 0.875rem 1.75rem;
+                font-size: 0.95rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Snowflake Container -->
+    <div class="snowflakes" id="snowflakes"></div>
+    
+    <!-- Content Wrapper -->
+    <div class="content-wrapper">
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container">
+                <a class="navbar-brand" href="/">
+                    <i class="fas fa-shopping-bag me-2"></i>KEYZPANEL
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">
+                                <i class="fas fa-home me-1"></i> Главная
+                            </a>
+                        </li>
+                        {% if 'username' in session %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/dashboard">
+                                <i class="fas fa-tachometer-alt me-1"></i> Панель управления
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/login">
+                                <i class="fas fa-sign-in-alt me-1"></i> Войти
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/register">
+                                <i class="fas fa-user-plus me-1"></i> Регистрация
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <main class="container py-4">
+            <div class="row mb-3">
+                <div class="col">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/">Главная</a></li>
+                            <li class="breadcrumb-item active">Пользовательское соглашение</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+            
+            <div class="row mb-4">
+                <div class="col">
+                    <h1 class="page-header">Пользовательское соглашение</h1>
+                </div>
+            </div>
+            
+            <div class="terms-card fade-in">
+                <div class="important-note">
+                    <h4><i class="fas fa-exclamation-circle me-2"></i>Важная информация</h4>
+                    <p class="mb-0">Настоящее Пользовательское соглашение определяет правила и условия использования нашего веб-сайта и услуг.</p>
+                </div>
+
+                <div class="terms-section">
+                    <h3>1. Общие положения</h3>
+                    <ul class="terms-list">
+                        <li>Пользователи должны соблюдать настоящее Соглашение для доступа и использования веб-сайта.</li>
+                        <li>Администрация оставляет за собой право изменять настоящее Соглашение в любое время.</li>
+                        <li>Пользователи несут ответственность за регулярное ознакомление с обновлениями Соглашения.</li>
+                        <li>Продолжение использования веб-сайта означает принятие обновленного Соглашения.</li>
+                        <li>Пользователи должны быть не моложе 14 лет для использования веб-сайта.</li>
+                        <li>Веб-сайт не несет ответственности за контент третьих сторон, ссылки на который размещены на его страницах.</li>
+                    </ul>
+                </div>
+
+                <div class="terms-section">
+                    <h3>2. Обязанности пользователей</h3>
+                    <ul class="terms-list">
+                        <li>Пользователи должны предоставлять точную и актуальную информацию при регистрации.</li>
+                        <li>Пользователи обязаны предоставлять любую информацию касательно своего аккаунта по требованию администрации.</li>
+                        <li>В случае предоставления недостоверной информации или ее сокрытия аккаунт будет заблокирован без возврата средств.</li>
+                        <li>Пользователи не должны заниматься мошенничеством, обманом, отмыванием средств или иной незаконной деятельностью на веб-сайте.</li>
+                        <li>Пользователи должны уважать права интеллектуальной собственности и не распространять, не публиковать и не использовать контент, защищённый авторским правом, без соответствующего разрешения правообладателя.</li>
+                        <li>Запрещается использование ботов, скриптов, эмуляторов, автоматизированных систем либо иных средств для получения несанкционированного доступа к сервисам веб-сайта, их манипуляции или обхода ограничений.</li>
+                        <li>Пользователи несут полную ответственность за сохранность и конфиденциальность своих учетных данных, включая логин, пароль и иные данные доступа. Все действия, совершённые с использованием аккаунта пользователя, считаются совершёнными самим пользователем.</li>
+                        <li>Использование технологий сокрытия или подмены местоположения, включая VPN, прокси-серверы и анонимайзеры, может повлечь временную или постоянную блокировку аккаунта, а также отказ в предоставлении услуг без объяснения причин.</li>
+                        <li>Администрация не несёт ответственности за возможные убытки пользователя, возникшие в результате технических сбоев, приостановки работы сервиса, утраты данных или действий третьих лиц.</li>
+                        <li>Администрация оставляет за собой право приостанавливать, ограничивать или удалять учетные записи пользователей, нарушающих настоящее Соглашение, без предварительного уведомления и без компенсации возможных убытков.</li>
+                    </ul>
+                </div>
+
+                <div class="terms-section">
+                    <h3>3. Оплата и возвраты</h3>
+                    <ul class="terms-list">
+                        <li>Все совершаемые на веб-сайте транзакции считаются окончательными и безотзывными, если иное прямо не предусмотрено настоящим Соглашением или отдельными условиями предоставления услуг.</li>
+                        <li>Возврат денежных средств осуществляется в исключительных случаях и только по усмотрению Администрации, при отсутствии у пользователя нарушений условий настоящего Соглашения.</li>
+                        <li>Возврат средств за приобретённый тариф возможен исключительно в течение тридцати (30) календарных дней с момента совершения оплаты в случае блокировки учетной записи пользователя по инициативе Администрации.
+                            Во всех иных случаях, включая, но не ограничиваясь: добровольным прекращением использования сервиса, несоответствием ожиданий пользователя, а также блокировкой аккаунта вследствие нарушений настоящего Соглашения, возврат средств за приобретённый тариф не производится.
+                        </li>
+                        <li>Мошеннические транзакции, а также любые операции, имеющие признаки мошенничества, злоупотребления или незаконного получения услуг, подлежат передаче в соответствующие правоохранительные и контролирующие органы.</li>
+                        <li>Администрация не несёт ответственности за любые убытки пользователя, вызванные изменениями курсов валют, комиссионными сборами платёжных систем, банков или иных финансовых посредников.</li>
+                        <li>Пользователь самостоятельно несёт полную ответственность за корректность и актуальность предоставленных платёжных реквизитов. Администрация не отвечает за невозможность зачисления средств или их утрату, возникшую вследствие ошибок, допущенных пользователем при осуществлении платежа.</li>
+                        <li>Возврат денежных средств, в случаях, когда он допускается настоящим Соглашением, осуществляется исключительно по усмотрению Администрации и в сроки, определяемые Администрацией самостоятельно.
+                            При этом срок фактического возврата денежных средств не может составлять менее ста восьмидесяти (180) календарных дней и не может превышать трехсот шестидесяти пяти (365) календарных дней с момента принятия Администрацией решения о возврате.
+                            Администрация не несёт ответственности за задержки возврата средств, возникшие по причинам, не зависящим от неё, включая, но не ограничиваясь, действиями платёжных систем, банков и иных финансовых посредников.
+                        </li>
+                        <li>Оспаривание платежей приведет к приостановке учетной записи.</li>
+                    </ul>
+                </div>
+
+                <div class="terms-section">
+                    <h3>4. Запрещенная деятельность</h3>
+                    <ul class="terms-list">
+                        <li>Пользователям запрещено заниматься спамом или рассылкой несанкционированных сообщений.</li>
+                        <li>Взлом, фишинг и любые попытки получения несанкционированного доступа к данным веб-сайта строго запрещены.</li>
+                        <li>Пользователям запрещено выдавать себя за других лиц или организации.</li>
+                        <li>Запрещено распространение вредоносного программного обеспечения через веб-сайт.</li>
+                        <li>Любая попытка манипулирования функциональностью веб-сайта приведет к немедленному прекращению действия учетной записи.</li>
+                        <li>Администрация оставляет за собой право отслеживать активность и принимать меры против нарушителей.</li>
+                    </ul>
+                </div>
+
+                <div class="terms-section">
+                    <h3>5. Политика конфиденциальности</h3>
+                    <ul class="terms-list">
+                        <li>Веб-сайт собирает и обрабатывает персональные данные в соответствии с Политикой конфиденциальности.</li>
+                        <li>Персональные данные пользователей не будут проданы или переданы третьим лицам.</li>
+                        <li>Пользователи могут запросить удаление своих данных, обратившись в службу поддержки.</li>
+                        <li>Веб-сайт использует файлы cookie для улучшения пользовательского опыта.</li>
+                        <li>Пользователи могут отказаться от определенных практик сбора данных через настройки браузера.</li>
+                        <li>Приняты меры безопасности для защиты информации пользователей.</li>
+                    </ul>
+                </div>
+
+                <div class="terms-section">
+                    <h3>6. Разрешение споров</h3>
+                    <ul class="terms-list">
+                        <li>Все споры должны разрешаться путем переговоров, когда это возможно.</li>
+                        <li>Если спор не может быть разрешен полюбовно, он будет урегулирован в соответствии с применимыми законами.</li>
+                        <li>Администрация оставляет за собой право принимать окончательные решения относительно споров по учетным записям.</li>
+                        <li>Пользователи соглашаются отказаться от коллективных исков против Администрации.</li>
+                        <li>Место рассмотрения юридических споров определяется Администрацией.</li>
+                        <li>Веб-сайт не несет ответственности за действия третьих лиц, влияющие на учетные записи пользователей.</li>
+                        <li>Все решения Администрации относительно блокировки, заморозки или ограничения аккаунтов принимаются в одностороннем порядке, являются окончательными и не подлежат оспариванию.</li>
+                    </ul>
+                </div>
+
+                <div class="terms-section">
+                    <h3>7. Прекращение действия и приостановка учетной записи</h3>
+                    <ul class="terms-list">
+                        <li>Администрация может прекратить или приостановить действие учетных записей без предварительного уведомления.</li>
+                        <li>Пользователи, нарушающие настоящее Соглашение, не имеют права на возврат средств.</li>
+                        <li>Администрация вправе по собственному усмотрению временно приостановить действие учетной записи пользователя (но не более 7 дней) в целях проведения проверки транзакций и учетной записи на соответствие требованиям противодействия легализации доходов, полученных преступным путем(AML / CFT).</li>
+                        <li>На период проведения AML-проверки доступ пользователя к услугам веб-сайта может быть полностью или частично ограничен без предварительного уведомления.
+                            Пользователь обязуется по требованию Администрации предоставить дополнительные сведения и документы, включая, но не ограничиваясь:
+                            — подтверждение источника происхождения средств;
+                            — информацию о совершаемых транзакциях и целях использования сервиса.
+                        </li>
+                        <li>В случае отказа пользователя от предоставления запрошенной информации, предоставления недостоверных данных либо выявления подозрительных операций Администрация вправе отказать в восстановлении учетной записи, прекратить предоставление услуг и заблокировать аккаунт без возврата средств.
+                            Результаты AML-проверки являются окончательными и не подлежат обжалованию.
+                        </li>
+                        <li>Администрация оставляет за собой право восстанавливать приостановленные учетные записи при определенных условиях.</li>
+                        <li>Пользователям запрещено создавать несколько учетных записей для обхода ограничений.</li>
+                        <li>Все решения о блокировке или заморозке аккаунта принимаются Администрацией в одностороннем порядке, являются окончательными и не подлежат оспариванию.</li>
+                    </ul>
+                </div>
+
+                <div class="terms-section">
+                    <h3>8. Политика тарифов реселлера</h3>
+                    <ul class="terms-list">
+                        <li>Администрация оставляет за собой право в одностороннем порядке изменять условия тарифов реселлера, включая, но не ограничиваясь: стоимость тарифов, условия их продления, сроки действия и доступные функции.</li>
+                        <li>Стоимость тарифов реселлера может быть изменена Администрацией в любое время без предварительного уведомления пользователей.</li>
+                        <li>Изменения условий тарифов реселлера вступают в силу с момента их публикации на веб-сайте и распространяются на все новые покупки тарифов.</li>
+                        <li>При наличии у пользователя активного тарифа реселлера, Администрация имеет право изменять условия обслуживания, включая повышение минимальных сумм пополнения баланса.</li>
+                        <li>В случае повышения минимальной суммы пополнения при активном тарифе реселлера, новые условия применяются ко всем последующим пополнениям баланса, независимо от даты приобретения тарифа.</li>
+                        <li>Изменение условий тарифов реселлера не является основанием для возврата средств за уже приобретенные тарифные планы.</li>
+                        <li>Администрация не несет ответственности за возможные убытки пользователя, связанные с изменением условий тарифов реселлера.</li>
+                        <li>Продолжение использования услуг после изменения условий тарифов реселлера означает безоговорочное согласие пользователя с новыми условиями.</li>
+                        <li>Ставки комиссий и скидок по тарифам реселлера могут быть изменены Администрацией на усмотрение без предварительного уведомления.</li>
+                        <li>При изменении условий тарифов реселлера Администрация не обязана предлагать пользователям эквивалентные условия в качестве компенсации.</li>
+                        <li>В случае значительных изменений условий тарифов реселлера, затрагивающих существенные условия обслуживания, Администрация может по своему усмотрению предложить пользователям альтернативные варианты, однако это не является обязанностью Администрации.</li>
+                        <li>Все споры, связанные с изменением условий тарифов реселлера, рассматриваются Администрацией в одностороннем порядке, и ее решения являются окончательными.</li>
+                    </ul>
+                </div>
+
+                <div class="terms-section">
+                    <h3>9. Заключительные положения</h3>
+                    <ul class="terms-list">
+                        <li>Если какое-либо положение настоящего Соглашения будет признано недействительным, остальные положения остаются в силе.</li>
+                        <li>Администрация оставляет за собой право обновлять настоящее Соглашение в любое время.</li>
+                        <li>Продолжение использования веб-сайта означает согласие с последней версией Соглашения.</li>
+                        <li>Пользователи должны обращаться в службу поддержки по любым вопросам, касающимся настоящего Соглашения.</li>
+                        <li>Веб-сайт не несет ответственности за временные простои во время технического обслуживания.</li>
+                        <li>Настоящее Соглашение представляет собой полное соглашение между пользователями и Администрацией.</li>
+                        <li>Все спорные ситуации и претензии разрешаются Администрацией в одностороннем порядке, и ее решения являются окончательными и не подлежат оспариванию.</li>
+                        <li>Администрация оставляет за собой право изменять ставки по тарифам реселлера в любое время по своему усмотрению без обязательства уведомлять пользователей заранее.</li>
+                    </ul>
+                </div>
+
+                <div class="important-note">
+                    <h4><i class="fas fa-check-circle me-2"></i>Согласие с условиями</h4>
+                    <p class="mb-0"><strong>Используя этот веб-сайт, вы соглашаетесь с настоящими Условиями использования.</strong></p>
+                     <p class="mb-0"><strong>Настоящим, используя функционал и услуги, предоставляемые данным веб-сайтом, Пользователь в полном объеме, безоговорочно и безусловно принимает все положения настоящего Пользовательского соглашения, признает их обязательными для себя и обязуется неукоснительно соблюдать.</strong></p>
+    <p class="mt-2 mb-0"><strong>Фактом прохождения процедуры регистрации на сайте и/или начала использования любых услуг, предоставляемых  данным веб-сайтом, Пользователь подтверждает свое полное и безоговорочное согласие со всеми условиями, правилами, политиками и положениями, опубликованными на сайте, включая, но не ограничиваясь, настоящим Пользовательским соглашением.</strong></p>
+    <p class="mt-2 mb-0"><strong>Пользователь подтверждает, что ознакомился с условиями настоящего Соглашения в полном объеме, понимает их содержание и принимает их в качестве обязательных для исполнения.</strong></p>
+    <p class="mt-2 mb-0"><strong>Обращаем особое внимание:</strong> Все решения Администрации относительно блокировки аккаунтов, заморозки средств, изменения условий тарифов реселлера и повышения минимальных сумм пополнения принимаются в одностороннем порядке, являются окончательными и не подлежат оспариванию. Ставки по тарифам могут быть изменены Администрацией по своему усмотрению в любое время.</p>
+                </div>
+
+                <div class="text-center mt-4">
+                    <a href="/" class="btn btn-primary">
+                        <i class="fas fa-home me-2"></i>Вернуться на главную
+                    </a>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer - СКОПИРОВАНО С ГЛАВНОЙ СТРАНИЦЫ -->
+        <footer class="py-4">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 text-center">
+                        <h4 class="mb-4">KEYZPANEL.COM</h4>
+                        <p class="copyright mb-4">Ваш надежный партнер в мире цифровых товаров и пополнения Steam</p>
+                        <nav class="mb-4">
+                            <ul class="list-inline mb-0">
+                                <li class="list-inline-item mx-3"><a href="/user_agreement"><i class="fas fa-file-contract me-1"></i>Пользовательское соглашение</a></li>
+                                <li class="list-inline-item mx-3"><a href="/privacy_policy"><i class="fas fa-shield-alt me-1"></i>Политика конфиденциальности</a></li>
+                                <li class="list-inline-item mx-3"><a href="/support"><i class="fas fa-headset me-1"></i>Поддержка</a></li>
+                            </ul>
+                        </nav>
+                        <p class="copyright mb-3">&copy; 2026 KEYZPANEL.COM. Все права защищены.</p>
+                        <p class="copyright mb-0">Пополнение Steam кошелька • Цифровые товары • Лучшие цены</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Create snowflakes
+        function createSnowflakes() {
+            const container = document.getElementById('snowflakes');
+            const snowflakeCount = 60;
+            
+            for (let i = 0; i < snowflakeCount; i++) {
+                const snowflake = document.createElement('div');
+                snowflake.classList.add('snowflake');
+                
+                const size = Math.random() * 6 + 2;
+                snowflake.style.width = `${size}px`;
+                snowflake.style.height = `${size}px`;
+                snowflake.style.left = `${Math.random() * 100}vw`;
+                snowflake.style.opacity = Math.random() * 0.8 + 0.2;
+                const duration = Math.random() * 10 + 5;
+                snowflake.style.animationDuration = `${duration}s`;
+                snowflake.style.animationDelay = `${Math.random() * 5}s`;
+                
+                container.appendChild(snowflake);
+            }
+        }
+        
+        // Scroll animation
+        function handleScrollAnimations() {
+            const elements = document.querySelectorAll('.fade-in');
+            
+            elements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < window.innerHeight - elementVisible) {
+                    element.classList.add('visible');
+                }
+            });
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            createSnowflakes();
+            handleScrollAnimations();
+            
+            // Add scroll event listener
+            window.addEventListener('scroll', handleScrollAnimations);
+            
+            // Remove snowflakes when window loses focus to save resources
+            window.addEventListener('blur', function() {
+                const snowflakes = document.querySelectorAll('.snowflake');
+                snowflakes.forEach(snowflake => {
+                    snowflake.style.animationPlayState = 'paused';
+                });
+            });
+            
+            window.addEventListener('focus', function() {
+                const snowflakes = document.querySelectorAll('.snowflake');
+                snowflakes.forEach(snowflake => {
+                    snowflake.style.animationPlayState = 'running';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

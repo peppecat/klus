@@ -1,0 +1,2286 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Аккаунт | KEYZPANEL</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+    
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary: #FF6B35;
+            --primary-dark: #E55A2B;
+            --secondary: #0D1B2A;
+            --secondary-light: #1B263B;
+            --accent: #415A77;
+            --card-bg: #1E1E1E;
+            --card-hover: #252525;
+            --text-light: #E0E1DD;
+            --text-muted: #8A8D93;
+            --text-dark: #FFFFFF;
+            --success: #4CAF50;
+            --info: #2196F3;
+            --danger: #F44336;
+            --warning: #FF9800;
+            --frozen-blue: #0dcaf0;
+            --refund-cyan: #00BCD4;
+            --gradient-primary: linear-gradient(135deg, #FF6B35 0%, #FF8E53 100%);
+            --gradient-dark: linear-gradient(135deg, #0D1B2A 0%, #1B263B 100%);
+            --gradient-frozen: linear-gradient(135deg, #0dcaf0 0%, #2196F3 100%);
+            --gradient-refund: linear-gradient(135deg, #00BCD4 0%, #0097A7 100%);
+            --gradient-refund-btn: linear-gradient(135deg, #00BCD4 0%, #0097A7 100%);
+            --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            --card-shadow-hover: 0 12px 48px rgba(255, 107, 53, 0.2);
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--gradient-dark);
+            color: var(--text-light);
+            line-height: 1.6;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* Snowflake Container */
+        .snowflakes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .snowflake {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: fall linear infinite;
+        }
+        
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+        
+        /* Content wrapper */
+        .content-wrapper {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .navbar {
+            background: rgba(13, 27, 42, 0.95) !important;
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(65, 90, 119, 0.3);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .navbar-brand {
+            font-weight: 800;
+            color: var(--text-dark) !important;
+            font-size: 1.8rem;
+            letter-spacing: -0.5px;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .nav-link {
+            color: var(--text-light) !important;
+            font-weight: 500;
+            padding: 0.75rem 1.25rem !important;
+            border-radius: 8px;
+            margin: 0 0.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-link:before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-primary);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover:before {
+            width: 100%;
+        }
+        
+        .nav-link:hover {
+            background: rgba(255, 107, 53, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .nav-link.active {
+            background: var(--gradient-primary);
+            color: white !important;
+            box-shadow: 0 4px 20px rgba(255, 107, 53, 0.3);
+        }
+        
+        .nav-link.active:before {
+            display: none;
+        }
+        
+        /* User info styles */
+        .user-info-card {
+            background: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .user-info-card:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+        }
+        
+        .user-info-card.frozen:before {
+            background: var(--gradient-frozen);
+        }
+        
+        .user-info-card.frozen-refund:before {
+            background: var(--gradient-refund);
+        }
+        
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.2rem;
+            margin-right: 1.25rem;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+        }
+        
+        .user-info-card.frozen .user-avatar {
+            background: var(--gradient-frozen);
+            box-shadow: 0 4px 15px rgba(13, 202, 240, 0.3);
+        }
+        
+        .user-info-card.frozen-refund .user-avatar {
+            background: var(--gradient-refund);
+            box-shadow: 0 4px 15px rgba(0, 188, 212, 0.3);
+        }
+        
+        .user-details {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            font-size: 1.2rem;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .user-balance {
+            font-size: 1rem;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+        
+        .user-balance:before {
+            content: '$';
+            margin-right: 0.25rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+        
+        .user-info-card.frozen .user-balance:before {
+            color: var(--frozen-blue);
+        }
+        
+        .user-info-card.frozen-refund .user-balance:before {
+            color: var(--refund-cyan);
+        }
+        
+        /* Badge styles */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            gap: 0.4rem;
+            transition: all 0.3s ease;
+        }
+        
+        .status-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .frozen-badge {
+            background: var(--gradient-frozen);
+            color: white;
+            box-shadow: 0 4px 12px rgba(13, 202, 240, 0.3);
+        }
+        
+        .refund-badge {
+            background: var(--gradient-refund);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 188, 212, 0.3);
+        }
+        
+        .refund-amount {
+            background: rgba(0, 188, 212, 0.1);
+            border: 1px solid rgba(0, 188, 212, 0.3);
+            color: #00BCD4;
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        
+        .refund-info {
+            background: rgba(0, 188, 212, 0.05);
+            border: 1px solid rgba(0, 188, 212, 0.2);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .refund-info-title {
+            font-weight: 600;
+            color: #00BCD4;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .refund-info-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .refund-detail {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        
+        .refund-detail-label {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        
+        .refund-detail-value {
+            font-weight: 600;
+            color: white;
+            font-size: 0.95rem;
+        }
+        
+        .refund-detail-reason {
+            color: #FF6B35;
+            font-weight: 500;
+            background: rgba(255, 107, 53, 0.1);
+            padding: 0.5rem;
+            border-radius: 6px;
+            margin-top: 0.25rem;
+            border-left: 3px solid #FF6B35;
+        }
+        
+        .refund-total {
+            border-top: 1px solid rgba(0, 188, 212, 0.3);
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #00BCD4;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        /* Refund button styles */
+        .refund-btn-container {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(0, 188, 212, 0.2);
+        }
+        
+        .refund-btn {
+            background: var(--gradient-refund-btn);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        
+        .refund-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 188, 212, 0.3);
+            color: white;
+        }
+        
+        .refund-btn:active {
+            transform: translateY(-1px);
+        }
+        
+        /* Promo banner */
+        .promo-banner {
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.9), rgba(255, 142, 83, 0.9));
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            color: white;
+            box-shadow: 0 8px 32px rgba(255, 107, 53, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .promo-banner:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1), transparent);
+            pointer-events: none;
+        }
+        
+        .promo-content {
+            flex: 1;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .promo-title {
+            font-weight: 800;
+            font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .promo-text {
+            font-size: 1.05rem;
+            opacity: 0.9;
+            margin-bottom: 0;
+        }
+        
+        .promo-btn {
+            background: rgba(255, 255, 255, 0.95);
+            color: var(--primary-dark);
+            border: none;
+            border-radius: 12px;
+            padding: 0.875rem 2rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s;
+            white-space: nowrap;
+            margin-left: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .promo-btn:hover {
+            background: white;
+            color: var(--primary-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .page-header {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin: 2rem 0;
+            padding-bottom: 1rem;
+            position: relative;
+        }
+        
+        .page-header:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 80px;
+            height: 4px;
+            background: var(--gradient-primary);
+            border-radius: 2px;
+        }
+        
+        /* Balance cards */
+        .balance-card {
+            background: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .balance-card:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
+        }
+        
+        .balance-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--card-shadow-hover);
+            border-color: rgba(255, 107, 53, 0.3);
+        }
+        
+        .balance-card:hover:before {
+            transform: scaleX(1);
+        }
+        
+        .balance-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .balance-amount {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+        }
+        
+        .balance-label {
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Stats cards */
+        .stat-card {
+            background: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            height: 100%;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--card-shadow-hover);
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            font-size: 1rem;
+            color: var(--text-muted);
+        }
+        
+        /* Table styles */
+        .history-table {
+            background: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .history-table .table {
+            background: transparent;
+            color: var(--text-light);
+            margin-bottom: 0;
+        }
+        
+        .history-table th {
+            background: rgba(13, 27, 42, 0.8);
+            color: var(--text-dark);
+            font-weight: 700;
+            padding: 1.25rem;
+            border-bottom: 1px solid rgba(65, 90, 119, 0.3);
+        }
+        
+        .history-table td {
+            padding: 1.25rem;
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(65, 90, 119, 0.1);
+            background: rgba(13, 27, 42, 0.8);
+            color: #fff;
+        }
+
+        
+        .history-table tbody tr:hover {
+            background: rgba(255, 107, 53, 0.05);
+        }
+        
+        .history-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        /* Status badges */
+        .status-badge-old {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .status-completed {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+        }
+        
+        .status-pending {
+            background: rgba(255, 167, 38, 0.2);
+            color: #FFA726;
+        }
+        
+        .status-failed {
+            background: rgba(244, 67, 54, 0.2);
+            color: #F44336;
+        }
+        
+        .status-processing {
+            background: rgba(33, 150, 243, 0.2);
+            color: #2196F3;
+        }
+        
+        /* Payment method cards */
+        .payment-method-card {
+            background: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.05);
+            text-align: center;
+        }
+        
+        .payment-method-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.15);
+        }
+        
+        .payment-method-card.selected {
+            border-color: var(--primary);
+            background: rgba(255, 107, 53, 0.1);
+        }
+        
+        .payment-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        
+        /* Modal styles - ОБНОВЛЕНЫ */
+        .modal-content {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            color: var(--text-light);
+        }
+        
+        .modal-header {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+        }
+        
+        .modal-title {
+            color: var(--text-dark);
+            font-weight: 700;
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .btn-close {
+            filter: invert(1) brightness(2);
+            opacity: 0.7;
+            transition: opacity 0.2s ease;
+        }
+        
+        .btn-close:hover {
+            opacity: 1;
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+        }
+        
+        .modal-footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.25rem 1.5rem;
+            background: rgba(13, 27, 42, 0.4);
+        }
+        
+        /* Обновленные стили для модального окна пополнения */
+        .topup-method-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .topup-method-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100px;
+        }
+        
+        .topup-method-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 107, 53, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .topup-method-item.selected {
+            background: rgba(255, 107, 53, 0.15);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
+        }
+        
+        .topup-method-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--text-light);
+        }
+        
+        .topup-method-item.selected .topup-method-icon {
+            color: var(--primary);
+        }
+        
+        .topup-method-label {
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+        
+        .topup-method-item.selected .topup-method-label {
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+        
+        .amount-input-container {
+            margin-bottom: 1.5rem;
+        }
+        
+        .amount-input-wrapper {
+            position: relative;
+        }
+        
+        .amount-input-wrapper:before {
+            content: '$';
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+        
+        .topup-amount-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: var(--text-dark);
+            padding: 1rem 1rem 1rem 2.5rem;
+            font-size: 1.1rem;
+            font-weight: 500;
+            width: 100%;
+            transition: all 0.25s ease;
+        }
+        
+        .topup-amount-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+        
+        .quick-amounts {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+            flex-wrap: wrap;
+        }
+        
+        .quick-amount-btn {
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--text-light);
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex: 1;
+            min-width: 70px;
+            text-align: center;
+        }
+        
+        .quick-amount-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
+        }
+        
+        .quick-amount-btn.active {
+            background: rgba(255, 107, 53, 0.2);
+            border-color: var(--primary);
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .amount-helper {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            display: block;
+        }
+        
+        .payment-instructions {
+            background: rgba(13, 27, 42, 0.5);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-top: 1.5rem;
+            border: 1px solid rgba(65, 90, 119, 0.3);
+            display: none;
+        }
+        
+        .payment-instructions.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .instructions-title {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+        }
+        
+        .instructions-content {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            line-height: 1.5;
+        }
+        
+        .instructions-list {
+            margin: 0;
+            padding-left: 1.25rem;
+        }
+        
+        .instructions-list li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .instruction-warning {
+            background: rgba(255, 167, 38, 0.1);
+            border: 1px solid rgba(255, 167, 38, 0.2);
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-top: 0.75rem;
+            font-size: 0.85rem;
+        }
+        
+        .submit-btn {
+            background: var(--gradient-primary);
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 1rem;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            cursor: pointer;
+        }
+        
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(255, 107, 53, 0.3);
+        }
+        
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Form controls */
+        .form-control {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+            border-radius: 12px;
+            padding: 0.875rem 1.25rem;
+            font-size: 1rem;
+        }
+        
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.2);
+            color: var(--text-dark);
+        }
+        
+        .form-label {
+            color: var(--text-dark);
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+        
+        .form-text {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+        
+        /* Button styles */
+        .btn-primary {
+            background: var(--gradient-primary);
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 0.875rem 2rem;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(255, 107, 53, 0.3);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-light);
+            font-weight: 600;
+            padding: 0.875rem 2rem;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .btn-outline-primary {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            font-weight: 600;
+            padding: 0.875rem 2rem;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline-primary:hover {
+            background: var(--gradient-primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .btn-sm {
+            padding: 0.5rem 1.25rem;
+            font-size: 0.875rem;
+        }
+        
+        /* Alert styles */
+        .alert {
+            background: rgba(33, 150, 243, 0.1);
+            border: 1px solid rgba(33, 150, 243, 0.2);
+            border-radius: 12px;
+            color: var(--text-light);
+        }
+        
+        .alert-warning {
+            background: rgba(255, 167, 38, 0.1);
+            border: 1px solid rgba(255, 167, 38, 0.2);
+        }
+        
+        .alert-heading {
+            color: var(--text-dark);
+            font-weight: 700;
+        }
+        
+        /* Breadcrumb */
+        .breadcrumb {
+            background-color: transparent;
+            padding: 0;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+        
+        .breadcrumb-item a {
+            color: var(--text-light);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .breadcrumb-item a:hover {
+            color: var(--primary);
+        }
+        
+        .breadcrumb-item.active {
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+        
+        /* Section headers */
+        .section-header {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 2rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+        
+        .section-header:after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 60px;
+            height: 2px;
+            background: var(--gradient-primary);
+        }
+        
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-muted);
+        }
+        
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.5;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--secondary);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--gradient-primary);
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+        
+        /* Selection color */
+        ::selection {
+            background: rgba(255, 107, 53, 0.3);
+            color: white;
+        }
+        
+        /* Animation for cards */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        @media (max-width: 992px) {
+            .page-header {
+                font-size: 2rem;
+            }
+            
+            .balance-amount {
+                font-size: 1.75rem;
+            }
+            
+            .stat-number {
+                font-size: 1.75rem;
+            }
+            
+            .section-header {
+                font-size: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .navbar-toggler {
+                border-color: rgba(255, 107, 53, 0.5);
+                color: var(--primary);
+            }
+            
+            .navbar-toggler:focus {
+                box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.25);
+            }
+            
+            .promo-banner {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .promo-btn {
+                margin-left: 0;
+                margin-top: 1.5rem;
+                width: 100%;
+            }
+            
+            .history-table .table-responsive {
+                width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            /* Mobile optimization for topup modal */
+            .topup-method-grid {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+            
+            .topup-method-item {
+                min-height: 85px;
+                padding: 0.875rem;
+                flex-direction: row;
+                text-align: left;
+                gap: 1rem;
+            }
+            
+            .topup-method-icon {
+                margin-bottom: 0;
+                font-size: 1.25rem;
+                min-width: 40px;
+            }
+            
+            .topup-method-label {
+                font-size: 0.95rem;
+            }
+            
+            .modal-header,
+            .modal-body,
+            .modal-footer {
+                padding: 1.25rem;
+            }
+            
+            .quick-amounts {
+                gap: 0.375rem;
+            }
+            
+            .quick-amount-btn {
+                flex: none;
+                min-width: calc(25% - 0.375rem);
+                padding: 0.625rem 0.5rem;
+                font-size: 0.85rem;
+            }
+            
+            .payment-instructions {
+                padding: 1rem;
+            }
+            
+            .instructions-title {
+                font-size: 0.9rem;
+            }
+            
+            .instructions-content {
+                font-size: 0.85rem;
+            }
+            
+            .instruction-warning {
+                padding: 0.625rem;
+                font-size: 0.8rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .user-info-card {
+                flex-direction: column;
+                text-align: center;
+                padding: 1.25rem;
+            }
+            
+            .user-avatar {
+                margin-right: 0;
+                margin-bottom: 1rem;
+            }
+            
+            .balance-card {
+                padding: 1.5rem;
+            }
+            
+            .balance-icon {
+                font-size: 2rem;
+            }
+            
+            .balance-amount {
+                font-size: 1.5rem;
+            }
+            
+            .user-name {
+                flex-direction: column;
+                align-items: center;
+                gap: 0.5rem;
+            }
+            
+            .user-balance {
+                flex-direction: column;
+                align-items: center;
+                gap: 0.5rem;
+            }
+            
+            /* Extra small devices optimization */
+            .topup-method-item {
+                min-height: 75px;
+                padding: 0.75rem;
+                gap: 0.75rem;
+            }
+            
+            .topup-method-icon {
+                font-size: 1.1rem;
+                min-width: 35px;
+            }
+            
+            .topup-method-label {
+                font-size: 0.9rem;
+            }
+            
+            .modal-title {
+                font-size: 1.1rem;
+            }
+            
+            .modal-header,
+            .modal-body,
+            .modal-footer {
+                padding: 1rem;
+            }
+            
+            .topup-amount-input {
+                padding: 0.875rem 0.875rem 0.875rem 2.25rem;
+                font-size: 1rem;
+            }
+            
+            .quick-amount-btn {
+                min-width: calc(50% - 0.25rem);
+                margin-bottom: 0.25rem;
+            }
+            
+            .submit-btn {
+                padding: 0.875rem;
+                font-size: 0.95rem;
+            }
+        }
+        
+        @media (max-width: 400px) {
+            .topup-method-item {
+                min-height: 70px;
+                padding: 0.625rem;
+                gap: 0.625rem;
+            }
+            
+            .topup-method-icon {
+                font-size: 1rem;
+                min-width: 30px;
+            }
+            
+            .topup-method-label {
+                font-size: 0.85rem;
+            }
+            
+            .quick-amount-btn {
+                font-size: 0.8rem;
+                padding: 0.5rem;
+            }
+        }
+        
+        .text-dark22 {
+            --bs-text-opacity: 1;
+            color: rgb(148 159 169) !important;
+        }
+        
+        /* Заблокированные стили для замороженных пользователей */
+        .balance-card.disabled,
+        .promo-banner.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        
+        .balance-card.disabled:hover {
+            transform: none;
+            cursor: not-allowed;
+        }
+        
+        .promo-banner.disabled .promo-btn {
+            background: rgba(255, 255, 255, 0.3);
+            color: rgba(229, 90, 43, 0.5);
+            cursor: not-allowed;
+        }
+        
+        .promo-banner.disabled .promo-btn:hover {
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .btn-outline-primary.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        
+        .btn-outline-primary.disabled:hover {
+            transform: none;
+            background: transparent;
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Snowflake Container -->
+    <div class="snowflakes" id="snowflakes"></div>
+    
+    <!-- Content Wrapper -->
+    <div class="content-wrapper">
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container">
+                <a class="navbar-brand" href="/">
+                    <i class="fas fa-shopping-bag me-2"></i>KEYZPANEL
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/dashboard">
+                                <i class="fas fa-home me-1"></i> Магазин
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/orders">
+                                <i class="fas fa-clipboard-list me-1"></i> Заказы
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/account">
+                                <i class="fas fa-user me-1"></i> Аккаунт
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/reseller">
+                                <i class="fas fa-layer-group me-1"></i> Реселлер
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/logout">
+                                <i class="fas fa-sign-out-alt me-1"></i> Выйти
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <main class="container py-4">
+            <div class="row mb-3">
+                <div class="col">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/dashboard">Главная</a></li>
+                            <li class="breadcrumb-item active">Аккаунт</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+            
+            <!-- User Info Card -->
+            <div class="user-info-card fade-in 
+                {% if user_status == 'frozen' and freeze_reason == 'Прекращение обслуживания - возврат средств' %}frozen-refund
+                {% elif user_status == 'frozen' %}frozen{% endif %}">
+                <div class="user-avatar">
+                    {{ username[0].upper() }}
+                </div>
+                <div class="user-details">
+                    <div class="user-name">
+                        {{ username }}
+                        {% if user_status == 'frozen' %}
+                            {% if freeze_reason == 'Прекращение обслуживания - возврат средств' %}
+                                <span class="status-badge refund-badge">
+                                    <i class="fas fa-money-bill-wave me-1"></i>
+                                    Возврат средств
+                                </span>
+                            {% else %}
+                                <span class="status-badge frozen-badge">
+                                    <i class="fas fa-snowflake me-1"></i>
+                                    Заморожен
+                                </span>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                    <div class="user-balance">
+                        Баланс: ${{ "{:,.2f}".format(total_balance) }}
+                        {% if user_status == 'frozen' and freeze_reason == 'Прекращение обслуживания - возврат средств' %}
+                            <span class="refund-amount">
+                                <i class="fas fa-hand-holding-usd me-1"></i>
+                                К возврату: ${{ "{:,.2f}".format(refund_amount) }}
+                            </span>
+                        {% endif %}
+                    </div>
+                    
+                    {% if user_status == 'frozen' %}
+                        <div class="refund-info">
+                            <div class="refund-info-title">
+                                <i class="fas fa-info-circle"></i>
+                                {% if freeze_reason == 'Прекращение обслуживания - возврат средств' %}
+                                    Информация о возврате средств
+                                {% else %}
+                                    Информация о заморозке
+                                {% endif %}
+                            </div>
+                            <div class="refund-info-details">
+                                <div class="refund-detail">
+                                    <span class="refund-detail-label">Статус:</span>
+                                    <span class="refund-detail-value">
+                                        {% if freeze_reason == 'Прекращение обслуживания - возврат средств' %}
+                                            Возврат средств
+                                        {% else %}
+                                            Заморожен
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                
+                                <div class="refund-detail">
+                                    <span class="refund-detail-label">Причина:</span>
+                                    <div class="refund-detail-reason">{{ freeze_reason }}</div>
+                                </div>
+                                
+                                <div class="refund-detail">
+                                    <span class="refund-detail-label">Дата заморозки:</span>
+                                    <span class="refund-detail-value">{{ frozen_date or 'Не указана' }}</span>
+                                </div>
+                                
+                                {% if freeze_reason == 'Прекращение обслуживания - возврат средств' %}
+                                    <div class="refund-detail">
+                                        <span class="refund-detail-label">Стоимость тарифа:</span>
+                                        <span class="refund-detail-value">${{ "{:,.2f}".format(tariff_cost) }}</span>
+                                    </div>
+                                    <div class="refund-detail">
+                                        <span class="refund-detail-label">Текущий баланс:</span>
+                                        <span class="refund-detail-value">${{ "{:,.2f}".format(total_balance) }}</span>
+                                    </div>
+                                    <div class="refund-total">
+                                        <span>Общая сумма к возврату:</span>
+                                        <span>${{ "{:,.2f}".format(refund_amount) }}</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            {% if freeze_reason == 'Прекращение обслуживания - возврат средств' %}
+                                <div class="refund-btn-container">
+                                    <a href="{{ url_for('refund_info') }}" class="refund-btn">
+                                        <i class="fas fa-file-invoice-dollar me-2"></i>
+                                        Информация о возврате средств
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Promo Banner -->
+            <div class="promo-banner fade-in {% if user_status == 'frozen' %}disabled{% endif %}">
+                <div class="promo-content">
+                    <div class="promo-title">
+                        {% if user_status == 'frozen' %}
+                            ❄️ Аккаунт заморожен
+                        {% else %}
+                            💰 Пополняй баланс и покупай выгоднее
+                        {% endif %}
+                    </div>
+                    <p class="promo-text">
+                        {% if user_status == 'frozen' %}
+                            Пополнение баланса недоступно для замороженных аккаунтов
+                        {% else %}
+                            Пополняйте баланс и пользуйтесь всеми преимуществами нашего магазина
+                        {% endif %}
+                    </p>
+                </div>
+                {% if user_status == 'frozen' %}
+                    <button class="promo-btn" disabled title="Пополнение недоступно для замороженных аккаунтов">
+                        <i class="fas fa-ban me-2"></i> Пополнение недоступно
+                    </button>
+                {% else %}
+                    <button class="promo-btn" data-bs-toggle="modal" data-bs-target="#topupModal">
+                        <i class="fas fa-plus me-2"></i> Пополнить баланс
+                    </button>
+                {% endif %}
+            </div>
+            
+            <div class="row mb-4">
+                <div class="col">
+                    <h1 class="page-header">Аккаунт</h1>
+                </div>
+            </div>
+            
+            <!-- Balance Cards -->
+            <div class="row mb-5 fade-in">
+                <div class="col-md-4 mb-4">
+                    <div class="balance-card {% if user_status == 'frozen' %}disabled{% endif %}">
+                        <div class="balance-icon">
+                            <i class="fas fa-credit-card"></i>
+                        </div>
+                        <div class="balance-amount">
+                            ${{ "{:,.2f}".format(balances.get('card', 0)) }}
+                        </div>
+                        <div class="balance-label">Банковская карта</div>
+                        {% if user_status == 'frozen' %}
+                            <button class="btn btn-outline-primary btn-sm disabled" title="Пополнение недоступно для замороженных аккаунтов">
+                                <i class="fas fa-ban me-1"></i> Недоступно
+                            </button>
+                        {% else %}
+                            <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#topupModal" onclick="selectPaymentMethodOnClick('card')">
+                                <i class="fas fa-plus me-1"></i> Пополнить
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="balance-card {% if user_status == 'frozen' %}disabled{% endif %}">
+                        <div class="balance-icon">
+                            <i class="fab fa-bitcoin"></i>
+                        </div>
+                        <div class="balance-amount">
+                            ${{ "{:,.2f}".format(balances.get('bep20', 0)) }}
+                        </div>
+                        <div class="balance-label">BEP20 (USDT)</div>
+                        {% if user_status == 'frozen' %}
+                            <button class="btn btn-outline-primary btn-sm disabled" title="Пополнение недоступно для замороженных аккаунтов">
+                                <i class="fas fa-ban me-1"></i> Недоступно
+                            </button>
+                        {% else %}
+                            <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#topupModal" onclick="selectPaymentMethodOnClick('bep20')">
+                                <i class="fas fa-plus me-1"></i> Пополнить
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="balance-card {% if user_status == 'frozen' %}disabled{% endif %}">
+                        <div class="balance-icon">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <div class="balance-amount">
+                            ${{ "{:,.2f}".format(balances.get('ton', 0)) }}
+                        </div>
+                        <div class="balance-label">TON (USDT)</div>
+                        {% if user_status == 'frozen' %}
+                            <button class="btn btn-outline-primary btn-sm disabled" title="Пополнение недоступно для замороженных аккаунтов">
+                                <i class="fas fa-ban me-1"></i> Недоступно
+                            </button>
+                        {% else %}
+                            <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#topupModal" onclick="selectPaymentMethodOnClick('ton')">
+                                <i class="fas fa-plus me-1"></i> Пополнить
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Statistics -->
+            <div class="row mb-5 fade-in">
+                <div class="col">
+                    <h2 class="section-header">Статистика</h2>
+                </div>
+            </div>
+            
+            <div class="row mb-5 fade-in">
+                <div class="col-md-6 mb-4">
+                    <div class="stat-card">
+                        <div class="stat-number">{{ total_orders }}</div>
+                        <div class="stat-label">Всего заказов</div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="stat-card">
+                        <div class="stat-number">${{ "{:,.2f}".format(total_expenses) }}</div>
+                        <div class="stat-label">Общие расходы</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Topup History -->
+            <div class="row mb-4">
+                <div class="col">
+                    <h2 class="section-header">История пополнений</h2>
+                </div>
+            </div>
+            
+            <div class="fade-in">
+                {% if topup_history %}
+                <div class="history-table">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Сумма</th>
+                                    <th>Метод оплаты</th>
+                                    <th>Дата и время</th>
+                                    <th>Статус</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for topup in topup_history %}
+                                <tr>
+                                    <td>
+                                        <strong >${{ "%.2f"|format(topup.amount) }}</strong>
+                                    </td>
+                                    <td>
+                                        {% if topup.method == 'card' %}
+                                        <i class="fas fa-credit-card me-2"></i>Банковская карта
+                                        {% elif topup.method == 'bep20' %}
+                                        <i class="fab fa-bitcoin me-2"></i>BEP20 (USDT)
+                                        {% elif topup.method == 'ton' %}
+                                        <i class="fas fa-coins me-2"></i>TON (USDT)
+                                        {% else %}
+                                        {{ topup.method }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span >
+                                            {{ topup.date }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if topup.status == 'completed' %}
+                                        <span class="status-badge status-completed">
+                                            <i class="fas fa-check-circle me-1"></i>Завершено
+                                        </span>
+                                        {% elif topup.status == 'pending' %}
+                                        <span class="status-badge status-pending">
+                                            <i class="fas fa-clock me-1"></i>В обработке
+                                        </span>
+                                        {% elif topup.status == 'failed' %}
+                                        <span class="status-badge status-failed">
+                                            <i class="fas fa-times-circle me-1"></i>Ошибка
+                                        </span>
+                                        {% else %}
+                                        <span class="status-badge status-processing">
+                                            <i class="fas fa-sync-alt me-1"></i>Обрабатывается
+                                        </span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <h4 class="text-dark22 mb-3">История пополнений пуста</h4>
+                    <p class="text-muted mb-4">
+                        {% if user_status == 'frozen' %}
+                            Пополнение баланса недоступно для замороженных аккаунтов
+                        {% else %}
+                            Пополните баланс, чтобы начать совершать покупки
+                        {% endif %}
+                    </p>
+                    {% if user_status != 'frozen' %}
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#topupModal">
+                            <i class="fas fa-plus me-2"></i> Пополнить баланс
+                        </button>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </main>
+    </div>
+
+    <!-- Topup Modal (только для незамороженных пользователей) -->
+    {% if user_status != 'frozen' %}
+    <div class="modal fade" id="topupModal" tabindex="-1" aria-labelledby="topupModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="topupModalLabel">
+                        <i class="fas fa-wallet me-2"></i>Пополнение баланса
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Payment Method Selection -->
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold mb-3">Выберите метод оплаты:</label>
+                        <div class="topup-method-grid">
+                            <div class="topup-method-item" id="cardMethod" onclick="selectPaymentMethod('card')">
+                                <div class="topup-method-icon">
+                                    <i class="fas fa-credit-card"></i>
+                                </div>
+                                <div class="topup-method-label">Банковская карта</div>
+                            </div>
+                            <div class="topup-method-item" id="bep20Method" onclick="selectPaymentMethod('bep20')">
+                                <div class="topup-method-icon">
+                                    <i class="fab fa-bitcoin"></i>
+                                </div>
+                                <div class="topup-method-label">BEP20 (USDT)</div>
+                            </div>
+                            <div class="topup-method-item" id="tonMethod" onclick="selectPaymentMethod('ton')">
+                                <div class="topup-method-icon">
+                                    <i class="fas fa-coins"></i>
+                                </div>
+                                <div class="topup-method-label">TON (USDT)</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Amount Input -->
+                    <div class="amount-input-container">
+                        <label for="topupAmount" class="form-label fw-semibold mb-3">Сумма пополнения:</label>
+                        <div class="amount-input-wrapper">
+                            <input type="number" 
+                                   class="topup-amount-input" 
+                                   id="topupAmount" 
+                                   name="amount" 
+                                   min="1" 
+                                   max="10000" 
+                                   step="0.01" 
+                                   placeholder="0.00"
+                                   oninput="formatAmount(this)"
+                                   onfocus="this.select()">
+                        </div>
+                        <span class="amount-helper">Минимальная сумма: $1, Максимальная: $10,000</span>
+                        
+                        <!-- Quick Amounts -->
+                        <div class="quick-amounts">
+                            <button type="button" class="quick-amount-btn" onclick="setQuickAmount(10)">$10</button>
+                            <button type="button" class="quick-amount-btn" onclick="setQuickAmount(50)">$50</button>
+                            <button type="button" class="quick-amount-btn" onclick="setQuickAmount(100)">$100</button>
+                            <button type="button" class="quick-amount-btn" onclick="setQuickAmount(500)">$500</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Payment Instructions -->
+                    <div class="payment-instructions" id="paymentInstructions">
+                        <div class="instructions-title">
+                            <i class="fas fa-info-circle"></i>
+                            <span id="instructionsTitle">Инструкции по оплате</span>
+                        </div>
+                        <div class="instructions-content" id="instructionsContent">
+                            <!-- Instructions will be inserted here by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <!-- Hidden form elements -->
+                    <form method="POST" action="/account" id="topupForm" style="display: none;">
+                        <input type="hidden" id="paymentMethod" name="payment_method" required>
+                        <input type="hidden" id="amount" name="amount" required>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="submit-btn" id="submitTopup" disabled onclick="processTopup()">
+                        <i class="fas fa-paper-plane me-1"></i>Продолжить
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div id="accountInfo" 
+        data-username="{{ username }}"
+        data-min-topup="{{ min_topup }}"
+        data-user-status="{{ user_status }}"
+        style="display: none;">
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Create snowflakes
+        function createSnowflakes() {
+            const container = document.getElementById('snowflakes');
+            const snowflakeCount = 60;
+            
+            for (let i = 0; i < snowflakeCount; i++) {
+                const snowflake = document.createElement('div');
+                snowflake.classList.add('snowflake');
+                
+                const size = Math.random() * 6 + 2;
+                snowflake.style.width = `${size}px`;
+                snowflake.style.height = `${size}px`;
+                snowflake.style.left = `${Math.random() * 100}vw`;
+                snowflake.style.opacity = Math.random() * 0.8 + 0.2;
+                const duration = Math.random() * 10 + 5;
+                snowflake.style.animationDuration = `${duration}s`;
+                snowflake.style.animationDelay = `${Math.random() * 5}s`;
+                
+                container.appendChild(snowflake);
+            }
+        }
+        
+        // Scroll animation
+        function handleScrollAnimations() {
+            const elements = document.querySelectorAll('.fade-in');
+            
+            elements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < window.innerHeight - elementVisible) {
+                    element.classList.add('visible');
+                }
+            });
+        }
+        
+        let selectedMethod = null;
+        let selectedQuickAmount = null;
+        
+        function selectPaymentMethod(method) {
+            // Проверка на замороженный аккаунт
+            const accountInfo = document.getElementById('accountInfo');
+            const userStatus = accountInfo ? accountInfo.dataset.userStatus : '';
+            
+            if (userStatus === 'frozen') {
+                alert('Пополнение баланса недоступно для замороженных аккаунтов');
+                return;
+            }
+            
+            selectedMethod = method;
+            
+            // Remove selected class from all methods
+            document.querySelectorAll('.topup-method-item').forEach(el => {
+                el.classList.remove('selected');
+            });
+            
+            // Add selected class to chosen method
+            document.getElementById(method + 'Method').classList.add('selected');
+            
+            // Update hidden input value
+            document.getElementById('paymentMethod').value = method;
+            
+            // Enable submit button if amount is valid
+            checkFormValidity();
+            
+            // Show payment instructions
+            showPaymentInstructions(method);
+        }
+        
+        function selectPaymentMethodOnClick(method) {
+            // Эта функция вызывается из кнопок "Пополнить" на карточках баланса
+            // Сохраняем выбранный метод в глобальную переменную
+            window.selectedMethodOnCardClick = method;
+            
+            // Показываем модальное окно через Bootstrap API
+            const modalElement = document.getElementById('topupModal');
+            if (modalElement) {
+                const modal = new bootstrap.Modal(modalElement);
+                modal.show();
+                
+                // После показа модального окна выбираем метод оплаты
+                modalElement.addEventListener('shown.bs.modal', function onShown() {
+                    selectPaymentMethod(method);
+                    modalElement.removeEventListener('shown.bs.modal', onShown);
+                }, { once: true });
+            }
+        }
+        
+        function showPaymentInstructions(method) {
+            const instructionsContainer = document.getElementById('paymentInstructions');
+            const instructionsContent = document.getElementById('instructionsContent');
+            const instructionsTitle = document.getElementById('instructionsTitle');
+            
+            let instructionsHTML = '';
+            let titleText = 'Инструкции по оплате';
+            
+            switch(method) {
+                case 'card':
+                    titleText = 'Инструкции по оплате картой';
+                    instructionsHTML = `
+                        <ul class="instructions-list">
+                            <li>Пополнение баланса через банковскую карту / СБП временно не работает</li>
+                            <li>Мы уже работаем над этим, спасибо что вы с нами</li>
+                        </ul>
+                    `;
+                    break;
+                case 'bep20':
+                    titleText = 'Инструкции по оплате BEP20';
+                    instructionsHTML = `
+                        <ul class="instructions-list">
+                            <li>Нажмите кнопку "Продолжить" для создания заявки</li>
+                            <li>Будет открыта страница оплаты с адресом кошелька</li>
+                            <li>Отправьте точную сумму USDT на указанный адрес в сети BEP20</li>
+                            <li>Нажмите кнопку "Я оплатил(а)" после отправки</li>
+                            <li>Баланс будет пополнен после подтверждения транзакции</li>
+                        </ul>
+                        <div class="instruction-warning">
+                            <i class="fas fa-exclamation-triangle me-1"></i>
+                            У вас есть 10 минут для завершения оплаты
+                        </div>
+                    `;
+                    break;
+                case 'ton':
+                    titleText = 'Инструкции по оплате TON';
+                    instructionsHTML = `
+                        <ul class="instructions-list">
+                            <li>Нажмите кнопку "Продолжить" для создания заявки</li>
+                            <li>Будет открыта страница оплаты с адресом кошелька</li>
+                            <li>Отправьте точную сумму USDT на указанный адрес в сети TON</li>
+                            <li>Нажмите кнопку "Я оплатил(а)" после отправки</li>
+                            <li>Баланс будет пополнен после подтверждения транзакции</li>
+                        </ul>
+                        <div class="instruction-warning">
+                            <i class="fas fa-exclamation-triangle me-1"></i>
+                            У вас есть 10 минут для завершения оплаты
+                        </div>
+                    `;
+                    break;
+            }
+            
+            instructionsTitle.textContent = titleText;
+            instructionsContent.innerHTML = instructionsHTML;
+            instructionsContainer.classList.add('show');
+        }
+        
+        function setQuickAmount(amount) {
+            // Проверка на замороженный аккаунт
+            const accountInfo = document.getElementById('accountInfo');
+            const userStatus = accountInfo ? accountInfo.dataset.userStatus : '';
+            
+            if (userStatus === 'frozen') {
+                alert('Пополнение баланса недоступно для замороженных аккаунтов');
+                return;
+            }
+            
+            const amountInput = document.getElementById('topupAmount');
+            amountInput.value = amount.toFixed(2);
+            
+            // Remove active class from all quick amount buttons
+            document.querySelectorAll('.quick-amount-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Find and activate the clicked button
+            const quickAmountBtns = document.querySelectorAll('.quick-amount-btn');
+            quickAmountBtns.forEach(btn => {
+                if (parseFloat(btn.textContent.replace('$', '')) === amount) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            selectedQuickAmount = amount;
+            
+            // Trigger input event to format the amount
+            formatAmount(amountInput);
+            checkFormValidity();
+        }
+        
+        function formatAmount(input) {
+            if (input.value === '') {
+                // Remove active class from quick amount buttons when input is cleared
+                document.querySelectorAll('.quick-amount-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                selectedQuickAmount = null;
+                checkFormValidity();
+                return;
+            }
+            
+            let value = input.value.replace(/[^\d.]/g, '');
+            let parts = value.split('.');
+            
+            // Handle multiple decimal points
+            if (parts.length > 2) {
+                value = parts[0] + '.' + parts.slice(1).join('');
+                parts = value.split('.');
+            }
+            
+            // Limit to 2 decimal places
+            if (parts[1] && parts[1].length > 2) {
+                value = parts[0] + '.' + parts[1].substring(0, 2);
+            }
+            
+            // Remove leading zeros
+            if (parts[0] && parts[0].length > 1 && parts[0][0] === '0' && parts[0][1] !== '.') {
+                value = parts[0].substring(1) + (parts[1] ? '.' + parts[1] : '');
+            }
+            
+            input.value = value;
+            
+            // Check if this matches any quick amount
+            const parsedValue = parseFloat(value);
+            if (!isNaN(parsedValue)) {
+                const quickAmountBtns = document.querySelectorAll('.quick-amount-btn');
+                let foundMatch = false;
+                
+                quickAmountBtns.forEach(btn => {
+                    const btnAmount = parseFloat(btn.textContent.replace('$', ''));
+                    if (Math.abs(parsedValue - btnAmount) < 0.01) { // Account for floating point
+                        btn.classList.add('active');
+                        selectedQuickAmount = btnAmount;
+                        foundMatch = true;
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+                
+                if (!foundMatch) {
+                    selectedQuickAmount = null;
+                }
+            }
+            
+            checkFormValidity();
+        }
+        
+        function checkFormValidity() {
+            const amountInput = document.getElementById('topupAmount');
+            const amount = parseFloat(amountInput.value);
+            const submitBtn = document.getElementById('submitTopup');
+            
+            // Проверка на замороженный аккаунт
+            const accountInfo = document.getElementById('accountInfo');
+            const userStatus = accountInfo ? accountInfo.dataset.userStatus : '';
+            
+            if (userStatus === 'frozen') {
+                submitBtn.disabled = true;
+                return;
+            }
+            
+            if (amount >= 1 && amount <= 10000 && selectedMethod) {
+                // Получаем минимальное пополнение из data-атрибута
+                const minTopup = accountInfo ? parseFloat(accountInfo.dataset.minTopup || 0) : 0;
+                
+                if (minTopup > 0 && amount < minTopup) {
+                    submitBtn.disabled = true;
+                    showMinTopupWarning(minTopup);
+                } else {
+                    submitBtn.disabled = false;
+                    hideMinTopupWarning();
+                }
+            } else {
+                submitBtn.disabled = true;
+                hideMinTopupWarning();
+            }
+        }
+
+        function showMinTopupWarning(minAmount) {
+            let warningElement = document.getElementById('minTopupWarning');
+            if (!warningElement) {
+                warningElement = document.createElement('div');
+                warningElement.id = 'minTopupWarning';
+                warningElement.className = 'instruction-warning mt-2';
+                warningElement.innerHTML = `
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Минимальная сумма пополнения: $${minAmount.toFixed(0)}
+                    <br>
+                    <small>Это ограничение установлено вашим тарифным планом.</small>
+                `;
+                const amountInputContainer = document.querySelector('.amount-input-container');
+                amountInputContainer.appendChild(warningElement);
+            }
+        }
+
+        function hideMinTopupWarning() {
+            const warningElement = document.getElementById('minTopupWarning');
+            if (warningElement) {
+                warningElement.remove();
+            }
+        }
+        
+        function processTopup() {
+            const amountInput = document.getElementById('topupAmount');
+            const amount = parseFloat(amountInput.value);
+            const method = selectedMethod;
+            
+            if (!amount || !method) {
+                alert('Пожалуйста, выберите метод оплаты и укажите сумму');
+                return;
+            }
+            
+            // Set hidden form values
+            document.getElementById('amount').value = amount;
+            
+            // Получаем инстанс модального окна
+            const modalElement = document.getElementById('topupModal');
+            const modal = bootstrap.Modal.getInstance(modalElement);
+            
+            // For card - standard form submission
+            if (method === 'card') {
+                // Закрываем модальное окно перед отправкой формы
+                if (modal) {
+                    modal.hide();
+                }
+                document.getElementById('topupForm').submit();
+                return;
+            }
+            
+            // For BEP20 and TON - AJAX request for payment creation
+            fetch('/payment/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    amount: amount,
+                    method: method
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('Ошибка: ' + data.error);
+                } else {
+                    // Закрываем модальное окно и очищаем состояние
+                    if (modal) {
+                        modal.hide();
+                    }
+                    // Ждем завершения анимации скрытия модального окна
+                    setTimeout(() => {
+                        window.location.href = data.redirect;
+                    }, 300);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Произошла ошибка при создании платежа. Попробуйте еще раз.');
+            });
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            createSnowflakes();
+            handleScrollAnimations();
+            
+            // Add scroll event listener
+            window.addEventListener('scroll', handleScrollAnimations);
+            
+            // Remove snowflakes when window loses focus to save resources
+            window.addEventListener('blur', function() {
+                const snowflakes = document.querySelectorAll('.snowflake');
+                snowflakes.forEach(snowflake => {
+                    snowflake.style.animationPlayState = 'paused';
+                });
+            });
+            
+            window.addEventListener('focus', function() {
+                const snowflakes = document.querySelectorAll('.snowflake');
+                snowflakes.forEach(snowflake => {
+                    snowflake.style.animationPlayState = 'running';
+                });
+            });
+            
+            // Amount input validation (только для незамороженных)
+            const amountInput = document.getElementById('topupAmount');
+            const accountInfo = document.getElementById('accountInfo');
+            const userStatus = accountInfo ? accountInfo.dataset.userStatus : '';
+            
+            if (amountInput && userStatus !== 'frozen') {
+                amountInput.addEventListener('input', function() {
+                    formatAmount(this);
+                    checkFormValidity();
+                });
+                
+                amountInput.addEventListener('keypress', function(e) {
+                    if (!/[0-9.]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Delete' && e.key !== 'Tab') {
+                        e.preventDefault();
+                    }
+                });
+            }
+            
+            // Modal initialization (только для незамороженных)
+            const topupModal = document.getElementById('topupModal');
+            if (topupModal && userStatus !== 'frozen') {
+                // Обработка события скрытия модального окна
+                topupModal.addEventListener('hidden.bs.modal', function() {
+                    // Принудительно удаляем бэкдроп, если он остался
+                    const backdrops = document.querySelectorAll('.modal-backdrop');
+                    backdrops.forEach(backdrop => {
+                        backdrop.remove();
+                    });
+                    
+                    // Сбрасываем состояние
+                    selectedMethod = null;
+                    selectedQuickAmount = null;
+                    window.selectedMethodOnCardClick = null;
+                    document.getElementById('paymentMethod').value = '';
+                    document.getElementById('topupAmount').value = '';
+                    document.getElementById('amount').value = '';
+                    document.getElementById('submitTopup').disabled = true;
+                    document.querySelectorAll('.topup-method-item').forEach(el => {
+                        el.classList.remove('selected');
+                    });
+                    document.querySelectorAll('.quick-amount-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    document.getElementById('paymentInstructions').classList.remove('show');
+                    hideMinTopupWarning();
+                    
+                    // Восстанавливаем возможность прокрутки body
+                    document.body.style.overflow = '';
+                    document.body.style.paddingRight = '';
+                });
+
+                topupModal.addEventListener('hidden.bs.modal', function() {
+                    selectedMethod = null;
+                    selectedQuickAmount = null;
+                    document.getElementById('paymentMethod').value = '';
+                    document.getElementById('topupAmount').value = '';
+                    document.getElementById('amount').value = '';
+                });
+            }
+            
+            // Touch device optimizations
+            const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+            if (isTouchDevice) {
+                // Larger touch targets for mobile
+                document.querySelectorAll('.topup-method-item').forEach(item => {
+                    item.style.minHeight = '85px';
+                });
+                
+                // Prevent zoom on input focus for better UX
+                document.querySelectorAll('input').forEach(input => {
+                    input.addEventListener('focus', function() {
+                        this.style.fontSize = '16px';
+                    });
+                    
+                    input.addEventListener('blur', function() {
+                        this.style.fontSize = '';
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>

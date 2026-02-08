@@ -1,0 +1,1647 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Реселлер | KEYZPANEL</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+    
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary: #FF6B35;
+            --primary-dark: #E55A2B;
+            --secondary: #0D1B2A;
+            --secondary-light: #1B263B;
+            --accent: #415A77;
+            --card-bg: #1E1E1E;
+            --card-hover: #252525;
+            --text-light: #E0E1DD;
+            --text-muted: #8A8D93;
+            --text-dark: #FFFFFF;
+            --success: #4CAF50;
+            --info: #2196F3;
+            --danger: #F44336;
+            --warning: #FF9800;
+            --frozen-blue: #0dcaf0;
+            --refund-cyan: #00BCD4;
+            --gradient-primary: linear-gradient(135deg, #FF6B35 0%, #FF8E53 100%);
+            --gradient-dark: linear-gradient(135deg, #0D1B2A 0%, #1B263B 100%);
+            --gradient-frozen: linear-gradient(135deg, #0dcaf0 0%, #2196F3 100%);
+            --gradient-refund: linear-gradient(135deg, #00BCD4 0%, #0097A7 100%);
+            --gradient-refund-btn: linear-gradient(135deg, #00BCD4 0%, #0097A7 100%);
+            --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            --card-shadow-hover: 0 12px 48px rgba(255, 107, 53, 0.2);
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--gradient-dark);
+            color: var(--text-light);
+            line-height: 1.6;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* Snowflake Container */
+        .snowflakes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .snowflake {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: fall linear infinite;
+        }
+        
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+        
+        /* Content wrapper */
+        .content-wrapper {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .navbar {
+            background: rgba(13, 27, 42, 0.95) !important;
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(65, 90, 119, 0.3);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .navbar-brand {
+            font-weight: 800;
+            color: var(--text-dark) !important;
+            font-size: 1.8rem;
+            letter-spacing: -0.5px;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .nav-link {
+            color: var(--text-light) !important;
+            font-weight: 500;
+            padding: 0.75rem 1.25rem !important;
+            border-radius: 8px;
+            margin: 0 0.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-link:before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-primary);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover:before {
+            width: 100%;
+        }
+        
+        .nav-link:hover {
+            background: rgba(255, 107, 53, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .nav-link.active {
+            background: var(--gradient-primary);
+            color: white !important;
+            box-shadow: 0 4px 20px rgba(255, 107, 53, 0.3);
+        }
+        
+        .nav-link.active:before {
+            display: none;
+        }
+        
+        /* User info styles - ТОЧНО ТАКИЕ ЖЕ КАК В DASHBOARD.HTML */
+        .user-info-card {
+            background: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .user-info-card:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+        }
+        
+        .user-info-card.frozen:before {
+            background: var(--gradient-frozen);
+        }
+        
+        .user-info-card.frozen-refund:before {
+            background: var(--gradient-refund);
+        }
+        
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.2rem;
+            margin-right: 1.25rem;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+        }
+        
+        .user-info-card.frozen .user-avatar {
+            background: var(--gradient-frozen);
+            box-shadow: 0 4px 15px rgba(13, 202, 240, 0.3);
+        }
+        
+        .user-info-card.frozen-refund .user-avatar {
+            background: var(--gradient-refund);
+            box-shadow: 0 4px 15px rgba(0, 188, 212, 0.3);
+        }
+        
+        .user-details {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            font-size: 1.2rem;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .user-balance {
+            font-size: 1rem;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+        
+        .user-balance:before {
+            content: '$';
+            margin-right: 0.25rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+        
+        .user-info-card.frozen .user-balance:before {
+            color: var(--frozen-blue);
+        }
+        
+        .user-info-card.frozen-refund .user-balance:before {
+            color: var(--refund-cyan);
+        }
+        
+        /* Badge styles (идентичные dashboard) */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            gap: 0.4rem;
+            transition: all 0.3s ease;
+        }
+        
+        .status-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .frozen-badge {
+            background: var(--gradient-frozen);
+            color: white;
+            box-shadow: 0 4px 12px rgba(13, 202, 240, 0.3);
+        }
+        
+        .refund-badge {
+            background: var(--gradient-refund);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 188, 212, 0.3);
+        }
+        
+        .refund-amount {
+            background: rgba(0, 188, 212, 0.1);
+            border: 1px solid rgba(0, 188, 212, 0.3);
+            color: #00BCD4;
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        
+        .refund-info {
+            background: rgba(0, 188, 212, 0.05);
+            border: 1px solid rgba(0, 188, 212, 0.2);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .refund-info-title {
+            font-weight: 600;
+            color: #00BCD4;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .refund-info-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .refund-detail {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        
+        .refund-detail-label {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        
+        .refund-detail-value {
+            font-weight: 600;
+            color: white;
+            font-size: 0.95rem;
+        }
+        
+        .refund-detail-reason {
+            color: #FF6B35;
+            font-weight: 500;
+            background: rgba(255, 107, 53, 0.1);
+            padding: 0.5rem;
+            border-radius: 6px;
+            margin-top: 0.25rem;
+            border-left: 3px solid #FF6B35;
+        }
+        
+        .refund-total {
+            border-top: 1px solid rgba(0, 188, 212, 0.3);
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #00BCD4;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        /* Refund button styles */
+        .refund-btn-container {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(0, 188, 212, 0.2);
+        }
+        
+        .refund-btn {
+            background: var(--gradient-refund-btn);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        
+        .refund-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 188, 212, 0.3);
+            color: white;
+        }
+        
+        .refund-btn:active {
+            transform: translateY(-1px);
+        }
+        
+        /* Current plan badge styles - добавлены к имени пользователя */
+        .current-plan-badge {
+            display: inline-block;
+            background: var(--gradient-primary);
+            color: white;
+            padding: 0.375rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: 0.75rem;
+            vertical-align: middle;
+        }
+        
+        .badge-expiring {
+            background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
+        }
+        
+        .badge-expired {
+            background: linear-gradient(135deg, #F44336 0%, #D32F2F 100%);
+        }
+        
+        /* Page header - ТОЧНО ТАКИЕ ЖЕ КАК В DASHBOARD.HTML */
+        .page-header {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin: 2rem 0;
+            padding-bottom: 1rem;
+            position: relative;
+        }
+        
+        .page-header:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 80px;
+            height: 4px;
+            background: var(--gradient-primary);
+            border-radius: 2px;
+        }
+        
+        /* Breadcrumb - ТОЧНО ТАКИЕ ЖЕ КАК В DASHBOARD.HTML */
+        .breadcrumb {
+            background-color: transparent;
+            padding: 0;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+        
+        .breadcrumb-item a {
+            color: var(--text-light);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .breadcrumb-item a:hover {
+            color: var(--primary);
+        }
+        
+        .breadcrumb-item.active {
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+        
+        /* Current plan card */
+        .current-plan-card {
+            background: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin-bottom: 2.5rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+        
+        .current-plan-card:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+        }
+        
+        .current-plan-card.expiring-soon {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 107, 53, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(255, 107, 53, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 107, 53, 0); }
+        }
+        
+        .plan-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .plan-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+        }
+        
+        .plan-description {
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .plan-expiration {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            margin: 0.75rem 0;
+            font-size: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .plan-expiration.expiring-soon {
+            background: rgba(255, 165, 0, 0.1);
+            border-color: rgba(255, 165, 0, 0.3);
+            color: #FFA500;
+        }
+        
+        .plan-expiration.expired {
+            background: rgba(244, 67, 54, 0.1);
+            border-color: rgba(244, 67, 54, 0.3);
+            color: #F44336;
+        }
+        
+        /* Benefits list */
+        .benefits-list {
+            text-align: left;
+            margin: 2rem 0;
+        }
+        
+        .benefit-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.875rem;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .benefit-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateX(5px);
+        }
+        
+        .benefit-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+        
+        .benefit-text {
+            font-size: 1rem;
+            color: var(--text-light);
+        }
+        
+        /* Section headers - ТОЧНО ТАКИЕ ЖЕ КАК В DASHBOARD.HTML */
+        .section-header {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 2rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+        
+        .section-header:after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 60px;
+            height: 2px;
+            background: var(--gradient-primary);
+        }
+        
+        /* Plans container */
+        .plans-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        /* Plan card - СТИЛИ ОДИНАКОВЫЕ С ПРОДУКТАМИ В DASHBOARD.HTML */
+        .plan-card {
+            background: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            height: 100%;
+        }
+        
+        .plan-card:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
+        }
+        
+        .plan-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--card-shadow-hover);
+            border-color: rgba(255, 107, 53, 0.3);
+        }
+        
+        .plan-card:hover:before {
+            transform: scaleX(1);
+        }
+        
+        .plan-card.popular {
+            transform: scale(1.05);
+            z-index: 10;
+            border: 2px solid rgba(255, 107, 53, 0.5);
+        }
+        
+        .plan-card.popular:hover {
+            transform: scale(1.05) translateY(-10px);
+        }
+        
+        .plan-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--gradient-primary);
+            color: white;
+            padding: 0.375rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .plan-popular-badge {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(135deg, #9C27B0 0%, #673AB7 100%);
+            color: white;
+            padding: 0.375rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .plan-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin: 1.5rem 0 0.5rem;
+            text-align: center;
+        }
+        
+        .plan-price {
+            font-size: 2.5rem;
+            font-weight: 800;
+            text-align: center;
+            margin: 1rem 0;
+            color: var(--text-dark);
+        }
+        
+        .plan-period {
+            font-size: 1rem;
+            color: var(--text-light);
+            font-weight: 400;
+            display: block;
+            margin-top: 0.5rem;
+        }
+        
+        .plan-period-bonus {
+            display: inline-block;
+            background: var(--gradient-primary);
+            color: white;
+            padding: 0.375rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-top: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .plan-features {
+            margin: 1.5rem 0;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        
+        .feature-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.875rem;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+        
+        .feature-icon.disabled {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .feature-text {
+            font-size: 0.95rem;
+            color: var(--text-light);
+        }
+        
+        .feature-text.disabled {
+            color: rgba(255, 255, 255, 0.3);
+            text-decoration: line-through;
+        }
+        
+        .plan-footer {
+            text-align: center;
+        }
+        
+        /* Buttons - ТАКИЕ ЖЕ КАК В DASHBOARD.HTML */
+        .buy-plan-btn {
+            width: 100%;
+            padding: 1rem 2rem;
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .buy-plan-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.3);
+        }
+        
+        .buy-plan-btn:disabled {
+            background: rgba(255, 255, 255, 0.1);
+            cursor: not-allowed;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .renew-plan-btn {
+            background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
+            padding: 0.875rem 1.75rem;
+            margin-right: 0.75rem;
+        }
+        
+        .upgrade-plan-btn {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            padding: 0.875rem 1.75rem;
+        }
+        
+        /* Alerts */
+        .alert {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin: 1rem 0;
+            color: var(--text-light);
+        }
+        
+        .alert-success {
+            background: rgba(76, 175, 80, 0.1);
+            border-color: rgba(76, 175, 80, 0.3);
+            color: #4CAF50;
+        }
+        
+        .alert-warning {
+            background: rgba(255, 165, 0, 0.1);
+            border-color: rgba(255, 165, 0, 0.3);
+            color: #FFA500;
+        }
+        
+        .alert-danger {
+            background: rgba(244, 67, 54, 0.1);
+            border-color: rgba(244, 67, 54, 0.3);
+            color: #F44336;
+        }
+        
+        .alert-info {
+            background: rgba(33, 150, 243, 0.1);
+            border-color: rgba(33, 150, 243, 0.3);
+            color: #2196F3;
+        }
+        
+        /* Custom scrollbar - ТОЧНО ТАКИЕ ЖЕ КАК В DASHBOARD.HTML */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--secondary);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--gradient-primary);
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+        
+        /* Selection color - ТОЧНО ТАКИЕ ЖЕ КАК В DASHBOARD.HTML */
+        ::selection {
+            background: rgba(255, 107, 53, 0.3);
+            color: white;
+        }
+        
+        /* Animation for cards - ТОЧНО ТАКИЕ ЖЕ КАК В DASHBOARD.HTML */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Responsive - ТОЧНО ТАКИЕ ЖЕ БРЕЙКПОИНТЫ КАК В DASHBOARD.HTML */
+        @media (max-width: 1200px) {
+            .plans-container {
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .page-header {
+                font-size: 2rem;
+            }
+            
+            .plan-title {
+                font-size: 1.75rem;
+            }
+            
+            .plan-card.popular {
+                transform: none;
+            }
+            
+            .plan-card.popular:hover {
+                transform: translateY(-10px);
+            }
+            
+            .current-plan-card {
+                padding: 2rem;
+            }
+            
+            .user-name {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            
+            .user-balance {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .navbar-toggler {
+                border-color: rgba(255, 107, 53, 0.5);
+                color: var(--primary);
+            }
+            
+            .navbar-toggler:focus {
+                box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.25);
+            }
+            
+            .plans-container {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .current-plan-card {
+                padding: 1.5rem;
+            }
+            
+            .plan-expiration {
+                padding: 0.625rem 1.25rem;
+                font-size: 0.95rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .user-info-card {
+                flex-direction: column;
+                text-align: center;
+                padding: 1.25rem;
+            }
+            
+            .user-avatar {
+                margin-right: 0;
+                margin-bottom: 1rem;
+            }
+            
+            .user-name {
+                flex-direction: column;
+                align-items: center;
+                gap: 0.5rem;
+            }
+            
+            .user-balance {
+                flex-direction: column;
+                align-items: center;
+                gap: 0.5rem;
+            }
+            
+            .current-plan-badge {
+                margin-left: 0.5rem;
+                margin-top: 0.5rem;
+                display: inline-block;
+            }
+            
+            .plan-card {
+                padding: 1.5rem;
+            }
+            
+            .renew-plan-btn, .upgrade-plan-btn {
+                width: 100%;
+                margin: 0 0 0.75rem 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Snowflake Container -->
+    <div class="snowflakes" id="snowflakes"></div>
+    
+    <!-- Content Wrapper -->
+    <div class="content-wrapper">
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container">
+                <a class="navbar-brand" href="/">
+                    <i class="fas fa-shopping-bag me-2"></i>KEYZPANEL
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/dashboard">
+                                <i class="fas fa-home me-1"></i> Магазин
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/orders">
+                                <i class="fas fa-clipboard-list me-1"></i> Заказы
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/account">
+                                <i class="fas fa-user me-1"></i> Аккаунт
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/reseller">
+                                <i class="fas fa-layer-group me-1"></i> Реселлер
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/logout">
+                                <i class="fas fa-sign-out-alt me-1"></i> Выйти
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <main class="container py-4">
+            <!-- Breadcrumb - ТОЧНО ТАКИЕ ЖЕ КАК В DASHBOARD.HTML -->
+            <div class="row mb-3">
+                <div class="col">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/">Главная</a></li>
+                            <li class="breadcrumb-item active">Реселлер</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+            
+            <!-- User Info Card - ТОЧНО ТАКИЕ ЖЕ РАЗМЕРЫ КАК В DASHBOARD.HTML -->
+            <div class="user-info-card fade-in 
+                {% if user_status == 'frozen' and freeze_reason == 'Прекращение обслуживания - возврат средств' %}frozen-refund
+                {% elif user_status == 'frozen' %}frozen{% endif %}">
+                <div class="user-avatar">
+                    {{ username[0].upper() }}
+                </div>
+                <div class="user-details">
+                    <div class="user-name">
+                        {{ username }}
+                        {% if user_status == 'frozen' %}
+                            {% if freeze_reason == 'Прекращение обслуживания - возврат средств' %}
+                                <span class="status-badge refund-badge">
+                                    <i class="fas fa-money-bill-wave me-1"></i>
+                                    Возврат средств
+                                </span>
+                            {% else %}
+                                <span class="status-badge frozen-badge">
+                                    <i class="fas fa-snowflake me-1"></i>
+                                    Заморожен
+                                </span>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                    <div class="user-balance">
+                        Баланс: ${{ "{:,.2f}".format(total_balance) }}
+                        {% if user_status == 'frozen' and freeze_reason == 'Прекращение обслуживания - возврат средств' %}
+                            <span class="refund-amount">
+                                <i class="fas fa-hand-holding-usd me-1"></i>
+                                К возврату: ${{ "{:,.2f}".format(refund_amount) }}
+                            </span>
+                        {% endif %}
+                    </div>
+                    
+                    {% if user_status == 'frozen' %}
+                        <div class="refund-info">
+                            <div class="refund-info-title">
+                                <i class="fas fa-info-circle"></i>
+                                {% if freeze_reason == 'Прекращение обслуживания - возврат средств' %}
+                                    Информация о возврате средств
+                                {% else %}
+                                    Информация о заморозке
+                                {% endif %}
+                            </div>
+                            <div class="refund-info-details">
+                                <div class="refund-detail">
+                                    <span class="refund-detail-label">Статус:</span>
+                                    <span class="refund-detail-value">
+                                        {% if freeze_reason == 'Прекращение обслуживания - возврат средств' %}
+                                            Возврат средств
+                                        {% else %}
+                                            Заморожен
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                
+                                <div class="refund-detail">
+                                    <span class="refund-detail-label">Причина:</span>
+                                    <div class="refund-detail-reason">{{ freeze_reason }}</div>
+                                </div>
+                                
+                                <div class="refund-detail">
+                                    <span class="refund-detail-label">Дата заморозки:</span>
+                                    <span class="refund-detail-value">{{ frozen_date or 'Не указана' }}</span>
+                                </div>
+                                
+                                {% if freeze_reason == 'Прекращение обслуживания - возврат средств' %}
+                                    <div class="refund-detail">
+                                        <span class="refund-detail-label">Стоимость тарифа:</span>
+                                        <span class="refund-detail-value">${{ "{:,.2f}".format(tariff_cost) }}</span>
+                                    </div>
+                                    <div class="refund-detail">
+                                        <span class="refund-detail-label">Текущий баланс:</span>
+                                        <span class="refund-detail-value">${{ "{:,.2f}".format(total_balance) }}</span>
+                                    </div>
+                                    <div class="refund-total">
+                                        <span>Общая сумма к возврату:</span>
+                                        <span>${{ "{:,.2f}".format(refund_amount) }}</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            {% if freeze_reason == 'Прекращение обслуживания - возврат средств' %}
+                                <div class="refund-btn-container">
+                                    <a href="{{ url_for('refund_info') }}" class="refund-btn">
+                                        <i class="fas fa-file-invoice-dollar me-2"></i>
+                                        Информация о возврате средств
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Flash messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} fade-in">
+                            <i class="fas fa-{{ 'exclamation-circle' if category == 'error' else 'check-circle' }} me-2"></i>
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" style="color: inherit; opacity: 0.7;"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <!-- Page Header - ТОЧНО ТАКИЕ ЖЕ РАЗМЕРЫ КАК В DASHBOARD.HTML -->
+            <div class="row mb-4">
+                <div class="col">
+                    <h1 class="page-header">Реселлер</h1>
+                </div>
+            </div>
+            
+            <!-- Current Plan Card -->
+            <div class="current-plan-card fade-in {% if days_remaining is defined and days_remaining is not none and days_remaining <= 3 and days_remaining > 0 %}expiring-soon{% endif %}">
+                <div class="plan-icon">
+                    {% if current_plan == 'lite' %}
+                        <i class="fas fa-user"></i>
+                    {% elif current_plan == 'reseller' %}
+                        <i class="fas fa-user-tie"></i>
+                    {% elif current_plan == 'pro' %}
+                        <i class="fas fa-crown"></i>
+                    {% else %}
+                        <i class="fas fa-user"></i>
+                    {% endif %}
+                </div>
+                
+                {% if current_plan != 'none' %}
+                    <h2 class="plan-title">Текущий тариф: {{ plan_names[current_plan] }}</h2>
+                    <p class="plan-description">
+                        {% if current_plan == 'lite' %}
+                            Базовый доступ к функциям реселлера
+                        {% elif current_plan == 'reseller' %}
+                            Полный доступ ко всем возможностям
+                        {% elif current_plan == 'pro' %}
+                            Максимальные привилегии и бонусы
+                        {% endif %}
+                        <br>Активирован с {{ plan_since }}
+                        
+                        {% if plan_expires %}
+                            <div class="plan-expiration {% if days_remaining is defined and days_remaining <= 3 and days_remaining > 0 %}expiring-soon{% elif days_remaining is defined and days_remaining <= 0 %}expired{% endif %}">
+                                {% if current_plan == 'pro' %}
+                                    Действует: <strong>НАВСЕГДА</strong>
+                                {% else %}
+                                    Действует до: {{ plan_expires }}
+                                    {% if days_remaining is defined %}
+                                        <br><small>Осталось дней: {{ days_remaining if days_remaining > 0 else 'Тариф истек' }}</small>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            <div class="plan-expiration">
+                                Действует: <strong>НАВСЕГДА</strong>
+                            </div>
+                        {% endif %}
+                    </p>
+                    
+                    <!-- Список преимуществ текущего тарифа -->
+                    <div class="benefits-list">
+                        <h4 class="mb-3" style="color: var(--text-dark);">Ваши преимущества:</h4>
+                        {% for benefit in plan_benefits[current_plan] %}
+                        <div class="benefit-item">
+                            <div class="benefit-icon">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="benefit-text">{{ benefit }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    {% if days_remaining is defined and days_remaining <= 0 %}
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Ваш тариф истек! Продлите его, чтобы продолжить пользоваться привилегиями
+                        </div>
+                    {% elif days_remaining is defined and days_remaining <= 3 %}
+                        <div class="alert alert-warning">
+                            <i class="fas fa-clock me-2"></i>
+                            Ваш тариф скоро истекает! Продлите его заранее
+                        </div>
+                    {% else %}
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle me-2"></i>
+                            Вы получаете все привилегии тарифа {{ plan_names[current_plan] }}
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Кнопки управления для действующих тарифов -->
+                    <div class="mt-4">
+                        {% if current_plan in ['lite', 'reseller'] and days_remaining is defined and days_remaining > 0 %}
+                        <form method="POST" action="/reseller" class="d-inline">
+                            <input type="hidden" name="action" value="renew_plan">
+                            <input type="hidden" name="plan" value="{{ current_plan }}">
+                            <button type="submit" class="buy-plan-btn renew-plan-btn" {% if total_balance < plan_prices[current_plan] or user_status == 'frozen' %}disabled{% endif %}>
+                                <i class="fas fa-redo me-2"></i>
+                                Продлить тариф
+                            </button>
+                        </form>
+                        {% endif %}
+                        
+                        {% if next_plans|length > 0 %}
+                        <form method="POST" action="/reseller" class="d-inline">
+                            <input type="hidden" name="action" value="show_upgrade">
+                            <button type="submit" class="buy-plan-btn upgrade-plan-btn" {% if user_status == 'frozen' %}disabled{% endif %}>
+                                <i class="fas fa-arrow-up me-2"></i>
+                                Улучшить план
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <h2 class="plan-title">У вас еще нет тарифа</h2>
+                    <p class="plan-description">
+                        Выберите подходящий тариф реселлера и получите доступ<br>
+                        к эксклюзивным функциям, повышенным комиссиям и бонусам
+                    </p>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Выберите один из трех тарифов ниже
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Plans Section (показывается только если нет тарифа или нажата кнопка "Улучшить план") -->
+            {% if (current_plan == 'none' or show_upgrade_section) and user_status != 'frozen' %}
+            <div class="fade-in">
+                <!-- Section Header - ТОЧНО ТАКИЕ ЖЕ РАЗМЕРЫ КАК В DASHBOARD.HTML -->
+                <h3 class="section-header">
+                    {% if current_plan == 'none' %}
+                        Выберите тариф реселлера
+                    {% else %}
+                        Улучшите ваш тариф
+                    {% endif %}
+                </h3>
+                
+                <div class="plans-container">
+                    <!-- Lite Plan -->
+                    {% if current_plan == 'none' or 'lite' in next_plans %}
+                    <div class="plan-card {% if current_plan == 'none' %}popular{% endif %}">
+                        {% if current_plan == 'none' %}
+                            <div class="plan-popular-badge">Для начала</div>
+                        {% endif %}
+                        <div class="plan-badge">30 дней</div>
+                        <h3 class="plan-name">Lite</h3>
+                        <div class="plan-price">
+                            ${{ plan_prices.lite }}
+                            <span class="plan-period">на 30 дней</span>
+                        </div>
+                        <p class="text-center mb-4" style="color: var(--text-light);">Базовые возможности для начала</p>
+                        
+                        <div class="plan-features">
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="feature-text">Скидка 4% на пополнение Steam</div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="feature-text">Доступ к базовым товарам</div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="feature-text">Базовая статистика</div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="feature-text">Поддержка 24/7</div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon disabled">
+                                    <i class="fas fa-times"></i>
+                                </div>
+                                <div class="feature-text disabled">Приоритетная поддержка</div>
+                            </div>
+                        </div>
+                        
+                        <div class="plan-footer">
+                            {% if current_plan == 'lite' and days_remaining is defined and days_remaining > 0 %}
+                                <button class="buy-plan-btn" disabled>
+                                    <i class="fas fa-check-circle me-2"></i> Текущий тариф
+                                </button>
+                            {% else %}
+                                <form method="POST" action="/reseller">
+                                    <input type="hidden" name="action" value="{% if current_plan == 'none' %}buy_plan{% else %}upgrade_plan{% endif %}">
+                                    <input type="hidden" name="plan" value="lite">
+                                    <button type="submit" class="buy-plan-btn" 
+                                            {% if total_balance < plan_prices.lite or user_status == 'frozen' %}disabled{% endif %}>
+                                        <i class="fas fa-shopping-cart me-2"></i>
+                                        {% if current_plan == 'none' %}
+                                            Купить на 30 дней
+                                        {% else %}
+                                            Перейти на Lite
+                                        {% endif %}
+                                    </button>
+                                </form>
+                                {% if total_balance < plan_prices.lite %}
+                                    <small class="text-danger mt-2 d-block text-center">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>
+                                        Недостаточно средств. Нужно ${{ plan_prices.lite }}
+                                    </small>
+                                {% endif %}
+                                {% if user_status == 'frozen' %}
+                                    <small class="text-danger mt-2 d-block text-center">
+                                        <i class="fas fa-snowflake me-1"></i>
+                                        Операции заблокированы - аккаунт заморожен
+                                    </small>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Reseller Plan -->
+                    {% if current_plan == 'none' or 'reseller' in next_plans %}
+                    <div class="plan-card popular">
+                        <div class="plan-popular-badge">Популярный</div>
+                        <div class="plan-badge">30 дней</div>
+                        <h3 class="plan-name">Reseller</h3>
+                        <div class="plan-price">
+                            ${{ plan_prices.reseller }}
+                            <span class="plan-period">на 30 дней</span>
+                        </div>
+                        <p class="text-center mb-4" style="color: var(--text-light);">Полный доступ ко всем функциям</p>
+                        
+                        <div class="plan-features">
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="feature-text">Скидка 7% на пополнение Steam</div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="feature-text">Доступ к эксклюзивным товарам</div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="feature-text">Расширенная аналитика</div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="feature-text">Приоритетная поддержка</div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="feature-text">Специальные промо-акции</div>
+                            </div>
+                        </div>
+                        
+                        <div class="plan-footer">
+                            {% if current_plan == 'reseller' and days_remaining is defined and days_remaining > 0 %}
+                                <button class="buy-plan-btn" disabled>
+                                    <i class="fas fa-check-circle me-2"></i> Текущий тариф
+                                </button>
+                            {% else %}
+                                <form method="POST" action="/reseller">
+                                    <input type="hidden" name="action" value="{% if current_plan == 'none' %}buy_plan{% else %}upgrade_plan{% endif %}">
+                                    <input type="hidden" name="plan" value="reseller">
+                                    <button type="submit" class="buy-plan-btn" 
+                                            {% if total_balance < plan_prices.reseller or user_status == 'frozen' %}disabled{% endif %}>
+                                        <i class="fas fa-shopping-cart me-2"></i>
+                                        {% if current_plan == 'none' %}
+                                            Купить на 30 дней
+                                        {% else %}
+                                            Перейти на Reseller
+                                        {% endif %}
+                                    </button>
+                                </form>
+                                {% if total_balance < plan_prices.reseller %}
+                                    <small class="text-danger mt-2 d-block text-center">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>
+                                        Недостаточно средств. Нужно ${{ plan_prices.reseller }}
+                                    </small>
+                                {% endif %}
+                                {% if user_status == 'frozen' %}
+                                    <small class="text-danger mt-2 d-block text-center">
+                                        <i class="fas fa-snowflake me-1"></i>
+                                        Операции заблокированы - аккаунт заморожен
+                                    </small>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Pro+ Plan -->
+                    {% if current_plan == 'none' or 'pro' in next_plans %}
+                    <div class="plan-card popular">
+                        <div class="plan-badge">Пожизненно</div>
+                        <h3 class="plan-name">Pro+</h3>
+                        <div class="plan-price">
+                            ${{ plan_prices.pro }}
+                            <span class="plan-period">единоразовый платеж</span>
+                            <span class="plan-period-bonus">+5 USD бонус</span>
+                        </div>
+                        <p class="text-center mb-4" style="color: var(--text-light);">Максимальные возможности и бонусы</p>
+                        
+                        <div class="plan-features">
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="feature-text">Скидка 10% на пополнение Steam</div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="feature-text">Доступ к VIP товарам</div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="feature-text">Полная детализация аналитики</div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="feature-text">Персональный менеджер</div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="feature-text">Самые высокие скидки</div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="feature-text">Бонус +5 USD на баланс</div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="feature-text">Приоритетная поддержка</div>
+                            </div>
+                        </div>
+                        
+                        <div class="plan-footer">
+                            {% if current_plan == 'pro' %}
+                                <button class="buy-plan-btn" disabled>
+                                    <i class="fas fa-crown me-2"></i> Активен навсегда
+                                </button>
+                            {% else %}
+                                <form method="POST" action="/reseller">
+                                    <input type="hidden" name="action" value="{% if current_plan == 'none' %}buy_plan{% else %}upgrade_plan{% endif %}">
+                                    <input type="hidden" name="plan" value="pro">
+                                    <button type="submit" class="buy-plan-btn" 
+                                            {% if total_balance < plan_prices.pro or user_status == 'frozen' %}disabled{% endif %}>
+                                        <i class="fas fa-crown me-2"></i>
+                                        {% if current_plan == 'none' %}
+                                            Купить навсегда
+                                        {% else %}
+                                            Перейти на Pro+
+                                        {% endif %}
+                                    </button>
+                                </form>
+                                {% if total_balance < plan_prices.pro %}
+                                    <small class="text-danger mt-2 d-block text-center">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>
+                                        Недостаточно средств. Нужно ${{ plan_prices.pro }}
+                                    </small>
+                                {% endif %}
+                                {% if user_status == 'frozen' %}
+                                    <small class="text-danger mt-2 d-block text-center">
+                                        <i class="fas fa-snowflake me-1"></i>
+                                        Операции заблокированы - аккаунт заморожен
+                                    </small>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% elif user_status == 'frozen' %}
+                <!-- Сообщение для замороженных аккаунтов -->
+                <div class="alert alert-danger ">
+                    <i class="fas fa-snowflake me-2"></i>
+                    <strong>Ваш аккаунт заморожен!</strong> Вы не можете покупать или продлевать тарифы реселлера.
+                    <br>Причина: {{ freeze_reason }}
+                    {% if freeze_reason == 'Прекращение обслуживания - возврат средств' %}
+                        <br>Обратитесь в поддержку для получения возврата средств.
+                    {% endif %}
+                </div>
+            {% endif %}
+        </main>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Create snowflakes - ТОЧНО ТАКОЙ ЖЕ КОД КАК В DASHBOARD.HTML
+        function createSnowflakes() {
+            const container = document.getElementById('snowflakes');
+            const snowflakeCount = 60;
+            
+            for (let i = 0; i < snowflakeCount; i++) {
+                const snowflake = document.createElement('div');
+                snowflake.classList.add('snowflake');
+                
+                const size = Math.random() * 6 + 2;
+                snowflake.style.width = `${size}px`;
+                snowflake.style.height = `${size}px`;
+                snowflake.style.left = `${Math.random() * 100}vw`;
+                snowflake.style.opacity = Math.random() * 0.8 + 0.2;
+                const duration = Math.random() * 10 + 5;
+                snowflake.style.animationDuration = `${duration}s`;
+                snowflake.style.animationDelay = `${Math.random() * 5}s`;
+                
+                container.appendChild(snowflake);
+            }
+        }
+        
+        // Scroll animation - ТОЧНО ТАКОЙ ЖЕ КОД КАК В DASHBOARD.HTML
+        function handleScrollAnimations() {
+            const elements = document.querySelectorAll('.fade-in');
+            
+            elements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < window.innerHeight - elementVisible) {
+                    element.classList.add('visible');
+                }
+            });
+        }
+        
+        // Инициализация - ТОЧНО ТАКОЙ ЖЕ КОД КАК В DASHBOARD.HTML
+        document.addEventListener('DOMContentLoaded', function() {
+            createSnowflakes();
+            handleScrollAnimations();
+            
+            // Add scroll event listener
+            window.addEventListener('scroll', handleScrollAnimations);
+            
+            // Remove snowflakes when window loses focus to save resources
+            window.addEventListener('blur', function() {
+                const snowflakes = document.querySelectorAll('.snowflake');
+                snowflakes.forEach(snowflake => {
+                    snowflake.style.animationPlayState = 'paused';
+                });
+            });
+            
+            window.addEventListener('focus', function() {
+                const snowflakes = document.querySelectorAll('.snowflake');
+                snowflakes.forEach(snowflake => {
+                    snowflake.style.animationPlayState = 'running';
+                });
+            });
+            
+            // Plan card hover effects - ТОЧНО ТАКОЙ ЖЕ КОД КАК В DASHBOARD.HTML
+            const planCards = document.querySelectorAll('.plan-card');
+            planCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.zIndex = '10';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.zIndex = '1';
+                });
+            });
+            
+            // Form confirmation
+            const planForms = document.querySelectorAll('form[action="/reseller"]');
+            planForms.forEach(form => {
+                const actionInput = form.querySelector('input[name="action"]');
+                if (actionInput && ['buy_plan', 'upgrade_plan', 'renew_plan'].includes(actionInput.value)) {
+                    form.addEventListener('submit', function(e) {
+                        const button = this.querySelector('button[type="submit"]');
+                        const plan = this.querySelector('input[name="plan"]').value;
+                        const action = actionInput.value;
+                        
+                        let confirmMessage = '';
+                        if (action === 'renew_plan') {
+                            confirmMessage = 'Вы уверены, что хотите продлить тариф? Средства будут списаны с баланса.';
+                        } else if (action === 'upgrade_plan') {
+                            confirmMessage = 'Вы уверены, что хотите улучшить тариф? Разница в стоимости будет списана с баланса.';
+                        } else {
+                            confirmMessage = 'Вы уверены, что хотите купить этот тариф? Средства будут списаны с баланса.';
+                        }
+                        
+                        if (!confirm(confirmMessage)) {
+                            e.preventDefault();
+                            return;
+                        }
+                        
+                        button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Обработка...';
+                        button.disabled = true;
+                    });
+                }
+                
+                // Show upgrade section form
+                const showUpgradeForm = form.querySelector('input[name="action"][value="show_upgrade"]');
+                if (showUpgradeForm) {
+                    form.addEventListener('submit', function(e) {
+                        const button = this.querySelector('button[type="submit"]');
+                        button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Загрузка...';
+                        button.disabled = true;
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

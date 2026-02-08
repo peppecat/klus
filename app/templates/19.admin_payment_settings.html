@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Настройки приема средств | Админ панель</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Favicon & Logo -->
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+    
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary: #FF9900;
+            --secondary: #232F3E;
+            --light-bg: #FFFFFF;
+            --border-color: #DDDDDD;
+            --text-dark: #131921;
+            --text-light: #565959;
+            --success: #067D62;
+            --danger: #FF0000;
+            --warning: #FFA500;
+        }
+        
+        body {
+            font-family: 'Amazon Ember', Arial, sans-serif;
+            background-color: #F3F3F3;
+            color: var(--text-dark);
+            line-height: 1.5;
+        }
+        
+        .navbar {
+            background-color: var(--secondary) !important;
+            padding: 0.5rem 0;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            color: white !important;
+            font-size: 1.5rem;
+        }
+        
+        .nav-link {
+            color: white !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            border-radius: 4px;
+            margin: 0 0.25rem;
+        }
+        
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .nav-link.active {
+            background-color: var(--primary);
+            color: #111 !important;
+        }
+        
+        .admin-sidebar {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+            height: fit-content;
+        }
+        
+        .admin-sidebar .nav-link {
+            color: var(--text-dark) !important;
+            padding: 0.75rem 1rem !important;
+            margin: 0.25rem 0;
+            border-radius: 6px;
+        }
+        
+        .admin-sidebar .nav-link:hover,
+        .admin-sidebar .nav-link.active {
+            background-color: var(--primary);
+            color: #111 !important;
+        }
+        
+        .admin-sidebar .nav-link i {
+            width: 20px;
+            text-align: center;
+            margin-right: 0.5rem;
+        }
+        
+        .wallet-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--primary);
+        }
+        
+        .wallet-icon {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .wallet-address {
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            padding: 1rem;
+            font-family: monospace;
+            word-break: break-all;
+            border: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/dashboard">
+                <i class="fas fa-shopping-bag me-2"></i>KEYZPANEL
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">
+                            <i class="fas fa-home me-1"></i> Магазин
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/admin">
+                            <i class="fas fa-cog me-1"></i> Админ панель
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">
+                            <i class="fas fa-sign-out-alt me-1"></i> Выйти
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container py-4">
+        <div class="row mb-4">
+            <div class="col">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-wallet me-2"></i>Настройки приема средств
+                </h1>
+                <p class="text-muted">Управление крипто-адресами для приема платежей</p>
+            </div>
+        </div>
+        
+        <div class="row">
+ <!-- Sidebar -->
+            <div class="col-md-3 mb-4">
+                <div class="admin-sidebar">
+                    <nav class="nav flex-column">
+                        <a class="nav-link" href="/admin">
+                            <i class="fas fa-tachometer-alt"></i> Дашборд
+                        </a>
+                        <a class="nav-link" href="/admin/users">
+                            <i class="fas fa-users"></i> Пользователи
+                        </a>
+                        <a class="nav-link" href="/admin/finances">
+                            <i class="fas fa-money-bill-wave"></i> Средства
+                        </a>
+                        <a class="nav-link" href="/admin/orders">
+                            <i class="fas fa-clipboard-list"></i> Заказы
+                        </a>
+                        <a class="nav-link active" href="/admin/payment_settings">
+                            <i class="fas fa-wallet"></i> Прием средств
+                        </a>
+                        <a class="nav-link " href="/admin/reseller_tariffs">
+                            <i class="fas fa-layer-group"></i> Тарифы реселлера
+                        </a>
+                        <a class="nav-link" href="/admin/maintenance">
+                            <i class="fas fa-tools"></i> Тех. работы
+                        </a>
+                        <a class="nav-link" href="/admin/data_management">
+                            <i class="fas fa-database"></i> Управление данными
+                        </a>
+                    </nav>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-md-9">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-cog me-2"></i>Настройки кошельков
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="paymentSettingsForm">
+                            <!-- BEP20 Wallet -->
+                            <div class="wallet-card">
+                                <div class="wallet-icon">
+                                    <i class="fab fa-ethereum"></i>
+                                </div>
+                                <h5 class="mb-3">BEP20 (USDT)</h5>
+                                <div class="mb-3">
+                                    <label class="form-label">Адрес кошелька BEP20</label>
+                                    <input type="text" class="form-control" id="bep20Address" 
+                                           value="{{ wallets.bep20 }}" 
+                                           placeholder="Введите адрес BEP20 кошелька">
+                                    <div class="form-text">
+                                        Адрес для приема USDT в сети BEP20 (Binance Smart Chain)
+                                    </div>
+                                </div>
+                                {% if wallets.bep20 %}
+                                <div class="mt-3">
+                                    <label class="form-label">Текущий адрес:</label>
+                                    <div class="wallet-address">
+                                        {{ wallets.bep20 }}
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- TON Wallet -->
+                            <div class="wallet-card">
+                                <div class="wallet-icon">
+                                    <i class="fas fa-coins"></i>
+                                </div>
+                                <h5 class="mb-3">TON (USDT)</h5>
+                                <div class="mb-3">
+                                    <label class="form-label">Адрес кошелька TON</label>
+                                    <input type="text" class="form-control" id="tonAddress" 
+                                           value="{{ wallets.ton }}" 
+                                           placeholder="Введите адрес TON кошелька">
+                                    <div class="form-text">
+                                        Адрес для приема USDT в сети TON
+                                    </div>
+                                </div>
+                                {% if wallets.ton %}
+                                <div class="mt-3">
+                                    <label class="form-label">Текущий адрес:</label>
+                                    <div class="wallet-address">
+                                        {{ wallets.ton }}
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Сохранить настройки
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Информация о сетях -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-info-circle me-2"></i>Информация о сетях
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="mb-3">
+                                    <i class="fab fa-ethereum text-primary me-2"></i>BEP20 Сеть
+                                </h6>
+                                <ul class="list-unstyled small">
+                                    <li class="mb-2">
+                                        <i class="fas fa-check text-success me-2"></i>
+                                        <strong>Сеть:</strong> Binance Smart Chain (BSC)
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-check text-success me-2"></i>
+                                        <strong>Токен:</strong> USDT (BEP20)
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-check text-success me-2"></i>
+                                        <strong>Комиссии:</strong> Низкие
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-check text-success me-2"></i>
+                                        <strong>Скорость:</strong> Быстрая
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="mb-3">
+                                    <i class="fas fa-coins text-warning me-2"></i>TON Сеть
+                                </h6>
+                                <ul class="list-unstyled small">
+                                    <li class="mb-2">
+                                        <i class="fas fa-check text-success me-2"></i>
+                                        <strong>Сеть:</strong> The Open Network
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-check text-success me-2"></i>
+                                        <strong>Токен:</strong> USDT (TON)
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-check text-success me-2"></i>
+                                        <strong>Комиссии:</strong> Очень низкие
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-check text-success me-2"></i>
+                                        <strong>Скорость:</strong> Мгновенная
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info mt-3">
+                            <h6 class="alert-heading">
+                                <i class="fas fa-exclamation-triangle me-2"></i>Важно!
+                            </h6>
+                            <ul class="mb-0">
+                                <li>Убедитесь, что адреса корректны перед сохранением</li>
+                                <li>Проверьте, что адреса поддерживают USDT в указанных сетях</li>
+                                <li>После изменения адресов уведомите пользователей о новых реквизитах</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Сохранение настроек приема средств
+        document.getElementById('paymentSettingsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                bep20: document.getElementById('bep20Address').value.trim(),
+                ton: document.getElementById('tonAddress').value.trim()
+            };
+            
+            // Базовая валидация
+            if (!formData.bep20 && !formData.ton) {
+                alert('Заполните хотя бы один адрес кошелька');
+                return;
+            }
+            
+            fetch('/admin/payment_settings/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Настройки успешно сохранены');
+                    location.reload();
+                } else {
+                    alert('Ошибка: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Произошла ошибка при сохранении настроек');
+            });
+        });
+        
+        // Автоматическое форматирование адресов
+        document.getElementById('bep20Address').addEventListener('input', function(e) {
+            this.value = this.value.trim();
+        });
+        
+        document.getElementById('tonAddress').addEventListener('input', function(e) {
+            this.value = this.value.trim();
+        });
+    </script>
+</body>
+</html>

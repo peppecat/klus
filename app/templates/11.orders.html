@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Мои заказы | KEYZPANEL</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+    
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary: #FF6B35;
+            --primary-dark: #E55A2B;
+            --secondary: #0D1B2A;
+            --secondary-light: #1B263B;
+            --accent: #415A77;
+            --card-bg: #1E1E1E;
+            --card-hover: #252525;
+            --text-light: #E0E1DD;
+            --text-muted: #8A8D93;
+            --text-dark: #FFFFFF;
+            --success: #4CAF50;
+            --info: #2196F3;
+            --danger: #F44336;
+            --warning: #FF9800;
+            --frozen-blue: #0dcaf0;
+            --refund-cyan: #00BCD4;
+            --gradient-primary: linear-gradient(135deg, #FF6B35 0%, #FF8E53 100%);
+            --gradient-dark: linear-gradient(135deg, #0D1B2A 0%, #1B263B 100%);
+            --gradient-frozen: linear-gradient(135deg, #0dcaf0 0%, #2196F3 100%);
+            --gradient-refund: linear-gradient(135deg, #00BCD4 0%, #0097A7 100%);
+            --gradient-refund-btn: linear-gradient(135deg, #00BCD4 0%, #0097A7 100%);
+            --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            --card-shadow-hover: 0 12px 48px rgba(255, 107, 53, 0.2);
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--gradient-dark);
+            color: var(--text-light);
+            line-height: 1.6;
+            position: relative;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        
+        /* Snowflake Container */
+        .snowflakes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .snowflake {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: fall linear infinite;
+        }
+        
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+        
+        /* Content wrapper */
+        .content-wrapper {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .navbar {
+            background: rgba(13, 27, 42, 0.95) !important;
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(65, 90, 119, 0.3);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .navbar-brand {
+            font-weight: 800;
+            color: var(--text-dark) !important;
+            font-size: 1.8rem;
+            letter-spacing: -0.5px;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .nav-link {
+            color: var(--text-light) !important;
+            font-weight: 500;
+            padding: 0.75rem 1.25rem !important;
+            border-radius: 8px;
+            margin: 0 0.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-link:before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-primary);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover:before {
+            width: 100%;
+        }
+        
+        .nav-link:hover {
+            background: rgba(255, 107, 53, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .nav-link.active {
+            background: var(--gradient-primary);
+            color: white !important;
+            box-shadow: 0 4px 20px rgba(255, 107, 53, 0.3);
+        }
+        
+        .nav-link.active:before {
+            display: none;
+        }
+        
+        /* User info styles */
+        .user-info-card {
+            background: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .user-info-card:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+        }
+        
+        .user-info-card.frozen:before {
+            background: var(--gradient-frozen);
+        }
+        
+        .user-info-card.frozen-refund:before {
+            background: var(--gradient-refund);
+        }
+        
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.2rem;
+            margin-right: 1.25rem;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+        }
+        
+        .user-info-card.frozen .user-avatar {
+            background: var(--gradient-frozen);
+            box-shadow: 0 4px 15px rgba(13, 202, 240, 0.3);
+        }
+        
+        .user-info-card.frozen-refund .user-avatar {
+            background: var(--gradient-refund);
+            box-shadow: 0 4px 15px rgba(0, 188, 212, 0.3);
+        }
+        
+        .user-details {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            font-size: 1.2rem;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .user-balance {
+            font-size: 1rem;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+        
+        .user-balance:before {
+            content: '$';
+            margin-right: 0.25rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+        
+        .user-info-card.frozen .user-balance:before {
+            color: var(--frozen-blue);
+        }
+        
+        .user-info-card.frozen-refund .user-balance:before {
+            color: var(--refund-cyan);
+        }
+        
+        /* Badge styles */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            gap: 0.4rem;
+            transition: all 0.3s ease;
+        }
+        
+        .status-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .frozen-badge {
+            background: var(--gradient-frozen);
+            color: white;
+            box-shadow: 0 4px 12px rgba(13, 202, 240, 0.3);
+        }
+        
+        .refund-badge {
+            background: var(--gradient-refund);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 188, 212, 0.3);
+        }
+        
+        .refund-amount {
+            background: rgba(0, 188, 212, 0.1);
+            border: 1px solid rgba(0, 188, 212, 0.3);
+            color: #00BCD4;
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        
+        .refund-info {
+            background: rgba(0, 188, 212, 0.05);
+            border: 1px solid rgba(0, 188, 212, 0.2);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .refund-info-title {
+            font-weight: 600;
+            color: #00BCD4;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .refund-info-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .refund-detail {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        
+        .refund-detail-label {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        
+        .refund-detail-value {
+            font-weight: 600;
+            color: white;
+            font-size: 0.95rem;
+        }
+        
+        .refund-detail-reason {
+            color: #FF6B35;
+            font-weight: 500;
+            background: rgba(255, 107, 53, 0.1);
+            padding: 0.5rem;
+            border-radius: 6px;
+            margin-top: 0.25rem;
+            border-left: 3px solid #FF6B35;
+        }
+        
+        .refund-total {
+            border-top: 1px solid rgba(0, 188, 212, 0.3);
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #00BCD4;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        /* Refund button styles */
+        .refund-btn-container {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(0, 188, 212, 0.2);
+        }
+        
+        .refund-btn {
+            background: var(--gradient-refund-btn);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        
+        .refund-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 188, 212, 0.3);
+            color: white;
+        }
+        
+        .refund-btn:active {
+            transform: translateY(-1px);
+        }
+        
+        /* Page header */
+        .page-header {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin: 2rem 0;
+            padding-bottom: 1rem;
+            position: relative;
+        }
+        
+        .page-header:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 80px;
+            height: 4px;
+            background: var(--gradient-primary);
+            border-radius: 2px;
+        }
+        
+        /* Breadcrumb */
+        .breadcrumb {
+            background-color: transparent;
+            padding: 0;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+        
+        .breadcrumb-item a {
+            color: var(--text-light);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .breadcrumb-item a:hover {
+            color: var(--primary);
+        }
+        
+        .breadcrumb-item.active {
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+        
+        /* Orders card */
+        .orders-card {
+            background: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .orders-card:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+        }
+        
+        .orders-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .orders-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+        
+        .orders-count {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 0.5rem 1.25rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        
+        /* Table styles */
+        .orders-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        .orders-table thead th {
+            background: rgba(65, 90, 119, 0.2);
+            color: var(--text-light);
+            font-weight: 600;
+            padding: 1rem 1.25rem;
+            border: none;
+            text-align: left;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .orders-table tbody tr {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .orders-table tbody tr:hover {
+            background: rgba(255, 107, 53, 0.08);
+            transform: translateY(-2px);
+        }
+        
+        .orders-table tbody td {
+            padding: 1.25rem;
+            border: none;
+            color: var(--text-light);
+            vertical-align: middle;
+        }
+        
+        /* Order status badges */
+        .order-status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .order-status-completed {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+        
+        .order-status-pending {
+            background: rgba(255, 235, 59, 0.2);
+            color: #FFEB3B;
+            border: 1px solid rgba(255, 235, 59, 0.3);
+        }
+        
+        .order-status-failed {
+            background: rgba(244, 67, 54, 0.2);
+            color: #F44336;
+            border: 1px solid rgba(244, 67, 54, 0.3);
+        }
+        
+        .order-status-processing {
+            background: rgba(33, 150, 243, 0.2);
+            color: #2196F3;
+            border: 1px solid rgba(33, 150, 243, 0.3);
+        }
+        
+        /* Action buttons */
+        .action-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+        
+        .action-btn:hover {
+            background: rgba(255, 107, 53, 0.1);
+            color: var(--primary);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+        
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-muted);
+        }
+        
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.5;
+        }
+        
+        .empty-state-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-light);
+        }
+        
+        .empty-state-text {
+            margin-bottom: 2rem;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .empty-state-btn {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.3s ease;
+        }
+        
+        .empty-state-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.3);
+            color: white;
+            text-decoration: none;
+        }
+        
+        /* Modal styles */
+        .modal-content {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            color: var(--text-light);
+        }
+        
+        .modal-header {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem 2rem;
+        }
+        
+        .modal-title {
+            color: var(--text-dark);
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        
+        .btn-close {
+            filter: invert(1);
+        }
+        
+        .modal-body {
+            padding: 2rem;
+        }
+        
+        .modal-footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem 2rem;
+        }
+        
+        /* Detail items */
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: var(--text-light);
+        }
+        
+        .detail-value {
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+        
+        .detail-section {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .detail-section-title {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        /* Key display */
+        .key-display {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .key-value {
+            font-family: 'Courier New', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: 2px;
+            padding: 1rem;
+            background: rgba(255, 107, 53, 0.1);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--secondary);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--gradient-primary);
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+        
+        /* Selection color */
+        ::selection {
+            background: rgba(255, 107, 53, 0.3);
+            color: white;
+        }
+        
+        /* Animation for cards */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 992px) {
+            .page-header {
+                font-size: 2rem;
+            }
+            
+            .orders-title {
+                font-size: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .navbar-toggler {
+                border-color: rgba(255, 107, 53, 0.5);
+                color: var(--primary);
+            }
+            
+            .navbar-toggler:focus {
+                box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.25);
+            }
+            
+            .orders-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .orders-table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .modal-dialog {
+                margin: 1rem;
+            }
+            
+            .user-name {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            
+            .user-balance {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .user-info-card {
+                flex-direction: column;
+                text-align: center;
+                padding: 1.25rem;
+            }
+            
+            .user-avatar {
+                margin-right: 0;
+                margin-bottom: 1rem;
+            }
+            
+            .user-details {
+                width: 100%;
+            }
+            
+            .user-name {
+                flex-direction: column;
+                align-items: center;
+                gap: 0.5rem;
+            }
+            
+            .user-balance {
+                flex-direction: column;
+                align-items: center;
+                gap: 0.5rem;
+            }
+            
+            .orders-card {
+                padding: 1.5rem;
+            }
+            
+            .orders-table thead th,
+            .orders-table tbody td {
+                padding: 0.75rem;
+            }
+            
+            .detail-item {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .refund-info {
+                padding: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Snowflake Container -->
+    <div class="snowflakes" id="snowflakes"></div>
+    
+    <!-- Content Wrapper -->
+    <div class="content-wrapper">
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container">
+                <a class="navbar-brand" href="/dashboard">
+                    <i class="fas fa-shopping-bag me-2"></i>KEYZPANEL
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/dashboard">
+                                <i class="fas fa-home me-1"></i> Магазин
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/orders">
+                                <i class="fas fa-clipboard-list me-1"></i> Заказы
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/account">
+                                <i class="fas fa-user me-1"></i> Аккаунт
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/reseller">
+                                <i class="fas fa-layer-group me-1"></i> Реселлер
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/logout">
+                                <i class="fas fa-sign-out-alt me-1"></i> Выйти
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <main class="container py-4">
+            <div class="row mb-3">
+                <div class="col">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/dashboard">Главная</a></li>
+                            <li class="breadcrumb-item active">Мои заказы</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+            
+            <!-- User Info Card -->
+            <div class="user-info-card fade-in 
+                {% if user_status == 'frozen' and freeze_reason == 'Прекращение обслуживания - возврат средств' %}frozen-refund
+                {% elif user_status == 'frozen' %}frozen{% endif %}">
+                <div class="user-avatar">
+                    {{ username[0].upper() }}
+                </div>
+                <div class="user-details">
+                    <div class="user-name">
+                        {{ username }}
+                        {% if user_status == 'frozen' %}
+                            {% if freeze_reason == 'Прекращение обслуживания - возврат средств' %}
+                                <span class="status-badge refund-badge">
+                                    <i class="fas fa-money-bill-wave me-1"></i>
+                                    Возврат средств
+                                </span>
+                            {% else %}
+                                <span class="status-badge frozen-badge">
+                                    <i class="fas fa-snowflake me-1"></i>
+                                    Заморожен
+                                </span>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                    <div class="user-balance">
+                        Баланс: ${{ "{:,.2f}".format(total_balance) }}
+                        {% if user_status == 'frozen' and freeze_reason == 'Прекращение обслуживания - возврат средств' %}
+                            <span class="refund-amount">
+                                <i class="fas fa-hand-holding-usd me-1"></i>
+                                К возврату: ${{ "{:,.2f}".format(refund_amount) }}
+                            </span>
+                        {% endif %}
+                    </div>
+                    
+                    {% if user_status == 'frozen' %}
+                        <div class="refund-info">
+                            <div class="refund-info-title">
+                                <i class="fas fa-info-circle"></i>
+                                {% if freeze_reason == 'Прекращение обслуживания - возврат средств' %}
+                                    Информация о возврате средств
+                                {% else %}
+                                    Информация о заморозке
+                                {% endif %}
+                            </div>
+                            <div class="refund-info-details">
+                                <div class="refund-detail">
+                                    <span class="refund-detail-label">Статус:</span>
+                                    <span class="refund-detail-value">
+                                        {% if freeze_reason == 'Прекращение обслуживания - возврат средств' %}
+                                            Возврат средств
+                                        {% else %}
+                                            Заморожен
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                
+                                <div class="refund-detail">
+                                    <span class="refund-detail-label">Причина:</span>
+                                    <div class="refund-detail-reason">{{ freeze_reason }}</div>
+                                </div>
+                                
+                                <div class="refund-detail">
+                                    <span class="refund-detail-label">Дата заморозки:</span>
+                                    <span class="refund-detail-value">{{ frozen_date or 'Не указана' }}</span>
+                                </div>
+                                
+                                {% if freeze_reason == 'Прекращение обслуживания - возврат средств' %}
+                                    <div class="refund-detail">
+                                        <span class="refund-detail-label">Стоимость тарифа:</span>
+                                        <span class="refund-detail-value">${{ "{:,.2f}".format(tariff_cost) }}</span>
+                                    </div>
+                                    <div class="refund-detail">
+                                        <span class="refund-detail-label">Текущий баланс:</span>
+                                        <span class="refund-detail-value">${{ "{:,.2f}".format(total_balance) }}</span>
+                                    </div>
+                                    <div class="refund-total">
+                                        <span>Общая сумма к возврату:</span>
+                                        <span>${{ "{:,.2f}".format(refund_amount) }}</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            {% if freeze_reason == 'Прекращение обслуживания - возврат средств' %}
+                                <div class="refund-btn-container">
+                                    <a href="{{ url_for('refund_info') }}" class="refund-btn">
+                                        <i class="fas fa-file-invoice-dollar me-2"></i>
+                                        Информация о возврате средств
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="row mb-4">
+                <div class="col">
+                    <h1 class="page-header">Мои заказы</h1>
+                </div>
+            </div>
+            
+            <div class="fade-in">
+                <div class="orders-card">
+                    <div class="orders-header">
+                        <h2 class="orders-title">История заказов</h2>
+                        <div class="orders-count">
+                            Всего: {{ total_orders }} заказов
+                        </div>
+                    </div>
+                    
+                    {% if user_orders %}
+                    <div class="table-responsive">
+                        <table class="orders-table">
+                            <thead>
+                                <tr>
+                                    <th>Категория</th>
+                                    <th>Продукт</th>
+                                    <th>Цена</th>
+                                    <th>Количество</th>
+                                    <th>Дата</th>
+                                    <th>Статус</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in user_orders %}
+                                <tr class="fade-in">
+                                    <td>
+                                        <span class="fw-semibold">{{ order.category }}</span>
+                                    </td>
+                                    <td>{{ order.product }}</td>
+                                    <td>
+                                        <span class="detail-value">${{ "%.2f"|format(order.price) }}</span>
+                                        {% if order.discount and order.discount > 0 %}
+                                        <br>
+                                        <small class="text-success">Скидка {{ order.discount }}%</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ order.amount }}</td>
+                                    <td>
+                                        <small>
+                                            {{ order.date }}
+                                        </small>
+                                    </td>
+                                    <td>
+                                        {% if order.category == 'Steam' %}
+                                            {% if order.transaction_status == 'failed' or order.status == 'failed' %}
+                                            <span class="order-status-badge order-status-failed">
+                                                <i class="fas fa-times-circle"></i>Ошибка
+                                            </span>
+                                            {% else %}
+                                            <span class="order-status-badge order-status-completed">
+                                                <i class="fas fa-check-circle"></i>Завершен
+                                            </span>
+                                            {% endif %}
+                                        {% else %}
+                                            {% if order.status == 'completed' %}
+                                            <span class="order-status-badge order-status-completed">
+                                                <i class="fas fa-check-circle"></i>Завершен
+                                            </span>
+                                            {% elif order.status == 'pending' %}
+                                            <span class="order-status-badge order-status-pending">
+                                                <i class="fas fa-clock"></i>В обработке
+                                            </span>
+                                            {% elif order.status == 'failed' %}
+                                            <span class="order-status-badge order-status-failed">
+                                                <i class="fas fa-times-circle"></i>Ошибка
+                                            </span>
+                                            {% else %}
+                                            <span class="order-status-badge order-status-processing">
+                                                <i class="fas fa-sync-alt"></i>Обрабатывается
+                                            </span>
+                                            {% endif %}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if order.category == 'Steam' and order.steamLogin %}
+                                        <a href="#" class="action-btn" 
+                                           data-bs-toggle="modal" 
+                                           data-bs-target="#orderDetailsModal"
+                                           data-order-id="{{ order.id }}"
+                                           data-order-category="{{ order.category }}"
+                                           data-order-product="{{ order.product }}"
+                                           data-order-price="{{ order.price }}"
+                                           data-order-amount="{{ order.amount }}"
+                                           data-order-date="{{ order.date }}"
+                                           data-order-status="{% if order.transaction_status == 'failed' %}failed{% else %}completed{% endif %}"
+                                           data-order-steamlogin="{{ order.steamLogin }}"
+                                           data-order-transactionid="{{ order.transaction_id }}"
+                                           data-order-paidamount="{{ order.paid_amount }}"
+                                           data-order-requestedamount="{{ order.requested_amount }}">
+                                            <i class="fas fa-eye"></i>Детали
+                                        </a>
+                                        {% else %}
+                                        <a href="#" class="action-btn" 
+                                           data-bs-toggle="modal" 
+                                           data-bs-target="#orderDetailsModal"
+                                           data-order-id="{{ order.id }}"
+                                           data-order-category="{{ order.category }}"
+                                           data-order-product="{{ order.product }}"
+                                           data-order-price="{{ order.price }}"
+                                           data-order-amount="{{ order.amount }}"
+                                           data-order-date="{{ order.date }}"
+                                           data-order-status="{% if order.status %}{{ order.status }}{% else %}processing{% endif %}"
+                                           data-order-transactionid="{{ order.transaction_id }}"
+                                           data-order-paidamount="{{ order.paid_amount }}"
+                                           data-order-requestedamount="{{ order.requested_amount }}">
+                                            <i class="fas fa-key"></i>Ключ
+                                        </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <i class="fas fa-clipboard-list"></i>
+                        </div>
+                        <h3 class="empty-state-title">Заказов пока нет</h3>
+                        <p class="empty-state-text">Совершите первую покупку в нашем магазине</p>
+                        <a href="/dashboard" class="empty-state-btn">
+                            <i class="fas fa-shopping-bag"></i>Перейти в магазин
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="orderDetailsModalLabel">
+                        <i class="fas fa-info-circle me-2"></i>Детали заказа
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="detail-item">
+                                <span class="detail-label">ID заказа:</span>
+                                <span class="detail-value" id="modal-order-id">-</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Категория:</span>
+                                <span class="detail-value" id="modal-order-category">-</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Продукт:</span>
+                                <span class="detail-value" id="modal-order-product">-</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Количество:</span>
+                                <span class="detail-value" id="modal-order-amount">-</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-item">
+                                <span class="detail-label">Цена:</span>
+                                <span class="detail-value" id="modal-order-price">-</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Дата:</span>
+                                <span class="detail-value" id="modal-order-date">-</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Статус:</span>
+                                <span class="detail-value">
+                                    <span id="modal-order-status-badge"></span>
+                                </span>
+                            </div>
+                            <div class="detail-item" id="modal-steam-login-item" style="display: none;">
+                                <span class="detail-label">Логин Steam:</span>
+                                <span class="detail-value" id="modal-order-steamlogin">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Steam order details -->
+                    <div class="detail-section" id="steam-order-details" style="display: none;">
+                        <h6 class="detail-section-title"><i class="fas fa-steam me-2"></i>Информация о пополнении Steam</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="detail-item">
+                                    <span class="detail-label">Запрошенная сумма:</span>
+                                    <span class="detail-value" id="modal-order-requestedamount">-</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Списано с баланса:</span>
+                                    <span class="detail-value" id="modal-order-paidamount">-</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="detail-item">
+                                    <span class="detail-label">ID транзакции:</span>
+                                    <span class="detail-value" id="modal-order-transactionid">-</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Экономия:</span>
+                                    <span class="detail-value text-success" id="modal-order-savings">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Key display for other products -->
+                    <div class="detail-section" id="key-order-details" style="display: none;">
+                        <h6 class="detail-section-title"><i class="fas fa-key me-2"></i>Ключ продукта</h6>
+                        <div class="key-display">
+                            <div class="key-value" id="product-key-value" style="display: none;">
+                                XXXXX-XXXXX-XXXXX
+                            </div>
+                            <button class="action-btn" onclick="showProductKey()">
+                                <i class="fas fa-eye me-2"></i>Показать ключ
+                            </button>
+                            <p class="text-muted mt-2 mb-0">Сохраните ключ в надежном месте</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="action-btn" data-bs-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Create snowflakes
+        function createSnowflakes() {
+            const container = document.getElementById('snowflakes');
+            const snowflakeCount = 60;
+            
+            for (let i = 0; i < snowflakeCount; i++) {
+                const snowflake = document.createElement('div');
+                snowflake.classList.add('snowflake');
+                
+                const size = Math.random() * 6 + 2;
+                snowflake.style.width = `${size}px`;
+                snowflake.style.height = `${size}px`;
+                snowflake.style.left = `${Math.random() * 100}vw`;
+                snowflake.style.opacity = Math.random() * 0.8 + 0.2;
+                const duration = Math.random() * 10 + 5;
+                snowflake.style.animationDuration = `${duration}s`;
+                snowflake.style.animationDelay = `${Math.random() * 5}s`;
+                
+                container.appendChild(snowflake);
+            }
+        }
+        
+        // Scroll animation
+        function handleScrollAnimations() {
+            const elements = document.querySelectorAll('.fade-in');
+            
+            elements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < window.innerHeight - elementVisible) {
+                    element.classList.add('visible');
+                }
+            });
+        }
+        
+        // Initialize modal with order details
+        const orderDetailsModal = document.getElementById('orderDetailsModal');
+        if (orderDetailsModal) {
+            orderDetailsModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                
+                // Extract order data from button attributes
+                const orderId = button.getAttribute('data-order-id');
+                const orderCategory = button.getAttribute('data-order-category');
+                const orderProduct = button.getAttribute('data-order-product');
+                const orderPrice = button.getAttribute('data-order-price');
+                const orderAmount = button.getAttribute('data-order-amount');
+                const orderDate = button.getAttribute('data-order-date');
+                const orderStatus = button.getAttribute('data-order-status');
+                const orderSteamLogin = button.getAttribute('data-order-steamlogin');
+                const orderTransactionId = button.getAttribute('data-order-transactionid');
+                const orderPaidAmount = button.getAttribute('data-order-paidamount');
+                const orderRequestedAmount = button.getAttribute('data-order-requestedamount');
+                
+                // Update modal content
+                document.getElementById('modal-order-id').textContent = orderId;
+                document.getElementById('modal-order-category').textContent = orderCategory;
+                document.getElementById('modal-order-product').textContent = orderProduct;
+                document.getElementById('modal-order-price').textContent = '$' + parseFloat(orderPrice).toFixed(2);
+                document.getElementById('modal-order-amount').textContent = orderAmount;
+                document.getElementById('modal-order-date').textContent = orderDate;
+                
+                // Update status badge
+                const statusBadge = document.getElementById('modal-order-status-badge');
+                statusBadge.innerHTML = '';
+                let statusClass = 'order-status-processing';
+                let statusText = 'Обрабатывается';
+                let statusIcon = 'fas fa-sync-alt';
+                
+                if (orderCategory === 'Steam') {
+                    // Для Steam-заказов показываем всегда "Завершен" с зеленым бейджем, кроме статуса failed
+                    if (orderStatus === 'failed') {
+                        statusClass = 'order-status-failed';
+                        statusText = 'Ошибка';
+                        statusIcon = 'fas fa-times-circle';
+                    } else {
+                        statusClass = 'order-status-completed';
+                        statusText = 'Завершен';
+                        statusIcon = 'fas fa-check-circle';
+                    }
+                } else {
+                    // Для обычных заказов используем реальный статус
+                    if (orderStatus === 'completed') {
+                        statusClass = 'order-status-completed';
+                        statusText = 'Завершен';
+                        statusIcon = 'fas fa-check-circle';
+                    } else if (orderStatus === 'pending') {
+                        statusClass = 'order-status-pending';
+                        statusText = 'В обработке';
+                        statusIcon = 'fas fa-clock';
+                    } else if (orderStatus === 'failed') {
+                        statusClass = 'order-status-failed';
+                        statusText = 'Ошибка';
+                        statusIcon = 'fas fa-times-circle';
+                    }
+                }
+                
+                statusBadge.innerHTML = `<span class="order-status-badge ${statusClass}"><i class="${statusIcon}"></i>${statusText}</span>`;
+                
+                // Show/hide Steam login and details
+                const steamLoginItem = document.getElementById('modal-steam-login-item');
+                const steamOrderDetails = document.getElementById('steam-order-details');
+                const keyOrderDetails = document.getElementById('key-order-details');
+                const keyValueElement = document.getElementById('product-key-value');
+                
+                if (orderCategory === 'Steam' && orderSteamLogin) {
+                    steamLoginItem.style.display = 'flex';
+                    document.getElementById('modal-order-steamlogin').textContent = orderSteamLogin;
+                    steamOrderDetails.style.display = 'block';
+                    keyOrderDetails.style.display = 'none';
+                    
+                    // Update Steam order details
+                    if (orderRequestedAmount && orderPaidAmount) {
+                        document.getElementById('modal-order-requestedamount').textContent = '$' + parseFloat(orderRequestedAmount).toFixed(2);
+                        document.getElementById('modal-order-paidamount').textContent = '$' + parseFloat(orderPaidAmount).toFixed(2);
+                        
+                        // Calculate savings
+                        const savings = parseFloat(orderRequestedAmount) - parseFloat(orderPaidAmount);
+                        if (savings > 0) {
+                            document.getElementById('modal-order-savings').textContent = '$' + savings.toFixed(2);
+                        }
+                    }
+                    
+                    if (orderTransactionId) {
+                        document.getElementById('modal-order-transactionid').textContent = orderTransactionId;
+                    }
+                } else {
+                    steamLoginItem.style.display = 'none';
+                    steamOrderDetails.style.display = 'none';
+                    keyOrderDetails.style.display = 'block';
+                    keyValueElement.style.display = 'none';
+                }
+            });
+        }
+        
+        // Function to show product key
+        function showProductKey() {
+            const keyElement = document.getElementById('product-key-value');
+            if (keyElement.style.display === 'none') {
+                keyElement.style.display = 'block';
+                // In a real application, you would fetch the actual key from your server
+                // For now, we'll just show a placeholder
+                keyElement.textContent = 'ABCDE-FGHIJ-KLMNO';
+            } else {
+                keyElement.style.display = 'none';
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            createSnowflakes();
+            handleScrollAnimations();
+            
+            // Add scroll event listener
+            window.addEventListener('scroll', handleScrollAnimations);
+            
+            // Remove snowflakes when window loses focus to save resources
+            window.addEventListener('blur', function() {
+                const snowflakes = document.querySelectorAll('.snowflake');
+                snowflakes.forEach(snowflake => {
+                    snowflake.style.animationPlayState = 'paused';
+                });
+            });
+            
+            window.addEventListener('focus', function() {
+                const snowflakes = document.querySelectorAll('.snowflake');
+                snowflakes.forEach(snowflake => {
+                    snowflake.style.animationPlayState = 'running';
+                });
+            });
+            
+            // Auto-refresh page every 5 min for pending orders (только для не-Steam заказов)
+            setTimeout(function() {
+                // Проверяем, есть ли не-Steam заказы в статусе pending или processing
+                let shouldRefresh = false;
+                const nonSteamOrders = document.querySelectorAll('tbody tr');
+                nonSteamOrders.forEach(row => {
+                    const categoryCell = row.querySelector('td:nth-child(1) span');
+                    const statusBadge = row.querySelector('.order-status-badge');
+                    
+                    if (categoryCell && statusBadge) {
+                        const category = categoryCell.textContent.trim();
+                        if (category !== 'Steam' && 
+                           (statusBadge.classList.contains('order-status-pending') || 
+                            statusBadge.classList.contains('order-status-processing'))) {
+                            shouldRefresh = true;
+                        }
+                    }
+                });
+                
+                if (shouldRefresh) {
+                    window.location.reload();
+                }
+            }, 300000);
+        });
+    </script>
+</body>
+</html>

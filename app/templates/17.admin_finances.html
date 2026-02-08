@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Управление средствами | Админ панель</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Favicon & Logo -->
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+    
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary: #FF9900;
+            --secondary: #232F3E;
+            --light-bg: #FFFFFF;
+            --border-color: #DDDDDD;
+            --text-dark: #131921;
+            --text-light: #565959;
+            --success: #067D62;
+            --danger: #FF0000;
+            --warning: #FFA500;
+        }
+        
+        body {
+            font-family: 'Amazon Ember', Arial, sans-serif;
+            background-color: #F3F3F3;
+            color: var(--text-dark);
+            line-height: 1.5;
+        }
+        
+        .navbar {
+            background-color: var(--secondary) !important;
+            padding: 0.5rem 0;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            color: white !important;
+            font-size: 1.5rem;
+        }
+        
+        .nav-link {
+            color: white !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            border-radius: 4px;
+            margin: 0 0.25rem;
+        }
+        
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .nav-link.active {
+            background-color: var(--primary);
+            color: #111 !important;
+        }
+        
+        .admin-sidebar {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+            height: fit-content;
+        }
+        
+        .admin-sidebar .nav-link {
+            color: var(--text-dark) !important;
+            padding: 0.75rem 1rem !important;
+            margin: 0.25rem 0;
+            border-radius: 6px;
+        }
+        
+        .admin-sidebar .nav-link:hover,
+        .admin-sidebar .nav-link.active {
+            background-color: var(--primary);
+            color: #111 !important;
+        }
+        
+        .admin-sidebar .nav-link i {
+            width: 20px;
+            text-align: center;
+            margin-right: 0.5rem;
+        }
+        
+        .table {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 0;
+        }
+        
+        .table th {
+            background-color: #F7F7F7;
+            color: var(--text-dark);
+            font-weight: 600;
+            padding: 1rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .table td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-color: var(--border-color);
+        }
+        
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.35em 0.65em;
+            cursor: pointer;
+        }
+        
+        .status-completed {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .status-pending {
+            background-color: var(--warning);
+            color: white;
+        }
+        
+        .status-failed {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .filter-form {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/dashboard">
+                <i class="fas fa-shopping-bag me-2"></i>KEYZPANEL
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">
+                            <i class="fas fa-home me-1"></i> Магазин
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/admin">
+                            <i class="fas fa-cog me-1"></i> Админ панель
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">
+                            <i class="fas fa-sign-out-alt me-1"></i> Выйти
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container py-4">
+        <div class="row mb-4">
+            <div class="col">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-money-bill-wave me-2"></i>Управление средствами
+                </h1>
+                <p class="text-muted">История пополнений и управление балансами</p>
+            </div>
+        </div>
+        
+        <div class="row">
+             <!-- Sidebar -->
+            <div class="col-md-3 mb-4">
+                <div class="admin-sidebar">
+                    <nav class="nav flex-column">
+                        <a class="nav-link" href="/admin">
+                            <i class="fas fa-tachometer-alt"></i> Дашборд
+                        </a>
+                        <a class="nav-link" href="/admin/users">
+                            <i class="fas fa-users"></i> Пользователи
+                        </a>
+                        <a class="nav-link active" href="/admin/finances">
+                            <i class="fas fa-money-bill-wave"></i> Средства
+                        </a>
+                        <a class="nav-link" href="/admin/orders">
+                            <i class="fas fa-clipboard-list"></i> Заказы
+                        </a>
+                        <a class="nav-link" href="/admin/payment_settings">
+                            <i class="fas fa-wallet"></i> Прием средств
+                        </a>
+                        <a class="nav-link " href="/admin/reseller_tariffs">
+                            <i class="fas fa-layer-group"></i> Тарифы реселлера
+                        </a>
+                        <a class="nav-link" href="/admin/maintenance">
+                            <i class="fas fa-tools"></i> Тех. работы
+                        </a>
+                        <a class="nav-link" href="/admin/data_management">
+                            <i class="fas fa-database"></i> Управление данными
+                        </a>
+                    </nav>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-md-9">
+                <!-- Форма фильтрации -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <form method="GET" action="/admin/finances" class="row g-3 align-items-end">
+                            <div class="col-md-6">
+                                <label class="form-label">Фильтр по пользователю</label>
+                                <select class="form-select" name="user">
+                                    <option value="">Все пользователи</option>
+                                    {% for username in users %}
+                                        <option value="{{ username }}" {% if filter_user == username %}selected{% endif %}>
+                                            {{ username }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <button type="submit" class="btn btn-primary me-2">
+                                    <i class="fas fa-filter me-1"></i>Применить фильтр
+                                </button>
+                                {% if filter_user %}
+                                <a href="/admin/finances" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times me-1"></i>Сбросить
+                                </a>
+                                {% endif %}
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-plus-circle me-2"></i>Добавить пополнение
+                        </h5>
+                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addTopupModal">
+                            <i class="fas fa-plus me-1"></i>Добавить
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-history me-2"></i>История пополнений
+                            {% if filter_user %}
+                            <span class="badge bg-primary ms-2">Фильтр: {{ filter_user }}</span>
+                            {% endif %}
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        {% if topups %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Пользователь</th>
+                                        <th>Сумма</th>
+                                        <th>Метод</th>
+                                        <th>Дата</th>
+                                        <th>Статус</th>
+                                        <th>Кошелек</th>
+                                        <th>Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for topup in topups %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ topup.username }}</strong>
+                                        </td>
+                                        <td>
+                                            <span class="fw-semibold">${{ "%.2f"|format(topup.amount) }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary">{{ topup.method|upper }}</span>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">{{ topup.date }}</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge {% if topup.status == 'completed' %}bg-success{% elif topup.status == 'pending' %}bg-warning{% else %}bg-danger{% endif %} change-status-btn"
+                                                  data-bs-toggle="modal" 
+                                                  data-bs-target="#changeStatusModal"
+                                                  data-username="{{ topup.username }}"
+                                                  data-topup-id="{{ topup.id }}"
+                                                  data-current-status="{{ topup.status }}"
+                                                  style="cursor: pointer;"
+                                                  title="Нажмите для изменения статуса">
+                                                {% if topup.status == 'completed' %}
+                                                <i class="fas fa-check-circle me-1"></i>Завершено
+                                                {% elif topup.status == 'pending' %}
+                                                <i class="fas fa-clock me-1"></i>Ожидание
+                                                {% else %}
+                                                <i class="fas fa-times-circle me-1"></i>Ошибка
+                                                {% endif %}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted" title="{{ topup.wallet_address }}">{{ topup.wallet_address[:20] }}{% if topup.wallet_address|length > 20 %}...{% endif %}</small>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <button class="btn btn-outline-primary edit-topup-btn" 
+                                                        data-username="{{ topup.username }}"
+                                                        data-topup-id="{{ topup.id }}"
+                                                        data-wallet-type="{{ topup.get('wallet_type', 'admin') }}"
+                                                        data-date="{{ topup.date.split(' ')[0] }}"
+                                                        data-time="{{ topup.date.split(' ')[1][:5] }}"
+                                                        data-seconds="{{ topup.date.split(' ')[1][6:8] if topup.date.split(' ')[1]|length > 5 else '00' }}"
+                                                        title="Редактировать пополнение">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-outline-danger delete-topup-btn" 
+                                                        data-username="{{ topup.username }}"
+                                                        data-topup-id="{{ topup.id }}"
+                                                        title="Удалить пополнение">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                                {% if topup.username %}
+                                                <button class="btn btn-outline-warning clear-user-topups-btn" 
+                                                        data-username="{{ topup.username }}"
+                                                        title="Очистить историю пользователя">
+                                                    <i class="fas fa-broom"></i>
+                                                </button>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-money-bill-wave fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">
+                                {% if filter_user %}
+                                Нет пополнений для пользователя {{ filter_user }}
+                                {% else %}
+                                История пополнений пуста
+                                {% endif %}
+                            </h5>
+                            <p class="text-muted">Начните с добавления первого пополнения</p>
+                            <button class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#addTopupModal">
+                                <i class="fas fa-plus me-2"></i>Добавить пополнение
+                            </button>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Модальное окно добавления пополнения -->
+    <div class="modal fade" id="addTopupModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Добавить пополнение</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addTopupForm">
+                        <div class="mb-3">
+                            <label class="form-label">Пользователь</label>
+                            <select class="form-select" id="topupUsername" name="username" required>
+                                <option value="">Выберите пользователя</option>
+                                {% for username in users %}
+                                    <option value="{{ username }}">{{ username }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Метод оплаты</label>
+                            <select class="form-select" id="topupMethod" name="method" required>
+                                <option value="card">Card</option>
+                                <option value="ton">TON</option>
+                                <option value="bep20">BEP20</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Сумма ($)</label>
+                            <input type="number" class="form-control" id="topupAmount" name="amount" step="0.01" min="0.01" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Статус</label>
+                            <select class="form-select" id="topupStatus" name="status" required>
+                                <option value="completed">Завершено</option>
+                                <option value="pending">Ожидание</option>
+                                <option value="failed">Ошибка</option>
+                            </select>
+                        </div>
+                        
+                        <!-- НОВОЕ ПОЛЕ: Тип кошелька -->
+                        <div class="mb-3">
+                            <label class="form-label">Тип пополнения</label>
+                            <select class="form-select" id="topupWalletType" name="wallet_type" required>
+                                <option value="admin">Административное пополнение</option>
+                                <option value="crypto">Обычное пополнение (с крипто-адресом)</option>
+                            </select>
+                        </div>
+                        
+                        <!-- НОВЫЕ ПОЛЯ: Кастомная дата, время и секунды -->
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Дата (опционально)</label>
+                                    <input type="date" class="form-control" id="topupDate" name="custom_date">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Время (опционально)</label>
+                                    <input type="time" class="form-control" id="topupTime" name="custom_time">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Секунды (опционально)</label>
+                                    <input type="number" class="form-control" id="topupSeconds" name="custom_seconds" min="0" max="59" placeholder="00">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <small>
+                                <i class="fas fa-info-circle me-1"></i>
+                                Если не указать дату, время и секунды, будет использовано текущее время.
+                            </small>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-primary" id="saveTopup">Добавить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно редактирования пополнения -->
+    <div class="modal fade" id="editTopupModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Редактировать пополнение</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editTopupForm">
+                        <input type="hidden" id="editTopupUsername">
+                        <input type="hidden" id="editTopupId">
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Пользователь</label>
+                            <input type="text" class="form-control" id="editTopupUserDisplay" readonly>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Метод оплаты</label>
+                            <input type="text" class="form-control" id="editTopupMethodDisplay" readonly>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Сумма ($)</label>
+                            <input type="text" class="form-control" id="editTopupAmountDisplay" readonly>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Статус</label>
+                            <input type="text" class="form-control" id="editTopupStatusDisplay" readonly>
+                        </div>
+                        
+                        <!-- НОВОЕ ПОЛЕ: Тип кошелька -->
+                        <div class="mb-3">
+                            <label class="form-label">Тип пополнения</label>
+                            <select class="form-select" id="editTopupWalletType" name="wallet_type" required>
+                                <option value="admin">Административное пополнение</option>
+                                <option value="crypto">Обычное пополнение (с крипто-адресом)</option>
+                            </select>
+                        </div>
+                        
+                        <!-- НОВЫЕ ПОЛЯ: Кастомная дата, время и секунды -->
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Дата</label>
+                                    <input type="date" class="form-control" id="editTopupDate" name="custom_date">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Время</label>
+                                    <input type="time" class="form-control" id="editTopupTime" name="custom_time">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Секунды</label>
+                                    <input type="number" class="form-control" id="editTopupSeconds" name="custom_seconds" min="0" max="59" placeholder="00">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <small>
+                                <i class="fas fa-info-circle me-1"></i>
+                                Изменение даты, времени и секунд не влияет на баланс пользователя.
+                            </small>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-primary" id="saveTopupEdit">Сохранить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно изменения статуса -->
+    <div class="modal fade" id="changeStatusModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Изменить статус пополнения</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="changeStatusForm">
+                        <input type="hidden" id="statusTopupUsername">
+                        <input type="hidden" id="statusTopupId">
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Текущий статус</label>
+                            <input type="text" class="form-control" id="currentStatusDisplay" readonly>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Новый статус</label>
+                            <select class="form-select" id="newStatus" name="status" required>
+                                <option value="completed">Завершено</option>
+                                <option value="pending">Ожидание</option>
+                                <option value="failed">Ошибка</option>
+                            </select>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <small>
+                                <i class="fas fa-info-circle me-1"></i>
+                                При изменении статуса на "Завершено" баланс пользователя будет пополнен.
+                                При изменении с "Завершено" на другой статус сумма будет вычтена из баланса.
+                            </small>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-primary" id="saveStatusChange">Сохранить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Добавление пополнения (обновленная версия с секундами)
+        document.getElementById('saveTopup').addEventListener('click', function() {
+            const formData = {
+                username: document.getElementById('topupUsername').value,
+                method: document.getElementById('topupMethod').value,
+                amount: document.getElementById('topupAmount').value,
+                status: document.getElementById('topupStatus').value,
+                wallet_type: document.getElementById('topupWalletType').value,
+                custom_date: document.getElementById('topupDate').value,
+                custom_time: document.getElementById('topupTime').value,
+                custom_seconds: document.getElementById('topupSeconds').value || '00'
+            };
+            
+            fetch('/admin/topup/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Ошибка: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Произошла ошибка при добавлении пополнения');
+            });
+        });
+
+        // Редактирование пополнения (обновленная версия с секундами)
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('edit-topup-btn') || 
+                e.target.parentElement.classList.contains('edit-topup-btn')) {
+                
+                const button = e.target.classList.contains('edit-topup-btn') ? e.target : e.target.parentElement;
+                const username = button.dataset.username;
+                const topupId = button.dataset.topupId;
+                const walletType = button.dataset.walletType;
+                const date = button.dataset.date;
+                const time = button.dataset.time;
+                const seconds = button.dataset.seconds;
+                
+                // Находим данные пополнения из таблицы
+                const row = button.closest('tr');
+                const amount = row.cells[1].textContent.replace('$', '').trim();
+                const method = row.cells[2].textContent.trim().toLowerCase();
+                const statusText = row.cells[4].textContent.trim();
+                
+                // Заполняем форму редактирования
+                document.getElementById('editTopupUsername').value = username;
+                document.getElementById('editTopupId').value = topupId;
+                document.getElementById('editTopupUserDisplay').value = username;
+                document.getElementById('editTopupAmountDisplay').value = amount;
+                document.getElementById('editTopupMethodDisplay').value = method.toUpperCase();
+                document.getElementById('editTopupStatusDisplay').value = getStatusTextFromBadge(statusText);
+                document.getElementById('editTopupWalletType').value = walletType;
+                
+                if (date && date !== 'undefined') {
+                    document.getElementById('editTopupDate').value = date;
+                }
+                if (time && time !== 'undefined') {
+                    document.getElementById('editTopupTime').value = time;
+                }
+                if (seconds && seconds !== 'undefined') {
+                    document.getElementById('editTopupSeconds').value = seconds;
+                } else {
+                    document.getElementById('editTopupSeconds').value = '00';
+                }
+                
+                // Показываем модальное окно
+                new bootstrap.Modal(document.getElementById('editTopupModal')).show();
+            }
+        });
+
+        // Сохранение редактирования (обновленная версия с секундами)
+        document.getElementById('saveTopupEdit').addEventListener('click', function() {
+            const username = document.getElementById('editTopupUsername').value;
+            const topupId = document.getElementById('editTopupId').value;
+            
+            const formData = {
+                wallet_type: document.getElementById('editTopupWalletType').value,
+                custom_date: document.getElementById('editTopupDate').value,
+                custom_time: document.getElementById('editTopupTime').value,
+                custom_seconds: document.getElementById('editTopupSeconds').value || '00'
+            };
+            
+            fetch(`/admin/topup/${username}/${topupId}/update`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Закрываем модальное окно и обновляем страницу
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('editTopupModal'));
+                    modal.hide();
+                    location.reload();
+                } else {
+                    alert('Ошибка: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Произошла ошибка при обновлении пополнения');
+            });
+        });
+        
+        // Изменение статуса пополнения
+        document.addEventListener('click', function(e) {
+            // Обработка клика на бейдж статуса
+            if (e.target.classList.contains('change-status-btn') || 
+                e.target.parentElement.classList.contains('change-status-btn')) {
+                
+                const badge = e.target.classList.contains('change-status-btn') ? e.target : e.target.parentElement;
+                const username = badge.dataset.username;
+                const topupId = badge.dataset.topupId;
+                const currentStatus = badge.dataset.currentStatus;
+                
+                // Заполняем форму изменения статуса
+                document.getElementById('statusTopupUsername').value = username;
+                document.getElementById('statusTopupId').value = topupId;
+                document.getElementById('currentStatusDisplay').value = getStatusText(currentStatus);
+                document.getElementById('newStatus').value = currentStatus;
+            }
+        });
+        
+        // Сохранение изменения статуса
+        document.getElementById('saveStatusChange').addEventListener('click', function() {
+            const username = document.getElementById('statusTopupUsername').value;
+            const topupId = document.getElementById('statusTopupId').value;
+            const newStatus = document.getElementById('newStatus').value;
+            
+            fetch(`/admin/topup/${username}/${topupId}/update_status`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ status: newStatus })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Закрываем модальное окно и обновляем страницу
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('changeStatusModal'));
+                    modal.hide();
+                    location.reload();
+                } else {
+                    alert('Ошибка: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Произошла ошибка при изменении статуса');
+            });
+        });
+        
+        // Удаление пополнения
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('delete-topup-btn') || 
+                e.target.parentElement.classList.contains('delete-topup-btn')) {
+                
+                const button = e.target.classList.contains('delete-topup-btn') ? e.target : e.target.parentElement;
+                const username = button.dataset.username;
+                const topupId = button.dataset.topupId;
+                
+                if (confirm('Удалить это пополнение?')) {
+                    fetch(`/admin/topup/${username}/${topupId}/delete`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload();
+                        } else {
+                            alert('Ошибка: ' + data.error);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Произошла ошибка при удалении пополнения');
+                    });
+                }
+            }
+            
+            // Очистка истории пользователя
+            if (e.target.classList.contains('clear-user-topups-btn') || 
+                e.target.parentElement.classList.contains('clear-user-topups-btn')) {
+                
+                const button = e.target.classList.contains('clear-user-topups-btn') ? e.target : e.target.parentElement;
+                const username = button.dataset.username;
+                
+                if (confirm(`Очистить всю историю пополнений пользователя ${username}?`)) {
+                    fetch(`/admin/topup/${username}/clear`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload();
+                        } else {
+                            alert('Ошибка: ' + data.error);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Произошла ошибка при очистке истории');
+                    });
+                }
+            }
+        });
+
+        // Вспомогательная функция для получения статуса из текста бейджа
+        function getStatusTextFromBadge(badgeText) {
+            if (badgeText.includes('Завершено')) return 'completed';
+            if (badgeText.includes('Ожидание')) return 'pending';
+            if (badgeText.includes('Ошибка')) return 'failed';
+            return 'pending';
+        }
+        
+        // Функция для получения текста статуса
+        function getStatusText(status) {
+            const statusMap = {
+                'completed': 'Завершено',
+                'pending': 'Ожидание', 
+                'failed': 'Ошибка'
+            };
+            return statusMap[status] || status;
+        }
+
+        // Установка текущей даты по умолчанию в формах
+        document.addEventListener('DOMContentLoaded', function() {
+            // Для формы добавления
+            const today = new Date().toISOString().split('T')[0];
+            const now = new Date().toTimeString().split(':').slice(0, 2).join(':');
+            const currentSeconds = new Date().getSeconds().toString().padStart(2, '0');
+            
+            document.getElementById('topupDate').value = today;
+            document.getElementById('topupTime').value = now;
+            document.getElementById('topupSeconds').value = currentSeconds;
+            
+            // Сброс форм при закрытии модальных окон
+            const modals = ['addTopupModal', 'editTopupModal'];
+            modals.forEach(modalId => {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.addEventListener('hidden.bs.modal', function() {
+                        if (modalId === 'addTopupModal') {
+                            // Сброс только формы добавления
+                            document.getElementById('topupDate').value = today;
+                            document.getElementById('topupTime').value = now;
+                            document.getElementById('topupSeconds').value = currentSeconds;
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
