@@ -40,6 +40,7 @@
             --gradient-frozen: linear-gradient(135deg, #0dcaf0 0%, #2196F3 100%);
             --gradient-refund: linear-gradient(135deg, #00BCD4 0%, #0097A7 100%);
             --gradient-refund-btn: linear-gradient(135deg, #00BCD4 0%, #0097A7 100%);
+            --gradient-notification: linear-gradient(135deg, #2196F3 0%, #21CBF3 100%);
             --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             --card-shadow-hover: 0 12px 48px rgba(255, 107, 53, 0.2);
         }
@@ -379,6 +380,122 @@
         
         .refund-btn:active {
             transform: translateY(-1px);
+        }
+        
+        /* Уведомление об изменении минимального пополнения */
+        .min-topup-notification {
+            background: var(--gradient-notification);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: white;
+            box-shadow: 0 8px 32px rgba(33, 150, 243, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .min-topup-notification:before {
+          
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+        }
+        
+        .notification-content {
+            flex: 1;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .notification-title {
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .notification-title i {
+            font-size: 1.5rem;
+        }
+        
+        .notification-text {
+            font-size: 1.05rem;
+            opacity: 0.9;
+            margin-bottom: 0;
+        }
+        
+        .min-topup-value {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            padding: 0.75rem 1.25rem;
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin: 0.75rem 0;
+            display: inline-block;
+        }
+        
+        .notification-details {
+            font-size: 0.95rem;
+            opacity: 0.8;
+            margin-top: 0.5rem;
+        }
+        
+        .notification-details i {
+            margin-right: 0.5rem;
+        }
+        
+        .notification-close-btn {
+            background: rgba(255, 255, 255, 0.95);
+            color: var(--primary-dark);
+            border: none;
+            border-radius: 12px;
+            padding: 0.875rem 2rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s;
+            white-space: nowrap;
+            margin-left: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        
+        .notification-close-btn:hover {
+            background: white;
+            color: var(--primary-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .notification-close-btn:active {
+            transform: translateY(-1px);
+        }
+        
+        .notification-close-btn i {
+            margin-right: 0.5rem;
         }
         
         /* Promo banner */
@@ -978,6 +1095,7 @@
             padding: 0.875rem 2rem;
             border-radius: 12px;
             transition: all 0.3s ease;
+            width: 100%;
         }
         
         .btn-secondary:hover {
@@ -1133,6 +1251,15 @@
             .section-header {
                 font-size: 1.5rem;
             }
+            
+            .notification-title {
+                font-size: 1.1rem;
+            }
+            
+            .notification-close-btn {
+                padding: 0.75rem 1.5rem;
+                margin-left: 1rem;
+            }
         }
         
         @media (max-width: 768px) {
@@ -1143,6 +1270,18 @@
             
             .navbar-toggler:focus {
                 box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.25);
+            }
+            
+            .min-topup-notification {
+                flex-direction: column;
+                text-align: center;
+                padding: 1.25rem;
+            }
+            
+            .notification-close-btn {
+                margin-left: 0;
+                margin-top: 1.25rem;
+                width: 100%;
             }
             
             .promo-banner {
@@ -1419,6 +1558,48 @@
                     </nav>
                 </div>
             </div>
+            
+<!-- Уведомление об изменении минимального пополнения -->
+{% if min_topup_last_change and min_topup_last_change.get('changed_by_admin') == True and not min_topup_notification_shown %}
+<div class="min-topup-notification fade-in" id="minTopupNotification">
+    <div class="notification-content">
+        <div class="notification-title">
+            <i class="fas fa-info-circle"></i>
+            Важное уведомление
+        </div>
+        <p class="notification-text">
+            Мы заметили, что вы часто пополняете баланс небольшими суммами. 
+            Для вашего удобства и экономии времени при пополнении мы изменили минимальную сумму депозита.
+        </p>
+        
+        <div class="min-topup-value">
+            {% if min_topup > 0 %}
+                Теперь минимальная сумма пополнения: <strong>${{ "%.0f"|format(min_topup) }}</strong>
+            {% else %}
+                Ограничение снято: <strong>можно пополнять любую сумму</strong>
+            {% endif %}
+        </div>
+        
+        <div class="notification-details">
+            <div>
+                <i class="fas fa-lightbulb me-2"></i>
+                <small>
+                    Это изменение поможет оптимизировать процесс пополнения и избежать частых мелких транзакций.
+                </small>
+            </div>
+            <div>
+                <i class="fas fa-check-circle me-2"></i>
+                <small>
+                    Всё для вашего комфорта! Пополняйте баланс удобным для вас способом.
+                </small>
+            </div>
+        </div>
+    </div>
+    <button class="notification-close-btn" onclick="acknowledgeMinTopupNotification()">
+        <i class="fas fa-check me-2"></i> Понятно, спасибо
+    </button>
+</div>
+{% endif %}
             
             <!-- User Info Card -->
             <div class="user-info-card fade-in 
@@ -1808,10 +1989,10 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
                     <button type="button" class="submit-btn" id="submitTopup" disabled onclick="processTopup()">
                         <i class="fas fa-paper-plane me-1"></i>Продолжить
                     </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
                 </div>
             </div>
         </div>
@@ -2175,6 +2356,51 @@
             .catch(error => {
                 console.error('Error:', error);
                 alert('Произошла ошибка при создании платежа. Попробуйте еще раз.');
+            });
+        }
+        
+        // Функция для подтверждения уведомления
+        function acknowledgeMinTopupNotification() {
+            const notification = document.getElementById('minTopupNotification');
+            if (!notification) return;
+            
+            // Показываем индикатор загрузки
+            const button = notification.querySelector('.notification-close-btn');
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Обработка...';
+            button.disabled = true;
+            
+            // Отправляем запрос на сервер
+            fetch('/account/acknowledge_min_topup_notification', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Анимированно скрываем уведомление
+                    notification.style.transition = 'all 0.5s ease';
+                    notification.style.opacity = '0';
+                    notification.style.transform = 'translateY(-20px)';
+                    
+                    setTimeout(() => {
+                        notification.style.display = 'none';
+                    }, 500);
+                } else {
+                    // В случае ошибки восстанавливаем кнопку
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                    alert('Ошибка: ' + (data.error || 'Не удалось подтвердить уведомление'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Восстанавливаем кнопку
+                button.innerHTML = originalText;
+                button.disabled = false;
+                alert('Произошла ошибка при обработке запроса');
             });
         }
         

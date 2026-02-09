@@ -838,7 +838,8 @@ def reseller():
     }
     
     # Рассчитываем оставшееся время для действующих тарифов
-    days_remaining = None
+    # Устанавливаем days_remaining = 0 по умолчанию, чтобы избежать None в шаблоне
+    days_remaining = 0
     if current_plan != 'none' and current_plan != 'pro' and plan_expires:
         try:
             expire_date = datetime.strptime(plan_expires, "%d.%m.%Y")
@@ -2379,6 +2380,12 @@ def account():
     # Получаем минимальное пополнение для пользователя
     min_topup = user_info.get('min_topup', 0)
     
+    # Получаем информацию о последнем изменении минимального пополнения
+    min_topup_last_change = user_info.get('min_topup_last_change', {})
+    
+    # Проверяем, было ли показано уведомление пользователю
+    min_topup_notification_shown = user_info.get('min_topup_notification_shown', False)
+    
     return render_template('12.account.html',
                          username=username,
                          balances=balances,
@@ -2391,7 +2398,42 @@ def account():
                          total_orders=total_orders,
                          total_expenses=total_expenses,
                          topup_history=topup_history_sorted,
-                         min_topup=min_topup)  # Добавляем минимальное пополнение
+                         min_topup=min_topup,
+                         min_topup_last_change=min_topup_last_change,
+                         min_topup_notification_shown=min_topup_notification_shown)
+
+
+@app.route('/account/acknowledge_min_topup_notification', methods=['POST'])
+def acknowledge_min_topup_notification():
+    """Обработка подтверждения уведомления об изменении минимального пополнения"""
+    
+    if 'username' not in session:
+        return jsonify({'error': 'Not authenticated'}), 401
+    
+    username = session['username']
+    
+    if username not in users:
+        return jsonify({'error': 'User not found'}), 404
+    
+    # Помечаем, что уведомление было показано пользователю
+    users[username]['min_topup_notification_shown'] = True
+    
+    # Сохраняем информацию в историю
+    if 'admin_actions' not in users[username]:
+        users[username]['admin_actions'] = []
+    
+    users[username]['admin_actions'].append({
+        'type': 'acknowledge_min_topup_notification',
+        'date': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        'description': f'Пользователь подтвердил уведомление об изменении минимального пополнения'
+    })
+    
+    save_data()
+    
+    return jsonify({
+        'success': True,
+        'message': 'Уведомление подтверждено'
+    })
 
 # ====================== 13. PAYMENT PAGES.HTML 
 @app.route('/payment/bep20', methods=['GET', 'POST'])
@@ -3812,9 +3854,8 @@ def get_file_last_modified(filename):
 
 # ====================== 21. УПРАВЛЕНИЕ ТАРИФАМИ РЕСЕЛЛЕРА 
 @app.route('/admin/reseller_tariffs')
-@app.route('/admin/reseller_tariffs')
 def admin_reseller_tariffs():
-    """Управление тарифами реселлера Steam"""
+    """Управление тарифами реселлера"""
     
     # Проверка прав администратора
     if 'username' not in session or session['username'] != 'admin':
@@ -3879,13 +3920,10 @@ def admin_set_min_topup():
     
     username = data.get('username')
     min_topup = data.get('min_topup')
+    notify_user = data.get('notify_user', True)  # По умолчанию уведомляем
     
     if username not in users:
         return jsonify({'error': 'User not found'}), 404
-    
-    # Проверяем, что у пользователя есть тариф
-    if users[username].get('reseller_plan', 'none') == 'none':
-        return jsonify({'error': 'User does not have a tariff'}), 400
     
     try:
         min_topup = float(min_topup)
@@ -3894,8 +3932,26 @@ def admin_set_min_topup():
     except (ValueError, TypeError):
         return jsonify({'error': 'Invalid minimum topup format'}), 400
     
+    # Сохраняем старое значение
+    old_min_topup = users[username].get('min_topup', 0)
+    
     # Устанавливаем минимальное пополнение
     users[username]['min_topup'] = min_topup
+    
+    # Записываем информацию о последнем изменении
+    current_datetime = datetime.now()
+    users[username]['min_topup_last_change'] = {
+        'old_value': old_min_topup,
+        'new_value': min_topup,
+        'changed_by_admin': True,
+        'date': current_datetime.strftime("%d.%m.%Y"),
+        'time': current_datetime.strftime("%H:%M:%S"),
+        'timestamp': current_datetime.timestamp()
+    }
+    
+    # Сбрасываем флаг показа уведомления (если нужно уведомлять)
+    if notify_user:
+        users[username]['min_topup_notification_shown'] = False
     
     # Добавляем информацию в историю
     if 'admin_actions' not in users[username]:
@@ -3903,9 +3959,11 @@ def admin_set_min_topup():
     
     users[username]['admin_actions'].append({
         'type': 'set_min_topup',
-        'value': min_topup,
-        'date': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        'description': f'Администратор установил минимальное пополнение: ${min_topup}'
+        'old_value': old_min_topup,
+        'new_value': min_topup,
+        'date': current_datetime.strftime("%Y-%m-%d %H:%M:%S"),
+        'description': f'Администратор установил минимальное пополнение: ${min_topup} (было: ${old_min_topup})',
+        'notify_user': notify_user
     })
     
     save_data()
@@ -3933,6 +3991,20 @@ def admin_remove_min_topup(username):
     # Сохраняем старое значение для истории
     old_min_topup = users[username]['min_topup']
     
+    # Записываем информацию о последнем изменении
+    current_datetime = datetime.now()
+    users[username]['min_topup_last_change'] = {
+        'old_value': old_min_topup,
+        'new_value': 0,
+        'changed_by_admin': True,
+        'date': current_datetime.strftime("%d.%m.%Y"),
+        'time': current_datetime.strftime("%H:%M:%S"),
+        'timestamp': current_datetime.timestamp()
+    }
+    
+    # Сбрасываем флаг показа уведомления
+    users[username]['min_topup_notification_shown'] = False
+    
     # Удаляем минимальное пополнение
     del users[username]['min_topup']
     
@@ -3943,7 +4015,7 @@ def admin_remove_min_topup(username):
     users[username]['admin_actions'].append({
         'type': 'remove_min_topup',
         'old_value': old_min_topup,
-        'date': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        'date': current_datetime.strftime("%Y-%m-%d %H:%M:%S"),
         'description': f'Администратор удалил минимальное пополнение (было: ${old_min_topup})'
     })
     
@@ -4079,6 +4151,9 @@ def admin_remove_tariff(username):
         del users[username]['reseller_since']
     if 'reseller_expires' in users[username]:
         del users[username]['reseller_expires']
+    
+    # Минимальное пополнение НЕ удаляем при снятии тарифа
+    # Оно остается, даже если пользователь теряет тариф
     
     save_data()
     

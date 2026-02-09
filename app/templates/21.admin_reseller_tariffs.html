@@ -401,7 +401,7 @@
                                         <div class="card-body text-center">
                                             <span class="plan-badge pro">Pro+</span>
                                             <div class="mt-2">10% скидка</div>
-                                            <small class="text-success">+50 USD бонус</small>
+                                            <small class="text-success">+5 USD бонус</small>
                                         </div>
                                     </div>
                                 </div>
@@ -474,16 +474,18 @@
                                         </button>
                                     </div>
                                 </div>
-                               <!-- Внутри карточки пользователя с тарифом, после информации о тарифе -->
-                                {% if data.plan != 'pro' %}
-                                <div class="row mt-3">
+                                
+                                <!-- СЕКЦИЯ УПРАВЛЕНИЯ МИНИМАЛЬНЫМ ПОПОЛНЕНИЕМ (ДЛЯ ВСЕХ ТАРИФОВ) -->
+                                <div class="row mt-3 pt-3 border-top">
                                     <div class="col-12">
-                                        
+                                        <!-- Кнопки управления тарифом (для не-Pro тарифов) -->
+                                        {% if data.plan != 'pro' %}
                                         <button type="button" 
                                                 class="btn btn-sm btn-outline-warning extend-tariff-btn"
                                                 data-username="{{ username }}">
                                             <i class="fas fa-redo me-1"></i> Продлить на 30 дней
                                         </button>
+                                        {% endif %}
                                         
                                         {% if data.plan == 'lite' %}
                                         <button type="button" 
@@ -507,8 +509,8 @@
                                         </button>
                                         {% endif %}
                                         
-                                        <!-- СЕКЦИЯ: Управление минимальным пополнением -->
-                                        <div class="mt-3 pt-3 border-top">
+                                        <!-- СЕКЦИЯ: Управление минимальным пополнением (ДЛЯ ВСЕХ ТАРИФОВ) -->
+                                        <div class="mt-3">
                                             <div class="d-flex align-items-center">
                                                 <div class="me-3">
                                                     <small class="text-muted d-block">Мин. пополнение:</small>
@@ -545,7 +547,6 @@
                                         </div>
                                     </div>
                                 </div>
-                                {% endif %}
                             </div>
                             {% endfor %}
                         </div>
@@ -613,7 +614,8 @@
                                 <ul class="mb-0">
                                     <li><strong>Lite:</strong> 4% скидка на пополнение Steam, действует 30 дней</li>
                                     <li><strong>Reseller:</strong> 7% скидка на пополнение Steam, действует 30 дней</li>
-                                    <li><strong>Pro+:</strong> 10% скидка на пополнение Steam, действует навсегда, +50 USD бонус на баланс</li>
+                                    <li><strong>Pro+:</strong> 10% скидка на пополнение Steam, действует навсегда, +5 USD бонус на баланс</li>
+                                    <li><small class="text-muted">Минимальное пополнение можно устанавливать для всех тарифов</small></li>
                                 </ul>
                             </div>
                         </div>
@@ -623,7 +625,7 @@
         </div>
     </main>
 
-        <!-- Modal for setting minimum topup -->
+    <!-- Modal for setting minimum topup -->
     <div class="modal fade" id="minTopupModal" tabindex="-1" aria-labelledby="minTopupModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -654,6 +656,7 @@
                             <i class="fas fa-info-circle me-2"></i>
                             Пользователь не сможет пополнить баланс на сумму меньше указанной. 
                             Это полезно для контроля минимальных депозитов у реселлеров.
+                            <strong>Доступно для всех тарифов.</strong>
                         </small>
                     </div>
                 </div>
@@ -666,7 +669,6 @@
             </div>
         </div>
     </div>
-
 
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -762,7 +764,7 @@
             });
         });
 
-        // Продление тарифа
+        // Продление тарифа (только для не-Pro тарифов)
         document.querySelectorAll('.extend-tariff-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 const username = this.dataset.username;
@@ -837,16 +839,17 @@
                 const planInfo = {
                     'lite': '<li><strong>Lite:</strong> 4% скидка на пополнение Steam, действует 30 дней</li>',
                     'reseller': '<li><strong>Reseller:</strong> 7% скидка на пополнение Steam, действует 30 дней</li>',
-                    'pro': '<li><strong>Pro+:</strong> 10% скидка на пополнение Steam, действует навсегда, +50 USD бонус на баланс</li>'
+                    'pro': '<li><strong>Pro+:</strong> 10% скидка на пополнение Steam, действует навсегда, +5 USD бонус на баланс</li>'
                 };
                 
                 if (plan in planInfo) {
-                    infoDiv.innerHTML = planInfo[plan];
+                    infoDiv.innerHTML = planInfo[plan] + '<li><small class="text-muted">Минимальное пополнение можно устанавливать для всех тарифов</small></li>';
                 } else {
                     infoDiv.innerHTML = `
                         <li><strong>Lite:</strong> 4% скидка на пополнение Steam, действует 30 дней</li>
                         <li><strong>Reseller:</strong> 7% скидка на пополнение Steam, действует 30 дней</li>
-                        <li><strong>Pro+:</strong> 10% скидка на пополнение Steam, действует навсегда, +50 USD бонус на баланс</li>
+                        <li><strong>Pro+:</strong> 10% скидка на пополнение Steam, действует навсегда, +5 USD бонус на баланс</li>
+                        <li><small class="text-muted">Минимальное пополнение можно устанавливать для всех тарифов</small></li>
                     `;
                 }
             }
@@ -905,6 +908,58 @@
                         minTopupValueElement.textContent = 'Не установлено';
                     }
                     
+                    // Обновляем кнопку
+                    const setBtn = document.querySelector(`.set-min-topup-btn[data-username="${currentUsername}"]`);
+                    if (minTopup > 0) {
+                        setBtn.innerHTML = '<i class="fas fa-edit me-1"></i> Изменить';
+                        
+                        // Добавляем кнопку удаления если её нет
+                        if (!document.querySelector(`.remove-min-topup-btn[data-username="${currentUsername}"]`)) {
+                            const btnContainer = setBtn.parentElement;
+                            const removeBtn = document.createElement('button');
+                            removeBtn.type = 'button';
+                            removeBtn.className = 'btn btn-sm btn-outline-danger remove-min-topup-btn ms-2';
+                            removeBtn.setAttribute('data-username', currentUsername);
+                            removeBtn.innerHTML = '<i class="fas fa-trash me-1"></i> Удалить';
+                            btnContainer.appendChild(removeBtn);
+                            
+                            // Добавляем обработчик для новой кнопки
+                            removeBtn.addEventListener('click', function() {
+                                const username = this.dataset.username;
+                                
+                                if (confirm(`Удалить ограничение минимального пополнения у пользователя ${username}?`)) {
+                                    fetch(`/admin/reseller_tariffs/remove_min_topup/${username}`, {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                        }
+                                    })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        if (data.success) {
+                                            alert(data.message);
+                                            location.reload();
+                                        } else {
+                                            alert('Ошибка: ' + data.error);
+                                        }
+                                    })
+                                    .catch(error => {
+                                        console.error('Error:', error);
+                                        alert('Произошла ошибка при удалении минимального пополнения');
+                                    });
+                                }
+                            });
+                        }
+                    } else {
+                        setBtn.innerHTML = '<i class="fas fa-edit me-1"></i> Установить';
+                        
+                        // Удаляем кнопку удаления если она есть
+                        const removeBtn = document.querySelector(`.remove-min-topup-btn[data-username="${currentUsername}"]`);
+                        if (removeBtn) {
+                            removeBtn.remove();
+                        }
+                    }
+                    
                     // Закрываем модальное окно
                     const modal = bootstrap.Modal.getInstance(document.getElementById('minTopupModal'));
                     modal.hide();
@@ -934,20 +989,7 @@
                     .then(data => {
                         if (data.success) {
                             alert(data.message);
-                            
-                            // Обновляем отображаемое значение
-                            const minTopupValueElement = document.getElementById(`minTopupValue_${username}`);
-                            minTopupValueElement.textContent = 'Не установлено';
-                            
-                            // Обновляем кнопку
-                            const setBtn = document.querySelector(`.set-min-topup-btn[data-username="${username}"]`);
-                            setBtn.innerHTML = '<i class="fas fa-edit me-1"></i> Установить';
-                            setBtn.classList.remove('btn-outline-info');
-                            setBtn.classList.add('btn-outline-info');
-                            
-                            // Убираем кнопку удаления
-                            const removeBtn = this;
-                            removeBtn.remove();
+                            location.reload();
                         } else {
                             alert('Ошибка: ' + data.error);
                         }
@@ -966,7 +1008,5 @@
             currentUsername = null;
         });
     </script>
-
-
 </body>
 </html>
