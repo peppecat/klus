@@ -480,11 +480,11 @@ def steam_topup():
     # ПРОВЕРЯЕМ ТАРИФ РЕСЕЛЛЕРА И ПРИМЕНЯЕМ СКИДКУ
     reseller_plan = user_info.get('reseller_plan', 'none')
     
-    # Скидки по тарифам реселлера
+    # Скидки по тарифам реселлера - ИЗМЕНЕНО на 4%/6%/8%
     reseller_discounts = {
-        'lite': 4,      # Lite тариф = 5% скидка
-        'reseller': 7, # Reseller тариф = 10% скидка
-        'pro': 10       # Pro+ тариф = 13% скидка
+        'lite': 4,      # Lite тариф = 4% скидка
+        'reseller': 6,  # Reseller тариф = 6% скидка
+        'pro': 8        # Pro+ тариф = 8% скидка
     }
     
     # Если у пользователя есть тариф реселлера, применяем соответствующую скидку
@@ -802,7 +802,7 @@ def reseller():
         'pro': 'Pro+'
     }
     
-    # Описания преимуществ для каждого тарифа
+    # Описания преимуществ для каждого тарифа (ОБНОВЛЕНЫ проценты скидок)
     plan_benefits = {
         'lite': [
             'Скидка 4% на пополнение Steam',
@@ -811,21 +811,19 @@ def reseller():
             'Поддержка 24/7'
         ],
         'reseller': [
-            'Скидка 7% на пополнение Steam',
+            'Скидка 6% на пополнение Steam',
             'Доступ к эксклюзивным товарам',
             'Расширенная аналитика',
             'Приоритетная поддержка',
             'Специальные промо-акции'
         ],
         'pro': [
-            'Скидка 10% на пополнение Steam',
-            'Доступ к VIP товарам',
+            'Скидка 8% на пополнение Steam',
+            'Доступ к эксклюзивным товарам',
             'Полная детализация аналитики',
-            'Персональный менеджер',
-            'Эксклюзивные инструменты',
-            'Самые высокие скидки',
-            'Бонус +5 USD на баланс',
-            'Приоритетная поддержка'
+            'Приоритетная поддержка',
+            'Специальные промо-акции',
+            'Самые высокие скидки'
         ]
     }
     
@@ -989,14 +987,6 @@ def reseller():
                     
                     action_text = f'Тариф улучшен до {plan_names[plan]}'
                 
-                # Если это Pro тариф, добавляем бонус
-                if plan == 'pro' and action in ['buy_plan', 'upgrade_plan']:
-                    current_card_balance = users[username]['balance'].get('card', 0)
-                    users[username]['balance']['card'] = current_card_balance + 5
-                    bonus_given = True
-                else:
-                    bonus_given = False
-                
                 # Добавляем информацию о покупке/продлении/апгрейде в историю
                 purchase_history = users[username].get('purchase_history', [])
                 purchase_history.append({
@@ -1018,8 +1008,6 @@ def reseller():
                 save_data()
                 
                 success_msg = f'{action_text}. С баланса списано {plan_price} USD'
-                if bonus_given:
-                    success_msg += ' (+5 USD бонус на баланс)'
                 flash(success_msg, 'success')
                 return redirect(url_for('reseller'))
                 
@@ -1160,14 +1148,152 @@ def banned():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        username = request.form['username']
+        username = request.form['username'].strip()
         password = request.form['password1']
         password_confirm = request.form['password2']
-        contact = request.form.get('contact', '').strip()  # Получаем контактные данные
+        contact = request.form.get('contact', '').strip()
+        
+        # ========== ЖЕСТКАЯ ВАЛИДАЦИЯ USERNAME ==========
+        
+        #
+        if len(username) > 15:
+            flash('Имя пользователя не может быть длиннее 15 символов', 'error')
+            return render_template('6.register.html')
+        
+        if len(username) < 3:
+            flash('Имя пользователя должно содержать минимум 3 символа', 'error')
+            return render_template('6.register.html')
+        
+        # 2. Запрещенные символы в начале и конце
+        forbidden_edge_chars = ['*', '.', ',', '!', '?', '@', '#', '$', '%', '^', '&', '(', ')', '-', '+', '=', '[', ']', '{', '}', '|', '\\', '/', '<', '>', '`', '~', ':', ';', '"', "'"]
+        
+        if username[0] in forbidden_edge_chars:
+            flash('Имя пользователя не может начинаться со специальных символов', 'error')
+            return render_template('6.register.html')
+        
+        if username[-1] in forbidden_edge_chars:
+            flash('Имя пользователя не может заканчиваться специальными символами', 'error')
+            return render_template('6.register.html')
+        
+        # 3. Запрет на URL и ссылки
+        url_patterns = [
+            'http://', 'https://', 'www.', '.com', '.ru', '.org', '.net', '.io',
+            '.ua', '.by', '.kz', '.su', '.рф', '.онлайн', '.сайт',
+            '://', 'href=', 'url=', 'link=', 'click', 'redirect',
+            'invencio', 'deposit', 'credit', 'cash', 'money', 'bonus',
+            'free', 'win', 'prize', 'visit', 'earn', 'profit', 'income',
+            'dollar', 'euro', 'usd', 'btc', 'bitcoin', 'eth', 'crypto',
+            'wallet', 'payment', 'transfer', 'promo', 'gift', 'reward',
+            'claim', 'get', 'now', 'today', 'urgent', 'important',
+            'action', 'required', 'verify', 'confirm'
+        ]
+        
+        username_lower = username.lower()
+        for pattern in url_patterns:
+            if pattern in username_lower:
+                flash('Имя пользователя не может содержать ссылки или рекламные слова', 'error')
+                return render_template('6.register.html')
+        
+        # 4. Запрет на HTML теги
+        html_patterns = ['<', '>', '&lt;', '&gt;', '<a', '</a>', '<br', '<div', '<span', 'href']
+        for pattern in html_patterns:
+            if pattern in username_lower:
+                flash('Имя пользователя не может содержать HTML теги', 'error')
+                return render_template('6.register.html')
+        
+        # 5. Проверка на повторяющиеся специальные символы
+        special_chars_count = 0
+        for i, char in enumerate(username):
+            if char in forbidden_edge_chars:
+                special_chars_count += 1
+                # Проверка на 3 и более спецсимволов подряд
+                if i > 0 and username[i-1] in forbidden_edge_chars and i < len(username)-1 and username[i+1] in forbidden_edge_chars:
+                    flash('Имя пользователя не может содержать более 2 специальных символов подряд', 'error')
+                    return render_template('6.register.html')
+        
+        # Общее ограничение на количество спецсимволов (не более 30% от длины)
+        if special_chars_count > len(username) * 0.3:
+            flash('Слишком много специальных символов в имени пользователя', 'error')
+            return render_template('6.register.html')
+        
+        # 6. Разрешенные символы (буквы, цифры, точка, подчеркивание, дефис)
+        allowed_chars = set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-')
+        for char in username:
+            if char not in allowed_chars:
+                flash('Имя пользователя может содержать только буквы, цифры, точки, подчеркивания и дефисы', 'error')
+                return render_template('6.register.html')
+        
+        # 7. Проверка на цифры в начале (не более 3 цифр подряд в начале)
+        digit_count_at_start = 0
+        for char in username:
+            if char.isdigit():
+                digit_count_at_start += 1
+            else:
+                break
+        if digit_count_at_start > 3:
+            flash('Имя пользователя не может начинаться с более чем 3 цифр подряд', 'error')
+            return render_template('6.register.html')
+        
+        # 8. Проверка на то, что имя не состоит только из цифр
+        if username.replace('.', '').replace('_', '').replace('-', '').isdigit():
+            flash('Имя пользователя не может состоять только из цифр', 'error')
+            return render_template('6.register.html')
+        
+        # 9. Проверка на наличие как минимум одной буквы
+        has_letter = False
+        for char in username:
+            if char.isalpha():
+                has_letter = True
+                break
+        if not has_letter:
+            flash('Имя пользователя должно содержать хотя бы одну букву', 'error')
+            return render_template('6.register.html')
+        
+        # 10. Дополнительная проверка на спам-паттерны через регулярные выражения
+        import re
+        spam_regexes = [
+            r'\*.*\*.*\*',  # Звездочки с текстом между ними
+            r'<.*>',         # Любые HTML теги
+            r'https?://',    # HTTP ссылки
+            r'www\.',        # www ссылки
+            r'\[.*\]\(.*\)', # Markdown ссылки
+            r'bit\.ly',      # Сокращатели ссылок
+            r'tinyurl',      # Сокращатели ссылок
+            r'goo\.gl'       # Сокращатели ссылок
+        ]
+        
+        for regex in spam_regexes:
+            if re.search(regex, username):
+                flash('Обнаружен недопустимый формат имени пользователя', 'error')
+                return render_template('6.register.html')
+        
+        # 11. Проверка на системные имена
+        system_names = ['admin', 'root', 'administrator', 'moderator', 'support', 'help', 'info', 'contact']
+        if username.lower() in system_names:
+            flash('Данное имя пользователя зарезервировано системой', 'error')
+            return render_template('6.register.html')
+        
+        # 12. Проверка на частые мошеннические паттерны
+        fraud_patterns = ['xn--', 'porn', 'sex', 'xxx', 'cvv', 'ccv', 'dumps', 'hack', 'exploit']
+        for pattern in fraud_patterns:
+            if pattern in username_lower:
+                flash('Обнаружены недопустимые слова в имени пользователя', 'error')
+                return render_template('6.register.html')
+        
+        # ========== КОНЕЦ ВАЛИДАЦИИ USERNAME ==========
         
         # Проверка паролей
         if password != password_confirm:
             flash('Пароли не совпадают', 'error')
+            return render_template('6.register.html')
+        
+        # Проверка пароля на сложность
+        if len(password) < 8:
+            flash('Пароль должен содержать минимум 8 символов', 'error')
+            return render_template('6.register.html')
+        
+        if password.isdigit():
+            flash('Пароль не может состоять только из цифр', 'error')
             return render_template('6.register.html')
         
         # Проверка существования пользователя
@@ -1176,27 +1302,25 @@ def register():
             return render_template('6.register.html')
         
         # Проверка валидности контактных данных
+        contact_type = None
         if contact:
-            # Удаляем пробелы
             contact = contact.replace(' ', '')
-            
-            # Валидация формата
-            is_valid = False
-            contact_type = None
             
             if contact.startswith('@'):
                 # Телеграм
                 if len(contact) >= 2 and contact[1:].replace('_', '').isalnum():
-                    is_valid = True
                     contact_type = 'telegram'
                 else:
-                    flash('Некорректный формат Telegram username. Используйте @username', 'error')
+                    flash('Некорректный формат Telegram username. Используйте @username (только буквы, цифры и _)', 'error')
                     return render_template('6.register.html')
             elif '@' in contact:
                 # Email
                 email_parts = contact.split('@')
-                if len(email_parts) == 2 and '.' in email_parts[1]:
-                    is_valid = True
+                if len(email_parts) == 2 and '.' in email_parts[1] and len(email_parts[1].split('.')[-1]) >= 2:
+                    # Дополнительная проверка email на спам
+                    if any(pattern in contact.lower() for pattern in ['mailinator', 'tempmail', '10minute', 'guerrilla']):
+                        flash('Использование временных email адресов запрещено', 'error')
+                        return render_template('6.register.html')
                     contact_type = 'email'
                 else:
                     flash('Некорректный формат email адреса', 'error')
@@ -1204,6 +1328,12 @@ def register():
             else:
                 flash('Пожалуйста, укажите Telegram (@username) или Email адрес', 'error')
                 return render_template('6.register.html')
+        
+        # Проверка на существование похожего username (для защиты от спама)
+        similar_usernames = [u for u in users.keys() if username.lower() in u.lower() or u.lower() in username.lower()]
+        if similar_usernames and len(similar_usernames) > 5:
+            flash('Слишком много похожих имен пользователей. Попробуйте другое имя.', 'error')
+            return render_template('6.register.html')
         
         # Создание пользователя
         users[username] = {
@@ -1216,13 +1346,14 @@ def register():
             'status': 'active',
             'registration_date': get_moscow_time().strftime('%Y-%m-%d %H:%M:%S'),
             'contact_info': contact if contact else None,
-            'contact_type': contact_type if contact else None
+            'contact_type': contact_type if contact else None,
+            'registration_ip': request.remote_addr  # Сохраняем IP для отслеживания
         }
         
         # Сохраняем данные
         save_data()
         
-        # АСИНХРОННАЯ отправка уведомления в Telegram с контактными данными
+        # АСИНХРОННАЯ отправка уведомления в Telegram
         send_telegram_notification_async(username, 'registration')
         
         flash('Регистрация успешно завершена! Теперь вы можете войти в систему.', 'success')
@@ -1411,15 +1542,15 @@ def product1():
                           if order.get('category') == 'Steam']
         purchases_count = len(steam_purchases)
 
-    # Базовые скидки
+    # Базовые скидки - ОБНОВЛЕНЫ проценты
     discount_levels = [(0, 2)]
     reseller_plan = user_info.get('reseller_plan', 'none')
     if reseller_plan == 'lite':
-        discount_levels = [(0, 4)]
+        discount_levels = [(0, 4)]  # Изменено с 4% на 4%
     elif reseller_plan == 'reseller':
-        discount_levels = [(0, 7)]
+        discount_levels = [(0, 6)]  # Изменено с 7% на 6%
     elif reseller_plan == 'pro':
-        discount_levels = [(0, 10)]
+        discount_levels = [(0, 8)]  # Изменено с 10% на 8%
 
     current_discount_from_balance = discount_levels[0][1] if discount_levels else 2
     individual_discount = individual_discounts.get(username)
@@ -3892,8 +4023,8 @@ def admin_reseller_tariffs():
     # Названия тарифов для отображения с ОБНОВЛЕННЫМИ скидками
     plan_names = {
         'lite': 'Lite (4% скидка)',
-        'reseller': 'Reseller (7% скидка)',
-        'pro': 'Pro+ (10% скидка)'
+        'reseller': 'Reseller (6% скидка)',
+        'pro': 'Pro+ (8% скидка)'
     }
     
     # Все пользователи без тарифов (для выпадающего списка)
@@ -4268,16 +4399,6 @@ def admin_upgrade_tariff():
         expire_date = datetime.now() + timedelta(days=30)
         users[username]['reseller_expires'] = expire_date.strftime("%d.%m.%Y")
     
-    # Если это Pro тариф, добавляем бонус на баланс
-    if new_plan == 'pro':
-        if 'balance' not in users[username]:
-            users[username]['balance'] = {'card': 0, 'ton': 0, 'bep20': 0}
-        current_card_balance = users[username]['balance'].get('card', 0)
-        users[username]['balance']['card'] = current_card_balance + 5
-        bonus_given = True
-    else:
-        bonus_given = False
-    
     # Сохраняем информацию в историю
     purchase_history = users[username].get('purchase_history', [])
     purchase_history.append({
@@ -4300,14 +4421,11 @@ def admin_upgrade_tariff():
     save_data()
     
     message = f'Тариф пользователя {username} улучшен с {old_plan} до {new_plan}'
-    if bonus_given:
-        message += ' (+5 USD бонус на баланс)'
     
     return jsonify({
         'success': True,
         'message': message
     })
-
 
 
 

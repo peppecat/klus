@@ -143,6 +143,18 @@
             margin-bottom: 1.5rem;
             box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
         }
+
+        /* Стили для поля ввода даты с секундами */
+        .datetime-seconds {
+            font-family: monospace;
+            letter-spacing: 0.5px;
+        }
+        
+        .time-note {
+            font-size: 0.75rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
     </style>
 </head>
 <body>
@@ -361,8 +373,11 @@
                         <input type="hidden" id="editOrderCategory" name="category">
                         
                         <div class="mb-3">
-                            <label class="form-label">Дата и время</label>
-                            <input type="datetime-local" class="form-control" id="editOrderDate" name="date" required>
+                            <label class="form-label">Дата и время (с секундами)</label>
+                            <input type="datetime-local" class="form-control datetime-seconds" id="editOrderDate" name="date" step="1" required>
+                            <div class="time-note">
+                                <i class="fas fa-clock me-1"></i>Формат: ГГГГ-ММ-ДД ЧЧ:ММ:СС
+                            </div>
                         </div>
                         
                         <div class="mb-3">
@@ -427,9 +442,47 @@
                 document.getElementById('editOrderId').value = orderId;
                 document.getElementById('editOrderCategory').value = orderCategory;
                 
-                // Конвертируем дату в формат для datetime-local
-                const dateObj = new Date(orderDate.replace(' ', 'T'));
-                document.getElementById('editOrderDate').value = dateObj.toISOString().slice(0, 16);
+                // Конвертируем дату в формат для datetime-local с секундами
+                let formattedDate = orderDate;
+                
+                // Проверяем, есть ли секунды в строке даты
+                if (orderDate.length <= 16) {
+                    // Если секунд нет, добавляем ":00"
+                    if (orderDate.includes('T')) {
+                        formattedDate = orderDate + ':00';
+                    } else if (orderDate.includes(' ')) {
+                        // Заменяем пробел на T для корректного парсинга
+                        const datePart = orderDate.split(' ')[0];
+                        const timePart = orderDate.split(' ')[1];
+                        if (timePart.split(':').length === 2) {
+                            // Если только часы и минуты
+                            formattedDate = `${datePart}T${timePart}:00`;
+                        } else {
+                            formattedDate = `${datePart}T${timePart}`;
+                        }
+                    }
+                }
+                
+                // Создаем объект Date
+                const dateObj = new Date(formattedDate.replace(' ', 'T'));
+                
+                // Проверяем валидность даты
+                if (!isNaN(dateObj.getTime())) {
+                    // Форматируем с учетом секунд
+                    const year = dateObj.getFullYear();
+                    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                    const day = String(dateObj.getDate()).padStart(2, '0');
+                    const hours = String(dateObj.getHours()).padStart(2, '0');
+                    const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+                    const seconds = String(dateObj.getSeconds()).padStart(2, '0');
+                    
+                    const datetimeLocalValue = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+                    document.getElementById('editOrderDate').value = datetimeLocalValue;
+                } else {
+                    // Fallback на старый метод, если парсинг не удался
+                    const fallbackDate = orderDate.replace(' ', 'T');
+                    document.getElementById('editOrderDate').value = fallbackDate.length > 16 ? fallbackDate.slice(0, 19) : fallbackDate + ':00';
+                }
                 
                 const statusSelect = document.getElementById('editOrderStatus');
                 const statusNote = document.getElementById('steamStatusNote');
@@ -602,8 +655,22 @@
         document.getElementById('saveOrderChanges').addEventListener('click', function() {
             const username = document.getElementById('editOrderUsername').value;
             const orderId = document.getElementById('editOrderId').value;
+            const dateValue = document.getElementById('editOrderDate').value;
+            
+            // Форматируем дату для отправки на сервер
+            let formattedDate = dateValue.replace('T', ' ');
+            
+            // Проверяем, есть ли секунды в значении
+            if (dateValue.length === 16) {
+                // Если только до минут, добавляем ":00"
+                formattedDate = formattedDate + ':00';
+            } else if (dateValue.length === 19) {
+                // Полный формат с секундами
+                // Оставляем как есть
+            }
+            
             const formData = {
-                date: document.getElementById('editOrderDate').value.replace('T', ' ') + ':00',
+                date: formattedDate,
                 status: document.getElementById('editOrderStatus').value
             };
             
@@ -627,6 +694,28 @@
                 alert('Произошла ошибка при обновлении заказа');
             });
         });
+
+        // Дополнительная функция для ручного форматирования даты при необходимости
+        function formatDateTimeWithSeconds(dateTimeStr) {
+            if (!dateTimeStr) return '';
+            
+            // Если строка уже содержит секунды, возвращаем как есть
+            if (dateTimeStr.includes(':') && dateTimeStr.split(':').length >= 3) {
+                return dateTimeStr.replace(' ', 'T').slice(0, 19);
+            }
+            
+            // Если строка в формате YYYY-MM-DDTHH:MM
+            if (dateTimeStr.length === 16 && dateTimeStr.includes('T')) {
+                return dateTimeStr + ':00';
+            }
+            
+            // Если строка в формате YYYY-MM-DD HH:MM
+            if (dateTimeStr.length === 16 && dateTimeStr.includes(' ')) {
+                return dateTimeStr.replace(' ', 'T') + ':00';
+            }
+            
+            return dateTimeStr;
+        }
     </script>
 </body>
 </html>
