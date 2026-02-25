@@ -100,7 +100,7 @@
             margin-bottom: 1rem;
             box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
             border-left: 4px solid var(--success);
-            display: none; /* Скрываем карточки по умолчанию */
+            display: none;
         }
         
         .user-card.show {
@@ -358,7 +358,149 @@
             border-radius: 2px;
         }
         
-        /* Стили для toggle switch режима заказов */
+        /* Стили для счетчиков и кнопок управления */
+        .counters-section {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            border: 1px solid #e9ecef;
+        }
+        
+        .counters-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .counters-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin: 0;
+        }
+        
+        .counter-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            background-color: white;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            border: 1px solid #dee2e6;
+            transition: all 0.2s ease;
+        }
+        
+        .counter-item:hover {
+            border-color: var(--primary);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .counter-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .counter-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            display: flex;
+            align-items: center;
+        }
+        
+        .counter-label i {
+            width: 16px;
+            color: var(--primary);
+        }
+        
+        .counter-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            min-width: 100px;
+            text-align: right;
+            padding: 0.25rem 0.5rem;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+        
+        .counter-edit {
+            display: none;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .counter-input {
+            width: 120px;
+            padding: 0.25rem 0.5rem;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            text-align: right;
+            transition: all 0.2s;
+        }
+        
+        .counter-input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 0.2rem rgba(255, 153, 0, 0.25);
+        }
+        
+        .counter-input[type="number"] {
+            -moz-appearance: textfield;
+        }
+        
+        .counter-input[type="number"]::-webkit-outer-spin-button,
+        .counter-input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        
+        .counter-edit-btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+            line-height: 1;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        
+        .counter-edit-btn:hover {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+        
+        .counter-save-btn {
+            padding: 0.25rem 0.75rem;
+            font-size: 0.8rem;
+            border-radius: 4px;
+        }
+        
+        .counter-cancel-btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+            background: none;
+            border: 1px solid #dc3545;
+            color: #dc3545;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        
+        .counter-cancel-btn:hover {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .counter-edit {
+            animation: fadeIn 0.2s ease;
+        }
+        
         .order-mode-toggle {
             display: flex;
             align-items: center;
@@ -468,6 +610,28 @@
         
         .mode-info.api {
             border-left-color: #2ecc71;
+        }
+        
+        /* Уведомления */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 300px;
+            max-width: 400px;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
     </style>
 </head>
@@ -767,6 +931,76 @@
                                 </div>
                             </div>
                             
+                            <!-- Секция управления счетчиками -->
+                            <div class="counters-section">
+                                <div class="counters-header">
+                                    <h6 class="counters-title">
+                                        <i class="fas fa-chart-simple me-2"></i>Счетчики пользователя
+                                    </h6>
+                                    <small class="text-muted">Ручное управление</small>
+                                </div>
+                                
+                                <!-- Счетчик заказов -->
+                                <div class="counter-item" id="counter-orders-{{ user.username }}">
+                                    <span class="counter-label">
+                                        <i class="fas fa-shopping-cart me-1"></i>Всего заказов:
+                                    </span>
+                                    <div class="counter-value" id="orders-value-{{ user.username }}">
+                                        {{ user.orders_count }}
+                                    </div>
+                                    <div class="counter-edit" id="orders-edit-{{ user.username }}">
+                                        <input type="number" 
+                                               class="counter-input" 
+                                               id="orders-input-{{ user.username }}" 
+                                               value="{{ user.orders_count }}"
+                                               min="0"
+                                               step="1">
+                                        <button class="btn btn-sm btn-success counter-save-btn" 
+                                                onclick="saveOrdersCount('{{ user.username }}')">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger counter-cancel-btn" 
+                                                onclick="cancelOrdersEdit('{{ user.username }}')">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-primary counter-edit-btn" 
+                                            onclick="editOrders('{{ user.username }}', {{ user.orders_count }})">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </div>
+                                
+                                <!-- Счетчик расходов -->
+                                <div class="counter-item" id="counter-expenses-{{ user.username }}">
+                                    <span class="counter-label">
+                                        <i class="fas fa-dollar-sign me-1"></i>Общие расходы:
+                                    </span>
+                                    <div class="counter-value" id="expenses-value-{{ user.username }}">
+                                        ${{ "%.2f"|format(user.expenses) }}
+                                    </div>
+                                    <div class="counter-edit" id="expenses-edit-{{ user.username }}">
+                                        <input type="number" 
+                                               class="counter-input" 
+                                               id="expenses-input-{{ user.username }}" 
+                                               value="{{ user.expenses }}"
+                                               min="0"
+                                               step="0.01">
+                                        <button class="btn btn-sm btn-success counter-save-btn" 
+                                                onclick="saveExpensesCount('{{ user.username }}')">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger counter-cancel-btn" 
+                                                onclick="cancelExpensesEdit('{{ user.username }}')">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-primary counter-edit-btn" 
+                                            onclick="editExpenses('{{ user.username }}', {{ user.expenses }})">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
                             <!-- Режим работы заказов -->
                             <div class="order-mode-toggle">
                                 <span class="order-mode-label">Режим заказов:</span>
@@ -797,12 +1031,7 @@
                                 {% endif %}
                             </div>
                             
-                            <div class="d-flex justify-content-between text-muted small mt-3">
-                                <span>Заказы: {{ user.orders_count }}</span>
-                                <span>Расходы: ${{ "%.2f"|format(user.expenses) }}</span>
-                            </div>
-                            
-                            <div class="text-muted small mt-2">
+                            <div class="text-muted small mt-3">
                                 <div>Регистрация: {{ user.registration_date }}</div>
                                 {% if user.last_login != 'N/A' %}
                                 <div>Последний вход: {{ user.last_login }}</div>
@@ -1003,8 +1232,8 @@
     
     <script>
         // Состояние сортировки
-        let sortOrder = 'desc'; // по умолчанию: новые сверху
-        let searchTerm = ''; // текущий поисковый запрос
+        let sortOrder = 'desc';
+        let searchTerm = '';
         
         // Инициализация при загрузке страницы
         document.addEventListener('DOMContentLoaded', function() {
@@ -1094,9 +1323,136 @@
             document.getElementById('confirmDeleteUser')?.addEventListener('click', confirmDeleteUser);
         }
         
+        // Функции для управления счетчиками заказов
+        function editOrders(username, currentValue) {
+            document.getElementById(`orders-value-${username}`).style.display = 'none';
+            document.getElementById(`orders-edit-${username}`).style.display = 'flex';
+            
+            const editBtn = document.querySelector(`#counter-orders-${username} .counter-edit-btn`);
+            if (editBtn) editBtn.style.display = 'none';
+        }
+        
+        function cancelOrdersEdit(username) {
+            document.getElementById(`orders-value-${username}`).style.display = 'block';
+            document.getElementById(`orders-edit-${username}`).style.display = 'none';
+            
+            const editBtn = document.querySelector(`#counter-orders-${username} .counter-edit-btn`);
+            if (editBtn) editBtn.style.display = 'inline-block';
+            
+            const currentValue = document.getElementById(`orders-value-${username}`).textContent.trim();
+            document.getElementById(`orders-input-${username}`).value = currentValue;
+        }
+        
+        function saveOrdersCount(username) {
+            const ordersInput = document.getElementById(`orders-input-${username}`);
+            const newValue = parseInt(ordersInput.value);
+            
+            if (isNaN(newValue) || newValue < 0) {
+                showNotification('Пожалуйста, введите корректное число (≥ 0)', 'error');
+                return;
+            }
+            
+            const saveBtn = document.querySelector(`#counter-orders-${username} .counter-save-btn`);
+            const originalHtml = saveBtn.innerHTML;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            saveBtn.disabled = true;
+            
+            fetch(`/admin/user/${username}/update_counters`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ orders_count: newValue })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById(`orders-value-${username}`).textContent = data.new_orders;
+                    cancelOrdersEdit(username);
+                    showNotification('Количество заказов успешно обновлено', 'success');
+                } else {
+                    showNotification('Ошибка: ' + (data.error || 'Неизвестная ошибка'), 'error');
+                    cancelOrdersEdit(username);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Произошла ошибка при обновлении счетчика', 'error');
+                cancelOrdersEdit(username);
+            })
+            .finally(() => {
+                saveBtn.innerHTML = originalHtml;
+                saveBtn.disabled = false;
+            });
+        }
+        
+        // Функции для управления счетчиками расходов
+        function editExpenses(username, currentValue) {
+            document.getElementById(`expenses-value-${username}`).style.display = 'none';
+            document.getElementById(`expenses-edit-${username}`).style.display = 'flex';
+            
+            const editBtn = document.querySelector(`#counter-expenses-${username} .counter-edit-btn`);
+            if (editBtn) editBtn.style.display = 'none';
+        }
+        
+        function cancelExpensesEdit(username) {
+            document.getElementById(`expenses-value-${username}`).style.display = 'block';
+            document.getElementById(`expenses-edit-${username}`).style.display = 'none';
+            
+            const editBtn = document.querySelector(`#counter-expenses-${username} .counter-edit-btn`);
+            if (editBtn) editBtn.style.display = 'inline-block';
+            
+            const currentValue = document.getElementById(`expenses-value-${username}`).textContent.replace('$', '').trim();
+            document.getElementById(`expenses-input-${username}`).value = currentValue;
+        }
+        
+        function saveExpensesCount(username) {
+            const expensesInput = document.getElementById(`expenses-input-${username}`);
+            const newValue = parseFloat(expensesInput.value);
+            
+            if (isNaN(newValue) || newValue < 0) {
+                showNotification('Пожалуйста, введите корректную сумму (≥ 0)', 'error');
+                return;
+            }
+            
+            const roundedValue = Math.round(newValue * 100) / 100;
+            
+            const saveBtn = document.querySelector(`#counter-expenses-${username} .counter-save-btn`);
+            const originalHtml = saveBtn.innerHTML;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            saveBtn.disabled = true;
+            
+            fetch(`/admin/user/${username}/update_counters`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ expenses: roundedValue })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById(`expenses-value-${username}`).textContent = '$' + data.new_expenses.toFixed(2);
+                    cancelExpensesEdit(username);
+                    showNotification('Сумма расходов успешно обновлена', 'success');
+                } else {
+                    showNotification('Ошибка: ' + (data.error || 'Неизвестная ошибка'), 'error');
+                    cancelExpensesEdit(username);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Произошла ошибка при обновлении расходов', 'error');
+                cancelExpensesEdit(username);
+            })
+            .finally(() => {
+                saveBtn.innerHTML = originalHtml;
+                saveBtn.disabled = false;
+            });
+        }
+        
         // Настройка переключателей режима заказов
         function setupOrderModeToggles() {
-            // Обработка изменения переключателя
             document.addEventListener('change', function(e) {
                 if (e.target.classList.contains('order-mode-toggle-checkbox')) {
                     const username = e.target.dataset.username;
@@ -1108,7 +1464,6 @@
             });
         }
         
-        // Обновление режима заказов пользователя
         function updateOrderMode(username, orderMode) {
             fetch(`/admin/user/${username}/order_mode`, {
                 method: 'POST',
@@ -1120,15 +1475,11 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Обновляем отображение на странице
                     updateOrderModeDisplay(username, orderMode);
-                    
-                    // Показываем уведомление
                     showNotification(`Режим заказов для ${username} изменен на ${orderMode === 'demo' ? 'демо' : 'API'}`, 'success');
                 } else {
                     showNotification(`Ошибка: ${data.error}`, 'error');
                     
-                    // Возвращаем переключатель в исходное состояние
                     const checkbox = document.querySelector(`.order-mode-toggle-checkbox[data-username="${username}"]`);
                     if (checkbox) {
                         checkbox.checked = !checkbox.checked;
@@ -1139,7 +1490,6 @@
                 console.error('Error:', error);
                 showNotification('Произошла ошибка при обновлении режима', 'error');
                 
-                // Возвращаем переключатель в исходное состояние
                 const checkbox = document.querySelector(`.order-mode-toggle-checkbox[data-username="${username}"]`);
                 if (checkbox) {
                     checkbox.checked = !checkbox.checked;
@@ -1147,9 +1497,7 @@
             });
         }
         
-        // Обновление отображения режима заказов
         function updateOrderModeDisplay(username, orderMode) {
-            // Обновляем бейдж
             const card = document.getElementById(`user-card-${username}`);
             if (card) {
                 const badge = card.querySelector('.order-mode-badge');
@@ -1177,28 +1525,30 @@
             }
         }
         
-        // Показать уведомление
         function showNotification(message, type) {
-            // Создаем элемент уведомления
+            const existingNotifications = document.querySelectorAll('.notification');
+            existingNotifications.forEach(notification => notification.remove());
+            
             const notification = document.createElement('div');
-            notification.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show`;
-            notification.style.position = 'fixed';
-            notification.style.top = '20px';
-            notification.style.right = '20px';
-            notification.style.zIndex = '9999';
-            notification.style.minWidth = '300px';
-            notification.style.maxWidth = '400px';
+            notification.className = `notification alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show`;
             notification.innerHTML = `
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <div class="d-flex align-items-center">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} me-2"></i>
+                    <div class="flex-grow-1">${message}</div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
             `;
             
             document.body.appendChild(notification);
             
-            // Автоматически скрываем через 5 секунд
             setTimeout(() => {
                 if (notification.parentNode) {
-                    notification.remove();
+                    notification.classList.remove('show');
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.remove();
+                        }
+                    }, 150);
                 }
             }, 5000);
         }
@@ -1209,12 +1559,10 @@
             const clearSearchBtn = document.getElementById('clearSearch');
             
             if (searchInput) {
-                // Поиск при вводе текста
                 searchInput.addEventListener('input', function() {
                     searchTerm = this.value.trim().toLowerCase();
                     performSearch();
                     
-                    // Показываем/скрываем кнопку очистки
                     if (searchTerm.length > 0) {
                         clearSearchBtn.style.display = 'block';
                     } else {
@@ -1222,7 +1570,6 @@
                     }
                 });
                 
-                // Очистка поиска
                 clearSearchBtn.addEventListener('click', function() {
                     searchInput.value = '';
                     searchTerm = '';
@@ -1231,7 +1578,6 @@
                     searchInput.focus();
                 });
                 
-                // Поиск при нажатии Enter
                 searchInput.addEventListener('keydown', function(e) {
                     if (e.key === 'Enter') {
                         e.preventDefault();
@@ -1242,7 +1588,6 @@
             }
         }
         
-        // Выполнение поиска
         function performSearch() {
             const userItems = document.querySelectorAll('.user-list-item');
             const searchResultsInfo = document.getElementById('searchResultsInfo');
@@ -1256,14 +1601,12 @@
                     item.style.display = 'flex';
                     visibleCount++;
                     
-                    // Подсветка совпадений
                     if (searchTerm !== '') {
                         const originalText = usernameElement.textContent;
                         const regex = new RegExp(`(${searchTerm})`, 'gi');
                         const highlightedText = originalText.replace(regex, '<span class="search-highlight">$1</span>');
                         usernameElement.innerHTML = highlightedText;
                     } else {
-                        // Восстанавливаем оригинальный текст
                         usernameElement.textContent = usernameElement.textContent;
                     }
                 } else {
@@ -1271,14 +1614,12 @@
                 }
             });
             
-            // Обновляем информацию о результатах поиска
             if (searchResultsInfo) {
                 if (searchTerm === '') {
                     searchResultsInfo.textContent = `Все пользователи: ${userItems.length}`;
                 } else {
                     searchResultsInfo.textContent = `Найдено пользователей: ${visibleCount} из ${userItems.length}`;
                     
-                    // Если нашли только одного пользователя, автоматически показываем его карточку
                     if (visibleCount === 1) {
                         const visibleItem = document.querySelector('.user-list-item[style="display: flex;"]');
                         if (visibleItem) {
@@ -1286,18 +1627,15 @@
                             showUserCard(username);
                         }
                     } else if (visibleCount === 0) {
-                        // Скрываем все карточки если ничего не найдено
                         hideAllUserCards();
                         searchResultsInfo.innerHTML += '<br><small class="text-danger">Пользователи не найдены</small>';
                     }
                 }
             }
             
-            // Сортируем видимые элементы
             sortUserList();
         }
         
-        // Настройка кнопок сортировки
         function setupSortButtons() {
             document.getElementById('sortDesc')?.addEventListener('click', function() {
                 sortOrder = 'desc';
@@ -1311,11 +1649,9 @@
                 sortUserList();
             });
             
-            // Изначальная сортировка (новые сверху)
             sortUserList();
         }
         
-        // Обновление состояния кнопок сортировки
         function updateSortButtons() {
             const sortDescBtn = document.getElementById('sortDesc');
             const sortAscBtn = document.getElementById('sortAsc');
@@ -1329,12 +1665,10 @@
             }
         }
         
-        // Сортировка списка пользователей
         function sortUserList() {
             const container = document.getElementById('userListContainer');
             if (!container) return;
             
-            // Получаем только видимые элементы
             const items = Array.from(container.querySelectorAll('.user-list-item'))
                 .filter(item => item.style.display !== 'none');
             
@@ -1345,75 +1679,60 @@
                 return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
             });
             
-            // Переставляем элементы
             items.forEach(item => {
                 container.appendChild(item);
             });
         }
         
-        // Показать карточку пользователя
         function showUserCard(username) {
-            // Скрываем все карточки
             hideAllUserCards();
             
-            // Показываем выбранную карточку
             const card = document.getElementById(`user-card-${username}`);
             if (card) {
                 card.classList.add('show');
-                
-                // Добавляем прокрутку к карточке
                 card.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
             
-            // Обновляем активный элемент в списке
             document.querySelectorAll('.user-list-item').forEach(item => {
                 item.classList.remove('active');
             });
             document.querySelector(`.user-list-item[data-username="${username}"]`)?.classList.add('active');
             
-            // Скрываем сообщение о выборе пользователя
             const userDetails = document.getElementById('userDetails');
             if (userDetails) {
                 userDetails.classList.remove('show');
             }
         }
         
-        // Скрыть все карточки пользователей
         function hideAllUserCards() {
             document.querySelectorAll('.user-card').forEach(card => {
                 card.classList.remove('show');
             });
             
-            // Показываем сообщение о выборе пользователя
             const userDetails = document.getElementById('userDetails');
             if (userDetails) {
                 userDetails.classList.add('show');
             }
             
-            // Убираем активный элемент в списке
             document.querySelectorAll('.user-list-item').forEach(item => {
                 item.classList.remove('active');
             });
         }
         
-        // Скрыть карточку пользователя
         function hideUserCard(username) {
             const card = document.getElementById(`user-card-${username}`);
             if (card) {
                 card.classList.remove('show');
             }
             
-            // Показываем сообщение о выборе пользователя
             const userDetails = document.getElementById('userDetails');
             if (userDetails) {
                 userDetails.classList.add('show');
             }
             
-            // Убираем активный элемент в списке
             document.querySelector(`.user-list-item[data-username="${username}"]`)?.classList.remove('active');
         }
         
-        // Открытие модального окна редактирования
         function openEditModal(username, status, banReason, freezeReason, tariffCost, totalBalance) {
             document.getElementById('editUsername').value = username;
             document.getElementById('editStatus').value = status;
@@ -1429,7 +1748,6 @@
             new bootstrap.Modal(document.getElementById('editUserModal')).show();
         }
         
-        // Открытие модального окна управления балансом
         function openBalanceModal(username, balanceCard, balanceTon, balanceBep20) {
             document.getElementById('balanceUsername').value = username;
             document.getElementById('currentBalanceCard').textContent = '$' + parseFloat(balanceCard).toFixed(2);
@@ -1439,13 +1757,11 @@
             new bootstrap.Modal(document.getElementById('balanceUserModal')).show();
         }
         
-        // Открытие модального окна удаления
         function openDeleteModal(username) {
             document.getElementById('deleteUsernameText').textContent = username;
             new bootstrap.Modal(document.getElementById('deleteUserModal')).show();
         }
         
-        // Обновление полей причин в зависимости от статуса
         function updateReasonFields() {
             const status = document.getElementById('editStatus').value;
             const banReasonContainer = document.getElementById('banReasonContainer');
@@ -1467,7 +1783,6 @@
             }
         }
         
-        // Обновление деталей возврата
         function updateRefundDetails() {
             const refundDetailsContainer = document.getElementById('refundDetailsContainer');
             const freezeReason = document.getElementById('editFreezeReason').value;
@@ -1480,7 +1795,6 @@
             }
         }
         
-        // Функция обновления суммы возврата
         function updateRefundTotal() {
             const tariffCost = parseFloat(document.getElementById('editTariffCost')?.value) || 0;
             const totalBalance = parseFloat(document.getElementById('editTotalBalance')?.value) || 0;
@@ -1491,7 +1805,6 @@
             }
         }
         
-        // Сохранение изменений пользователя
         function saveUserChanges() {
             const status = document.getElementById('editStatus').value;
             let formData = {
@@ -1544,7 +1857,6 @@
             });
         }
         
-        // Сохранение изменений баланса
         function saveBalanceChanges() {
             const formData = {
                 method: document.getElementById('balanceMethod').value,
@@ -1575,7 +1887,6 @@
             });
         }
         
-        // Подтверждение удаления пользователя
         function confirmDeleteUser() {
             const username = document.getElementById('deleteUsernameText').textContent;
             
@@ -1588,17 +1899,13 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Удаляем карточку пользователя из DOM
                     document.getElementById(`user-card-${username}`)?.remove();
-                    // Удаляем элемент из списка
                     document.querySelector(`.user-list-item[data-username="${username}"]`)?.remove();
                     
                     bootstrap.Modal.getInstance(document.getElementById('deleteUserModal')).hide();
                     
-                    // Показываем сообщение об успехе
                     showNotification('Пользователь успешно удален', 'success');
                     
-                    // Обновляем информацию о количестве пользователей
                     const remainingItems = document.querySelectorAll('.user-list-item').length;
                     const searchResultsInfo = document.getElementById('searchResultsInfo');
                     if (searchResultsInfo) {
@@ -1609,7 +1916,6 @@
                         }
                     }
                     
-                    // Если больше нет пользователей, показываем сообщение
                     if (remainingItems === 0) {
                         location.reload();
                     }

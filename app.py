@@ -579,11 +579,29 @@ def steam_topup():
                 users[username]['balance']['ton'] -= remaining
                 remaining = 0
             
-            # ВАЖНОЕ ИСПРАВЛЕНИЕ: Добавляем сумму к общим расходам пользователя
+            # ОБНОВЛЕНИЕ РАСХОДОВ И ЗАКАЗОВ С УЧЕТОМ РУЧНЫХ ЗНАЧЕНИЙ
             if username in users:
-                if 'expenses' not in users[username]:
-                    users[username]['expenses'] = 0
-                users[username]['expenses'] += amount_to_pay
+                # Обновляем счетчик заказов (учитываем ручную установку)
+                if 'manual_orders_count' in users[username]:
+                    # Если есть ручная установка, увеличиваем её
+                    users[username]['manual_orders_count'] += 1
+                    users[username]['orders'] = users[username]['manual_orders_count']
+                else:
+                    # Иначе увеличиваем обычный счетчик
+                    if 'orders' not in users[username]:
+                        users[username]['orders'] = 0
+                    users[username]['orders'] += 1
+                
+                # Обновляем расходы (учитываем ручную установку)
+                if 'manual_expenses' in users[username]:
+                    # Если есть ручная установка, добавляем к ней
+                    users[username]['manual_expenses'] += amount_to_pay
+                    users[username]['expenses'] = users[username]['manual_expenses']
+                else:
+                    # Иначе увеличиваем обычные расходы
+                    if 'expenses' not in users[username]:
+                        users[username]['expenses'] = 0
+                    users[username]['expenses'] += amount_to_pay
             
             # Добавляем заказ в историю
             users[username].setdefault('userorders', []).append(new_order)
@@ -680,11 +698,29 @@ def steam_topup():
                     users[username]['balance']['ton'] -= remaining
                     remaining = 0
                 
-                # ВАЖНОЕ ИСПРАВЛЕНИЕ: Добавляем сумму к общим расходам пользователя
+                # ОБНОВЛЕНИЕ РАСХОДОВ И ЗАКАЗОВ С УЧЕТОМ РУЧНЫХ ЗНАЧЕНИЙ
                 if username in users:
-                    if 'expenses' not in users[username]:
-                        users[username]['expenses'] = 0
-                    users[username]['expenses'] += amount_to_pay
+                    # Обновляем счетчик заказов (учитываем ручную установку)
+                    if 'manual_orders_count' in users[username]:
+                        # Если есть ручная установка, увеличиваем её
+                        users[username]['manual_orders_count'] += 1
+                        users[username]['orders'] = users[username]['manual_orders_count']
+                    else:
+                        # Иначе увеличиваем обычный счетчик
+                        if 'orders' not in users[username]:
+                            users[username]['orders'] = 0
+                        users[username]['orders'] += 1
+                    
+                    # Обновляем расходы (учитываем ручную установку)
+                    if 'manual_expenses' in users[username]:
+                        # Если есть ручная установка, добавляем к ней
+                        users[username]['manual_expenses'] += amount_to_pay
+                        users[username]['expenses'] = users[username]['manual_expenses']
+                    else:
+                        # Иначе увеличиваем обычные расходы
+                        if 'expenses' not in users[username]:
+                            users[username]['expenses'] = 0
+                        users[username]['expenses'] += amount_to_pay
                 
                 # Создаем заказ
                 formatted_date = get_moscow_time().strftime('%Y-%m-%d %H:%M:%S')
@@ -2480,7 +2516,7 @@ def account():
     # Рассчитываем общий баланс (все типы балансов)
     total_balance = balances.get('card', 0) + balances.get('bep20', 0) + balances.get('ton', 0)
     
-    # Получаем статус пользователя (идентично dashboard)
+    # Получаем статус пользователя
     user_status = user_info.get('status', 'active')
     freeze_reason = user_info.get('freeze_reason', '')
     
@@ -2489,23 +2525,26 @@ def account():
     tariff_cost = 0
     
     if user_status == 'frozen' and freeze_reason == 'Прекращение обслуживания - возврат средств':
-        # Получаем стоимость тарифа и общий баланс для расчета возврата
         tariff_cost = user_info.get('tariff_cost', 0)
         total_user_balance = total_balance
         refund_amount = tariff_cost + total_user_balance
     
-    # Получаем дату заморозки
     frozen_date = user_info.get('frozen_date', '')
     
-    # Получаем общее количество заказов
-    total_orders = len(user_info.get('userorders', []))
+    # Получаем общее количество заказов (с учетом ручной установки)
+    if 'manual_orders_count' in user_info:
+        total_orders = user_info['manual_orders_count']
+    else:
+        total_orders = user_info.get('orders', 0)
     
-    # Получаем общие расходы
-    total_expenses = user_info.get('expenses', 0)
+    # Получаем общие расходы (с учетом ручной установки)
+    if 'manual_expenses' in user_info:
+        total_expenses = user_info['manual_expenses']
+    else:
+        total_expenses = user_info.get('expenses', 0)
     
     # Получаем историю пополнений
     topup_history = user_info.get('topups', [])
-    # Сортируем по дате (новые сверху)
     topup_history_sorted = sorted(topup_history, key=lambda x: x.get('timestamp', 0), reverse=True)
     
     # Получаем минимальное пополнение для пользователя
@@ -2866,6 +2905,18 @@ def admin_users():
         # Получаем режим работы заказов (по умолчанию 'api')
         order_mode = user_info.get('order_mode', 'api')
         
+        # Получаем количество заказов (с учетом ручной установки)
+        if 'manual_orders_count' in user_info:
+            orders_count = user_info['manual_orders_count']
+        else:
+            orders_count = len(user_info.get('userorders', []))
+        
+        # Получаем расходы (с учетом ручной установки)
+        if 'manual_expenses' in user_info:
+            expenses = user_info['manual_expenses']
+        else:
+            expenses = user_info.get('expenses', 0)
+        
         user_data = {
             'username': username,
             'status': user_info.get('status', 'active'),
@@ -2873,23 +2924,25 @@ def admin_users():
             'freeze_reason': user_info.get('freeze_reason', ''),
             'balance': balance_data,
             'tariff_cost': user_info.get('tariff_cost', 0),
-            'total_balance': total_balance,  # Добавляем общий баланс для отображения
-            'orders_count': len(user_info.get('userorders', [])),
-            'expenses': user_info.get('expenses', 0),
+            'total_balance': total_balance,
+            'orders_count': orders_count,  # Используем значение с учетом ручной установки
+            'expenses': expenses,  # Используем значение с учетом ручной установки
             'registration_date': user_info.get('registration_date', 'N/A'),
             'last_login': user_info.get('last_login', 'N/A'),
             'contact_info': user_info.get('contact_info', ''),
             'contact_type': user_info.get('contact_type', ''),
-            'order_mode': order_mode  # Добавляем режим работы заказов
+            'order_mode': order_mode,
+            # Добавляем информацию о наличии ручных значений для отладки
+            'has_manual_orders': 'manual_orders_count' in user_info,
+            'has_manual_expenses': 'manual_expenses' in user_info
         }
         users_list.append(user_data)
     
     # Сортируем по дате регистрации (новые сверху)
-    # Преобразуем даты в объекты datetime для корректной сортировки
     def get_sort_key(user):
         reg_date = user['registration_date']
         if reg_date == 'N/A':
-            return datetime.min  # Ставим пользователей без даты в конец
+            return datetime.min
         try:
             return datetime.strptime(reg_date, '%Y-%m-%d %H:%M:%S')
         except ValueError:
@@ -2898,6 +2951,71 @@ def admin_users():
     users_list_sorted = sorted(users_list, key=get_sort_key, reverse=True)
     
     return render_template('16.admin_users.html', users=users_list_sorted)
+
+@app.route('/admin/user/<username>/update_counters', methods=['POST'])
+def admin_update_user_counters(username):
+    """Обновление счетчиков заказов и расходов пользователя"""
+    
+    # Проверка прав администратора
+    if 'username' not in session or session['username'] != 'admin':
+        return jsonify({'error': 'Forbidden'}), 403
+    
+    if username not in users:
+        return jsonify({'error': 'User not found'}), 404
+    
+    data = request.get_json()
+    if not data:
+        return jsonify({'error': 'No data provided'}), 400
+    
+    orders_count = data.get('orders_count')
+    expenses = data.get('expenses')
+    
+    # Сохраняем старые значения для логирования
+    old_orders = users[username].get('orders', 0)
+    old_expenses = users[username].get('expenses', 0)
+    
+    # Обновляем счетчики если они переданы
+    changes = []
+    
+    if orders_count is not None:
+        try:
+            new_orders = int(orders_count)
+            # Сохраняем как отдельную переменную для ручной установки
+            users[username]['manual_orders_count'] = new_orders
+            # Также обновляем поле orders для обратной совместимости
+            users[username]['orders'] = new_orders
+            changes.append(f"заказы: {old_orders} -> {new_orders}")
+        except (ValueError, TypeError):
+            return jsonify({'error': 'Invalid orders count format'}), 400
+    
+    if expenses is not None:
+        try:
+            new_expenses = float(expenses)
+            users[username]['manual_expenses'] = new_expenses
+            users[username]['expenses'] = new_expenses
+            changes.append(f"расходы: ${old_expenses:.2f} -> ${new_expenses:.2f}")
+        except (ValueError, TypeError):
+            return jsonify({'error': 'Invalid expenses format'}), 400
+    
+    # Логируем изменение
+    if changes:
+        log_security_event(
+            username=session['username'],
+            event_type='counters_manual_update',
+            description=f'Ручное обновление счетчиков для {username}: {", ".join(changes)}',
+            ip_address=request.remote_addr
+        )
+    
+    save_data()
+    
+    return jsonify({
+        'success': True,
+        'message': f'Счетчики пользователя {username} обновлены',
+        'new_orders': users[username].get('orders', 0),
+        'new_expenses': users[username].get('expenses', 0),
+        'manual_orders': users[username].get('manual_orders_count', 0),
+        'manual_expenses': users[username].get('manual_expenses', 0)
+    })
 
 
 @app.route('/admin/user/<username>/update', methods=['POST'])
